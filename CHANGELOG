@@ -1,0 +1,31 @@
+# R Package AffyPara - Changelog
+#
+# Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+###############################################################################
+
+affyPara 0.99.2 (build 28. March 2008)
+object.type as input removed from all functions
+Error in vignette removed
+Vignette extended
+
+affyPara 0.99.1 (build 20. March 2008
+Improvement of the function distributeFiles
+
+affyPara 0.99.0 (build 1. March 2008)
+Finalizing for BioConductor release
+
+affyPara 0.3.0 (build 19. February 2008)
+Documentation added
+rmaPara added
+Modularization
+
+affyPara 0.2.0 (build 8. January 2008)
+Testcode affyPareTest now available
+Several bugs fixed
+
+affyPara 0.1.0 (build 15. November 2007)
+Parallelized Affy-Functions
+* bgCorrectPara
+* justBgCorrectPara
+* normalizeAffyBatchQuantilesPara
+* justNormalizeAffyBatchQuantilesPara

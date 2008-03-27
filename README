@@ -1,0 +1,11 @@
+affyPara in a R package providing parallelized functions for exploratory oligonucleotide array analysis.
+The package is designed for large numbers of microarray data, but could be used for small data sets too.
+
+The package requires a running computer cluster and the R package SNOW (Simple Network of Workstations,
+>= 0.2-3, http://www.stat.uiowa.edu/~luke/R/cluster/). Snow can use one of three communications mechanisms: 
+sockets, PVM, or MPI.
+
+There is no testcode included in the subdirectory test. Because for testing a running computer cluster is 
+required. A wide testcode is available. Please contact the maintainer.
+
+Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
