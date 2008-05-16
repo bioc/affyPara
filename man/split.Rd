@@ -10,13 +10,13 @@ Functions to split an \link[affy:AffyBatch-class]{AffyBatch}, a \code{list} of f
 
 \usage{
 splitAffyBatch(abatch, number.part)
-splitFileVector(FileVec, number.part)
+splitFileVector(fileVec, number.part)
 splitMatrix(matrix, number.part)
 }
 
 \arguments{
   \item{abatch}{ An object of class \link[affy:AffyBatch-class]{AffyBatch}. }
-  \item{FileVec}{ A \code{character} vector containing the names of the files. }
+  \item{fileVec}{ A \code{character} vector containing the names of the files. }
   \item{matrix}{ An object of class \link[base]{matrix}. }
   \item{number.part}{ Number of parts to split the object }
 }
