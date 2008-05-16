@@ -8,6 +8,7 @@
 # 19.02.2000 : Version 0.6 - progressbar removed (Namespace Problems)
 # 22.02.2008 : Version 0.7 - modularization
 # 27.03.2008 : Version 0.8 - object.type as input removed
+# 16.05.2008 : Version 0.9 - one node bug fix
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -19,10 +20,9 @@ computeExprSetPara <- function(cluster,
 	phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
 	verbose=TRUE) 
 {
-  #########
-  # Checks
-  #########
-
+    #########
+    # Checks
+    #########
 	#Check for affy amd snow
 	require(affy)
 	require(snow)
@@ -30,8 +30,6 @@ computeExprSetPara <- function(cluster,
 	#Check cluster and generate number.parts
 	checkCluster(cluster)
 	number.parts <- length(cluster)
-	if ( number.parts < 2 )
-		stop("Use computeExprSet")
 
 	#Check object type
 	object.type <- getObjectType(object) 
@@ -69,7 +67,7 @@ computeExprSetPara <- function(cluster,
 
 	#################################
 	#Initialize AffyBatches at slaves
-	##################################
+	#################################
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 		t0 <- proc.time();
 		check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type)

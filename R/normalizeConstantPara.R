@@ -8,11 +8,12 @@
 # 11.12.2007 : Version 0.6 - error in checks removed
 # 22.02.2008 : Version 0.7 - modularization
 # 27.03.2008 : Version 0.8 - object.type as input removed
+# 16.05.2008 : Version 0.9 - one node bug fix
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
 # Using the right combination "size of AffyBatch on slaves" - "number of slaves" the parallelized
-# version is more than twice as fast as the serial version.
+# version is more than ten times faster as the serial version.
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -23,10 +24,9 @@ normalizeAffyBatchConstantPara <- function(cluster,
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
 		verbose=FALSE) 
 {
-  #########
-  # Checks
-  #########
-
+    #########
+    # Checks
+    #########
 	#Check for affy amd snow
 	require(affy)
 	require(snow)
@@ -34,8 +34,6 @@ normalizeAffyBatchConstantPara <- function(cluster,
 	#Check cluster and generate number.parts
 	checkCluster(cluster)
 	number.parts <- length(cluster)
-	if ( number.parts < 2 ) 
-		stop("Use normalize.AffyBatch.constant")
 	
 	#Check object type
 	object.type <- getObjectType(object) 

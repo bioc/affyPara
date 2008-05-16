@@ -3,6 +3,9 @@
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
+affyPara 1.1.1 (build 16. Mai 2008)
+Bug fix for cluster with one node.
+
 affyPara 0.99.2 (build 28. March 2008)
 object.type as input removed from all functions
 Error in vignette removed

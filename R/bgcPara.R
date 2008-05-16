@@ -3,19 +3,19 @@
 # Parallelization of the bg.correct function
 #
 # History
-# 01.03.2008 : ... old stuff removed ...
-# 05.11.2007 : Version 0.8 - global slave functions
-# 07.11.2007 : Version 0.9 - just removed, now only one function with object.types
+# 08.04.2008 : ... old stuff removed ...
 # 12.11.2007 : Version 0.10 - cleaning of slave functions
 # 13.11.2007 : Version 0.11 - use of getAffyBatchSF
 # 27.11.2007 : Version 0.12 - merge.AffyBatches renamed to mergeAffyBatches, bugfixes variable cluster
 # 10.12.2007 : Version 0.13 - bugfixes method none!
 # 27.03.2008 : Version 0.14 - object.type as input removed
+# 08.04.2008 : Version 0.15 - some code cleaning
+# 16.05.2008 : Version 0.16 - one node bug fix
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do BG-Correction is faster.
 # Using the right combination "size of AffyBatch on slaves" - "number of slaves" the parallelized
-# version is more than twice as fast as the serial version. 
+# version is more than ten times faster as the serial version. 
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -24,6 +24,9 @@ bgCorrectPara <- function(cluster,
 	object,	phenoData = new("AnnotatedDataFrame"),
 	method, verbose=FALSE)
 {
+	########
+	# Checks
+	########
 	#Check for affy amd snow
 	require(affy)
 	require(snow)
@@ -31,17 +34,11 @@ bgCorrectPara <- function(cluster,
 	#Check cluster and generate number.parts
 	checkCluster(cluster)
 	number.parts <- length(cluster)
-	if ( number.parts < 2 ) 
-		stop("Use normalize.AffyBatch.constant")
 	
 	#Check methods
 	if ( any(bgcorrect.methods == method) == 0 )
 		 stop(paste("Unknown method (cannot find function '", method,"')",sep=""))
 	 
-	#Check number.parts
-	if ( number.parts < 2 ) 
-		stop("Use bg.correct!")
-	
 	#Check object type
 	object.type <- getObjectType(object) 
 			
@@ -50,7 +47,9 @@ bgCorrectPara <- function(cluster,
 	number.parts <- parts$number.parts
 	object.length <- parts$object.length
 
+	####################
 	#Partition of object
+	####################
 	if (verbose) cat("Partition of object ")
 		t0 <- proc.time();
 		if (object.type == "AffyBatch"){
@@ -67,21 +66,27 @@ bgCorrectPara <- function(cluster,
 	#Info-Output for Distribution
 	if (verbose){ cat("Object Distribution: "); cat(paste(lapply(object.list,length))); cat("\n") }
 	
-	#Initialize AffyBatches at slaves
+	##################################
+	# Initialize AffyBatches at slaves
+	##################################
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 		t0 <- proc.time();
 	    check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type) 
 		t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
-		
+	
+	###########################
 	#Do BG-Correction on slaves
+	###########################
 	if (verbose) cat("BGC on Slaves ")
 		t0 <- proc.time();
 		check <- clusterCall(cluster, bgCorrectParaSF, method)
 		t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
 	
+	##############################
 	#Combine / Rebuild affyBatches
+	##############################
 	if (verbose) cat("Rebuild AffyBatch ")
 		t0 <- proc.time();
 		AffyBatch.list.bgc <- clusterCall(cluster, getAffyBatchSF)
@@ -104,7 +109,9 @@ bgCorrectPara <- function(cluster,
 		AffyBatch@phenoData <- phenoData
 	}
 		
-	#Return results
+	#################
+	#Return AffyBatch
+	#################
 	return( AffyBatch[,samples.names] )
 }
 

@@ -12,6 +12,7 @@
 # 19.12.2007 : Version 0.10 - bugfixes for protocol = R
 # 07.03.2008 : Version 0.11 - bugfixes in verbose and for more nodes at one workstation
 # 17.03.2008 : Version 0.12 - extending protocol for scp, adding master distribution
+# 16.05.2008 : Version 0.13 - one node bug fix
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -30,7 +31,7 @@ distributeFiles <- function(cluster,
 
     ###################
 	#Create directories
-	##################
+	###################
 	if (verbose>0) cat("Create Directories ")
 		t1 <- proc.time()
 		error <- system(paste("mkdir ",to,sep=""))
@@ -38,12 +39,16 @@ distributeFiles <- function(cluster,
 		t2 <- proc.time()
 	if (verbose>0) cat(round(t2[3]-t1[3],3),"sec DONE\n")
 	
-	####################
+	###################
 	#Partition of files
 	###################
 	if (verbose) cat("Partition of files ")
 		t0 <- proc.time();
-		filesPart <- clusterSplit(cluster,files)
+		if ( length(cluster) == 1 ){
+			filesPart<-list()
+			filesPart[[1]] <- files
+		} else
+			filesPart <- clusterSplit(cluster,files)
 		t1 <- proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
 	#Info-Output for Distribution

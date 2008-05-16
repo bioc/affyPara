@@ -12,7 +12,6 @@
 # 06.12.2007 : Version 0.6 - code dokumentation
 # 12.12.2007 : Version 0.7 - output fixed
 #
-#
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
@@ -26,7 +25,7 @@ removeDistributedFiles <- function(cluster,
 	#Check cluster
 	checkCluster(cluster)
     
-  #Remove Files at Master
+    #Remove Files at Master
 	if (verbose) cat("Remove files on Master ")
 		unlink(path, recursive=TRUE)
 	if (verbose) cat("... DONE\n")

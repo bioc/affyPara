@@ -10,6 +10,7 @@
 # 22.02.2008 : Version 0.14 - modularization (first part)
 # 28.02.2008 : Version 0.15 - modularization (second part)
 # 27.03.2008 : Version 0.16 - object.type as input removed
+# 16.05.2008 : Version 0.17 - one node bug fix
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -23,10 +24,9 @@ preproPara <- function(cluster,
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
 		verbose=FALSE) 
 {
-	######################################
+	#################
 	# Check Functions
-	######################################
-
+	#################
 	#Check for affy amd snow
 	require(affy)
 	require(snow)
@@ -34,8 +34,6 @@ preproPara <- function(cluster,
 	#Check cluster and generate number.parts
 	checkCluster(cluster)
 	number.parts <- length(cluster)
-	if ( number.parts < 2 ) 
-		stop("Use expresso")
 	
     #Check Methods
     if(bgcorrect){
@@ -69,7 +67,7 @@ preproPara <- function(cluster,
 	
 	####################
 	#Partition of object
-	###################
+	####################
 	if (verbose) cat("Partition of object ")
 		t0 <- proc.time();
 		if (object.type == "AffyBatch"){
@@ -92,7 +90,7 @@ preproPara <- function(cluster,
 	
 	#################################
 	#Initialize AffyBatches at slaves
-	##################################
+	#################################
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 		t0 <- proc.time();
 		check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type) 
@@ -124,9 +122,9 @@ preproPara <- function(cluster,
 	t1 <- proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],2),"sec DONE\n")
 	
-	##################################################
+	################
     # BGC on Slaves
-	################################################# 
+	################
 	if (bgcorrect.method != "none"){
 		if (verbose) cat("BGC on Slaves ")
 			t0 <- proc.time();
@@ -135,9 +133,9 @@ preproPara <- function(cluster,
 		if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
 	}	
  
-	##################################################
+	##########################
 	# Normalization on Slaves
-	################################################# 
+	##########################
 	if (normalize.method == "quantiles"){
 		
 		if (verbose) cat("Quantil Normalization on Slaves\n")

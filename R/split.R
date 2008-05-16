@@ -1,10 +1,13 @@
 # split.R
 # 
-# Functions to split objects (affyBatch, file vector and matrix) into parts for distributed computing
+# Functions to split objects (affyBatch, file vector and matrix) into parts
+# for distributed computing
 #
 # History
 # 22.08.2007 : Version 0.1
 # 06.12.2007 : Version 0.2 - code cleaning and dokumentation
+# 13.05.2008 : Version 0.3 - splitAffyBatch improved for small clusters
+# 16.05.2008 : Version 0.4 - splitFileVector improved for small clusters
 #
 # We do not use clusterSplit, because there is no way to set the amount of parts.
 #
@@ -25,30 +28,34 @@ splitAffyBatch <- function(abatch, number.part)
 	#Partitioning 
 	samples.parts <- splitIndices(samples.count, number.part)
 	abatch.list <- list()
-	for (i in 1:number.part)
-		abatch.list[[i]] <- abatch[,samples.parts[[i]]]
+	if (number.part == 1)
+		abatch.list[[1]]<- abatch
+	else for (i in 1:number.part)
+			abatch.list[[i]] <- abatch[,samples.parts[[i]]]
 	
 	return( abatch.list )
 }
 
 # for file vector
-splitFileVector <- function(FileVec, number.part)
+splitFileVector <- function(fileVec, number.part)
 {
 	require(snow)
 	
 	#Number of Files
-	File.count <- length(FileVec)
+	file.count <- length(fileVec)
 	
-	if (File.count < number.part)
-		number.part = File.count
+	if (file.count < number.part)
+		number.part = file.count
 
  	#Partitioning 		
-	File.parts <- splitIndices(File.count, number.part)
-	File.list <- list()
-	for (i in 1:number.part)
-		File.list[[i]] <- FileVec[File.parts[[i]]]
+	file.parts <- splitIndices(file.count, number.part)
+	file.list <- list()
+	if (number.part == 1)
+		file.list[[1]]<- fileVec
+	else for (i in 1:number.part)
+		file.list[[i]] <- fileVec[file.parts[[i]]]
 		
-	return( File.list )
+	return( file.list )
 }
 
 # for matrix

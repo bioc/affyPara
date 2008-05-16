@@ -10,11 +10,12 @@
 # 22.02.2008 : Version 0.15 - modularization
 # 26.02.2008 : Version 0.16 - error with ties fixed (affy 1.14 -> affy 1.16.2)
 # 27.03.2008 : Version 0.17 - object.type as input removed
+# 16.05.2008 : Version 0.18 - one node bug fix
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
 # Using the right combination "size of AffyBatch on slaves" - "number of slaves" the parallelized
-# version is more than twice as fast as the serial version.
+# version is more than ten times faster as the serial version.
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -25,10 +26,9 @@ normalizeAffyBatchQuantilesPara <- function(cluster,
 	type=c("separate","pmonly","mmonly","together"), 
 	verbose=FALSE) 
 {	
-  ########
-  # Checks
-  ########
-
+    ########
+    # Checks
+    ########
 	#Check for affy amd snow
 	require(affy)
 	require(snow)
@@ -36,8 +36,6 @@ normalizeAffyBatchQuantilesPara <- function(cluster,
 	#Check cluster and generate number.parts
 	checkCluster(cluster)
 	number.parts <- length(cluster)
-	if ( number.parts < 2 ) 
-		stop("Use normalize.AffyBatch.quantiles")
 	
 	#Check arguments
 	type <- match.arg(type)
