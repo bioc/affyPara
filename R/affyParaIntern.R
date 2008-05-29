@@ -8,10 +8,132 @@
 # 28.12.2007 : Version 0.5 - readHeader added
 # 03.01.2008 : Version 0.6 - getFUNAffyBatchSF added
 # 27.03.2008 : Version 0.7 - checkObjectType and checkPartSize added
+# 23.05.2008 : Version 0.8 - permArrays added
+# 26.05.2008 : Version 0.9 - permArrays finished
+# 28.05.2008 : Version 0.12 - never used functions removed
 # 
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
+###
+# Permutation of Arrays (over Nodes)
+###
+permArrays <- function(cluster, sample.names, verbose=TRUE)
+{
+	require(affy)
+	
+	t0 <- proc.time();
+	
+	# Permutation
+	perm <- sample(sample.names)
+	
+	for (i in perm){
+		if (verbose) cat("Move array: ", i, "\n")
+		#get array from slaves
+		array <- clusterCall(cluster, getArraySF, i)
+		array <- array[[which(!is.na(array))]]
+		# move array to new positon
+		alter_name_neue_pos <- sample.names[which(perm==i)]
+		check <- clusterCall(cluster, setArraySF, array, i, alter_name_neue_pos)
+	}
+	#move new matrix to affyBatch at slave
+	check <- clusterCall(cluster, resetABSF)
+	cat("New sample list: ", unlist(check)[!is.na(unlist(check))], "\n")
+
+	t1 <- proc.time();
+	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")		
+	
+	return(perm)
+}
+
+#####
+# get intensities of array for special sample name from slaves
+#####
+getArraySF <- function(sample_name)
+{
+	if (exists("AffyBatch", envir = .GlobalEnv)) {
+		require(affy)
+		#load AffyBatch
+		AffyBatch <- get("AffyBatch", envir = .GlobalEnv)
+		if ( any(sampleNames(AffyBatch)==sample_name) ){
+			mat <- as.matrix( exprs(AffyBatch)[,sample_name] )
+			colnames(mat) <- sample_name
+			return(mat)	
+		}
+		else
+			return(NA)
+	} else
+		return(NA)
+}
+
+#####
+# save intensities of array for special sample-Name at slaves
+#####
+setArraySF <- function(arrayNEU, sample_name_Neu, alter_name_neue_pos)
+{
+	if (exists("AffyBatch", envir = .GlobalEnv)) {
+		
+		require(affy)
+		#load AffyBatch
+		AffyBatch <- get("AffyBatch", envir = .GlobalEnv)
+		
+		#load or initialize tmp mat
+		if ( exists("mat", envir = .GlobalEnv) && 
+			 exists("sample_NAMES_neu", envir = .GlobalEnv)	){
+				mat <- get("mat", envir = .GlobalEnv)
+				sample_NAMES_neu <- get("sample_NAMES_neu", envir = .GlobalEnv)
+		} else {
+			dimAB <- dim( exprs(AffyBatch) )
+			mat <- matrix( ncol=dimAB[2], nrow=dimAB[1], dimnames=list(c(),sampleNames(AffyBatch)) )
+			sample_NAMES_neu <- vector(length=dimAB[2])
+					
+		}
+		
+		#write new array intensities to right position
+		if ( any(sampleNames(AffyBatch)==alter_name_neue_pos) ){
+			mat[, alter_name_neue_pos] <- arrayNEU
+			sample_NAMES_neu[which(sampleNames(AffyBatch)==alter_name_neue_pos)] <- sample_name_Neu
+		}
+
+		#save data
+		assign("mat", value=mat, envir= .GlobalEnv)
+		assign("sample_NAMES_neu", value=sample_NAMES_neu, envir= .GlobalEnv)
+		
+		return(sample_NAMES_neu)
+	} else
+		return(NA)
+}
+
+####
+# Rewrite tmp matrix to affyBatch
+####
+resetABSF <- function()
+{
+	if (exists("AffyBatch", envir = .GlobalEnv) &&
+		exists("mat", envir = .GlobalEnv) && 
+		exists("sample_NAMES_neu", envir = .GlobalEnv)	) {
+	
+		require(affy)
+		#load data
+		AffyBatch <- get("AffyBatch", envir = .GlobalEnv)
+		mat <- get("mat", envir = .GlobalEnv)
+		sample_NAMES_neu <- get("sample_NAMES_neu", envir = .GlobalEnv)
+		
+		#Rewrite data
+		exprs(AffyBatch) <- mat
+		sampleNames(AffyBatch) <- sample_NAMES_neu
+		
+		#remove data and save AffyBatch
+		rm(mat,sample_NAMES_neu)
+		assign("AffyBatch", value=AffyBatch, envir= .GlobalEnv)
+		
+		return(sampleNames(AffyBatch))
+			
+	} else
+		return(NA)
+}
+
+####################################################
 ###
 # Initializing AffyBatch at Slaves
 ###
@@ -61,7 +183,6 @@ getFUNAffyBatchSF <- function(FUN)
 		return(NA)
 }
 
-
 ###
 # Get special values from intensity matrix from slaves
 ###
@@ -109,15 +230,6 @@ getCompIntensityMatrixSF <- function(rows, drop=FALSE)
 
 #########################################
 ###
-# Create Directory at slaves
-###
-createDirSF <- function(to,
-                        showWarnings = TRUE, recursive = TRUE)
-{
-	dir.create(to, showWarnings = showWarnings, recursive = recursive)
-}
-
-###
 # Write data into a file at slaves
 ###
 writeLinesSF <- function(data, fileName)
@@ -128,17 +240,9 @@ writeLinesSF <- function(data, fileName)
 }
 
 ###
-# List files from directory at slaves
-###
-listFilesSF <- function(path, full.names=TRUE)
-{
-	list.files(path=path, full.names=full.names)
-}
-
-###
 # Get HeaderDetails from slaves
 ###
-ReadHeader <- function(object)
+ReadHeaderSF <- function(object)
 {
 	if( length(object) != 0 )
 		return( .Call("ReadHeader", as.character(object[[1]]), PACKAGE = "affyio") )

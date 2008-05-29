@@ -11,6 +11,7 @@
 # 28.02.2008 : Version 0.15 - modularization (second part)
 # 27.03.2008 : Version 0.16 - object.type as input removed
 # 16.05.2008 : Version 0.17 - one node bug fix
+# 28.05.2008 : Version 0.18 - loess normalization added
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -47,7 +48,7 @@ preproPara <- function(cluster,
     if(normalize){
     	if (is.null(normalize.method))
     		stop("You have to choose a Normalization-Method")
-    	if (any(c("quantiles", "constant", "invariantset", "none")==normalize.method) == 0)
+    	if (any(c("quantiles", "constant", "invariantset", "loess", "none")==normalize.method) == 0)
     		stop("Unknown Normalize-Method")
     } else {
     	normalize.method="none"
@@ -81,7 +82,14 @@ preproPara <- function(cluster,
 			object <- unlist(object)
 			object.length <- length(object)
 			samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
-		}				
+		}		
+		if (normalize.method == "loess"){
+			# Check for minimum number of arrays at each node
+			if ( any( lapply(object.list, function(x) if (length(x) < 2) TRUE else FALSE  ) == TRUE ) ){
+				cat("Object Distribution:", unlist(lapply(object.list,length))) 
+				stop("There have to be minimum TWO arrays at each node!")
+			}
+		}		
 		t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))				
 	
@@ -101,7 +109,7 @@ preproPara <- function(cluster,
 	if (verbose) cat("Create TMP AffyBatch ")
 	t0 <- proc.time();
 	if( object.type == "CELfileVec" || object.type == "partCELfileList" ){
-		headdetails <- clusterApply(cluster, object.list, ReadHeader)[[1]]
+		headdetails <- clusterApply(cluster, object.list, ReadHeaderSF)[[1]]
 		dim.intensity <- headdetails[[2]]
 		ref.cdfName <- headdetails[[1]]
 		if( dim(phenoData)[1] == 0 ){
@@ -189,7 +197,57 @@ preproPara <- function(cluster,
 			normalizeInvariantsetPara(cluster, AffyBatch, samples.names, prd.td=prd.td, baseline.type=baseline.type, type=type, verbose=verbose)
 			t01 <- proc.time();
 		if (verbose) cat(round(t01[3]-t00[3],3),"sec DONE\n")
-	}
+		
+	} else if (normalize.method == "loess"){
+		
+			if (verbose) cat("Loess Normalization on Slaves ")
+			t00 <- proc.time();
+			if(is.null(normalize.param$subset)){
+				subset <- NULL
+			} else subset <- normalize.param$subset
+			if(is.null(normalize.param$type)){
+				type <- "separate"
+			} else type <- normalize.param$type
+			if(is.null(normalize.param$epsilon)){
+				epsilon <- 10^-2
+			} else epsilon <- normalize.param$epsilon	
+			if(is.null(normalize.param$maxit)){
+				maxit <- 1
+			} else maxit <- normalize.param$maxit
+			if(is.null(normalize.param$span)){
+				span <- 2/3
+			} else span <- normalize.param$span
+			if(is.null(normalize.param$family.loess)){
+				family.loess <- "symmetric"
+			} else family.loess <- normalize.param$family.loess
+			if(is.null(normalize.param$log.it)){
+				log.it <- TRUE
+			} else log.it <- normalize.param$log.it
+			###############################
+			# Do loess normalization
+			###############################
+			#Check for order index at slaves
+			check <- clusterCall(cluster, Sys.setlocale, "LC_COLLATE", Sys.getlocale("LC_COLLATE"))
+			if (type == "pmonly"){
+				if (verbose) cat("PM loess normalization\n")
+			}
+			if(type == "mmonly"){
+				if (verbose) cat("MM loess normalization\n")
+			}
+			if (type == "together"){
+				if (verbose) cat("PM and MM loess normalization\n")
+			}
+			if(type == "separate"){
+				if (verbose) cat("PM and MM loess separate normalization\n")
+				type <- "pmonly"
+				normalizeLoessPara(cluster, samples.names, type, subset, epsilon, maxit, span, family.loess, log.it, object.length, verbose)
+				type <- "mmonly"
+			}
+			normalizeLoessPara(cluster, samples.names, type, subset, epsilon, maxit, span, family.loess, log.it, object.length, verbose)
+			t01 <- proc.time();
+			if (verbose) cat(round(t01[3]-t00[3],3),"sec DONE\n")
+		}
+
 	
 	#################
 	#Do Summarization

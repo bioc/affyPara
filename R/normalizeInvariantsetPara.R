@@ -87,7 +87,7 @@ normalizeAffyBatchInvariantsetPara <- function(cluster,
 	if (verbose) cat("Create TMP AffyBatch ")
 	if( object.type == "CELfileVec" || object.type == "partCELfileList" ){
 		t0 <- proc.time();
-		headdetails <- clusterApply(cluster, object.list, ReadHeader)[[1]]
+		headdetails <- clusterApply(cluster, object.list, ReadHeaderSF)[[1]]
 		dim.intensity <- headdetails[[2]]
 		ref.cdfName <- headdetails[[1]]
 		if( dim(phenoData)[1] == 0 ){

@@ -35,7 +35,7 @@ distributeFiles <- function(cluster,
 	if (verbose>0) cat("Create Directories ")
 		t1 <- proc.time()
 		error <- system(paste("mkdir ",to,sep=""))
-		error <- clusterCall(cluster, createDirSF, to)
+		error <- clusterCall(cluster, dir.create, to, showWarnings = TRUE, recursive = TRUE)
 		t2 <- proc.time()
 	if (verbose>0) cat(round(t2[3]-t1[3],3),"sec DONE\n")
 	
@@ -146,7 +146,7 @@ distributeFiles <- function(cluster,
 	#######
 	#Output
 	#######
-    filesSlaves <- clusterCall(cluster, listFilesSF, to, full.names=full.names)
+    filesSlaves <- clusterCall(cluster, list.files, to, full.names=full.names)
 	return( list(to=to, CELfiles=filesSlaves) )
 }
 

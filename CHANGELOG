@@ -3,6 +3,10 @@
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
+affyPara 1.1.2 (build 28. Mai 2008)
+Array Permutation over nodes added (intern function)
+Parallelized Loess normalization added
+
 affyPara 1.1.1 (build 16. Mai 2008)
 Bug fix for cluster with one node.
 

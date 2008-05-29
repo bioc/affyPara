@@ -1,7 +1,7 @@
 export(distributeFiles, removeDistributedFiles, 
 	splitAffyBatch, splitFileVector, splitMatrix, file.name,
 	bgCorrectPara,
-	normalizeAffyBatchQuantilesPara, normalizeAffyBatchInvariantsetPara, normalizeAffyBatchConstantPara, 
+	normalizeAffyBatchQuantilesPara, normalizeAffyBatchInvariantsetPara, normalizeAffyBatchConstantPara, normalizeAffyBatchLoessPara, 
 	computeExprSetPara,
 	preproPara, rmaPara,
 	mergeAffyBatches, combineMatrices

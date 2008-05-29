@@ -10,7 +10,7 @@
 # 22.02.2008 : Version 0.15 - modularization
 # 26.02.2008 : Version 0.16 - error with ties fixed (affy 1.14 -> affy 1.16.2)
 # 27.03.2008 : Version 0.17 - object.type as input removed
-# 16.05.2008 : Version 0.18 - one node bug fix
+# 16.05.2008 : Version 0.18 - one node bug fix and code cleaning (tmp affyBatch removed)
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -79,33 +79,6 @@ normalizeAffyBatchQuantilesPara <- function(cluster,
 		check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type) 
 		t1 <- proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
-	
-	#########################################
-	#Check phenoData and create TMP AffyBatch
-	#########################################
-	if (verbose) cat("Create TMP AffyBatch ")
-		t0 <- proc.time();
-		if( object.type == "CELfileVec" || object.type == "partCELfileList" ){
-			headdetails <- clusterApply(cluster, object.list, ReadHeader)[[1]]
-			dim.intensity <- headdetails[[2]]
-			ref.cdfName <- headdetails[[1]]
-			if( dim(phenoData)[1] == 0 ){
-				pData <- data.frame(sample = seq(1, length(samples.names)), row.names = samples.names)
-				varMetadata <- data.frame(labelDescription = "arbitrary numbering", row.names = names(pData))
-				phenoData <- new("AnnotatedDataFrame", data = pData, varMetadata = varMetadata)
-			}
-			if (is.null(cdfname))
-				cdfname <- ref.cdfName
-			#Trick: exprs Matrix mit nur einer Zeile wird initialisiert
-			exprs <- matrix(data = NA, nrow=1, ncol=object.length)
-			AffyBatch <- new("AffyBatch", cdfName = cdfname,
-					exprs=exprs, phenoData = phenoData,
-					annotation = cleancdfname(cdfname, addcdf = FALSE))	
-		} else if( object.type == "AffyBatch" ){
-			AffyBatch <- object
-		}
-		t1 <- proc.time();
-	if (verbose) cat(round(t1[3]-t0[3],2),"sec DONE\n")
 	
 	#################################
 	#Normalization depending on types
@@ -276,24 +249,12 @@ normalizeQuantilesParaSF2 <- function(row_mean)
 		# Normalization
 		if ( cols==1 ){
 			xrank <- rank(x[rows])
-			#for (i in 1:length(rows)){
-			#	if( xrank[i]-floor(xrank[i]) > 0.4 ){
-			#		x[rows[i]] <- 0.5 * (row_mean[floor(xrank[i])] + row_mean[floor(xrank[i])+1])
-			#	}
-			#}
 			fix <- ( xrank-floor(xrank) > 0.4 )
 			x[rows[fix]] <- 0.5 * (row_mean[floor(xrank[fix])] + row_mean[floor(xrank[fix])+1])
 			x[rows[!fix]] <- row_mean[floor(xrank[!fix])]
 			intensity(AffyBatch) <- x
 		} else if ( cols>1 ){
 			xrank <- apply(x[rows,],2,rank)
-			#for (j in 1:cols){
-			#	for (i in 1:length(rows)){
-			#		if( xrank[i,j]-floor(xrank[i,j]) > 0.4 ){
-			#			x[rows[i],j] <- 0.5 * (row_mean[floor(xrank[i,j])] + row_mean[floor(xrank[i,j])+1])
-			#		}
-			#	}
-			#}
 			for (j in 1:cols){
 				fix <- ( xrank[,j]-floor(xrank[,j]) > 0.4 )
 				x[rows[fix],j] <- 0.5 * (row_mean[floor(xrank[fix,j])] + row_mean[floor(xrank[fix,j])+1])

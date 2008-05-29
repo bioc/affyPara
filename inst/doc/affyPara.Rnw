@@ -53,6 +53,21 @@ and versions \Sexpr{package.version("affy")} and \Sexpr{package.version("snow")}
 \section{Changes to previous Versions} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Version 1.1.2}
+\begin{itemize}
+\item Array Permutation over nodes added (intern function)
+\item Parallelized Loess normalization added:
+\Rfunction{normalizeAffyBatchLoessPara}
+\item Object.type as input removed from all functions 
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Version 1.1.1}
+\begin{itemize}
+\item Bug fix for cluster with one node.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Version 0.99.2}
 \begin{itemize}
 \item Compilation error in vignette removed
@@ -211,8 +226,8 @@ to the slaves, see chapter \ref{chap:distri}.
 \subsection{Normalization}
 Normalization methods make measurements from different arrays comparable. Multi-chip methods have proved to perform
 very well. We parallelized the methods \Rfunction{contrast} (-> \Rfunction{normalizeAffyBatchConstantPara}), 
-\Rfunction{invariantset} (-> \Rfunction{normalizeAffyBatchInvariantsetPara}) and \Rfunction{quantile}
-(-> \Rfunction{normalizeAffyBatchQuantilesPara}) available from the \Rpackage{affy} package in the function
+\Rfunction{invariantset} (-> \Rfunction{normalizeAffyBatchInvariantsetPara}), \Rfunction{loess} (-> \Rfunction{normalizeAffyBatchLoessPara})
+ and \Rfunction{quantile} (-> \Rfunction{normalizeAffyBatchQuantilesPara}) available from the \Rpackage{affy} package in the function
 \Rfunction{normalize}.
 
 The parallelized normalization functions need a cluster object, an input data object and the coresponding normalization
@@ -377,6 +392,17 @@ R> all.equal(exprs(affybatch1),exprs(affybatch2))
 Attention: If you directly compare the \Robject{AffyBatches} or \Robject{ExpressionSets} there are some warnings or not similar results. This 
 is being caused by different values of the 'Title' and 'notes' slots in experimentData. Using the function \Rfunction{exprs}
 to get the expression data shows equal results in view of machine accuracy.
+
+Attention for loess normalization: In loess normalization a random sub sample will be created. For generating the same results the random generator
+has to be reset for evry run: 
+\begin{Sinput}
+R> set.seed(1234)
+R> affybatch1 <- normalize.AffyBatch.loess(c1, affybatch.example)
+R> set.seed(1234)
+R> affybatch2 <- normalizeAffyBatchLoessPara(affybatch.example) 
+R> identical(exprs(affybatch1),exprs(affybatch2))
+[1] TRUE
+\end{Sinput}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

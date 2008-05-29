@@ -46,7 +46,7 @@ For using this function a computer cluster using the \code{snow} package has to 
 
 Available methods:
 \item{\code{bgcorrect.method}:}{see \code{bgcorrect.methods}}
-\item{\code{normalize.method}:}{'quantil', 'constant', 'invariantset'}
+\item{\code{normalize.method}:}{'quantil', 'constant', 'invariantset','loess'}
 \item{\code{summary.method}:}{see \code{generateExprSet.methods}}
 }
 
