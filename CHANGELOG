@@ -3,6 +3,9 @@
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
+affyPara 1.1.3 (build 3. June 2008)
+Vignette extended
+
 affyPara 1.1.2 (build 28. Mai 2008)
 Array Permutation over nodes added (intern function)
 Parallelized Loess normalization added
