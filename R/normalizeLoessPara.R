@@ -7,6 +7,7 @@
 # 26.05.2008 : Version 0.2 - working at one node
 # 27.05.2008 : Version 0.3 - working on all nodes
 # 28.05.2008 : Version 0.4 - working for all types
+# 23.06.2008 : Version 0.5 - memory improvement, matrices fs and newdata removed
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -226,11 +227,8 @@ generateMatrizenSF  <- function(type, log.it)
 		
 		J <- dim(mat)[2]
 		II <- dim(mat)[1]
-		newData <- mat
-		if(log.it){
+		if(log.it)
 			mat <- log2(mat)
-			newData <- log2(newData)
-		}
 		
 		sampelMat <- diag(J)
 		dimnames(sampelMat) <- list(sampleNames(AffyBatch),sampleNames(AffyBatch))
@@ -239,13 +237,10 @@ generateMatrizenSF  <- function(type, log.it)
 				if (i>j) sampelMat[i,j]<-1
 			}
 		}
-		fs <- matrix(0, II, J)
 		
 		#Save matrices
 		assign("Index", value=Index, envir= .GlobalEnv)
 		assign("mat", value=mat, envir= .GlobalEnv)
-		assign("newData", value=newData, envir= .GlobalEnv)
-		assign("fs", value=fs, envir= .GlobalEnv)
 		assign("sampelMat", value=sampelMat, envir= .GlobalEnv)
 		
 		return(list(nrow=II, ncol=J))
@@ -263,9 +258,7 @@ normalizeLoessParaSFnodes <- function(subset,
 		iter, object.length)
 {
 	if ( exists("mat", envir = .GlobalEnv) &&
-		 exists("newData", envir = .GlobalEnv) &&
-		 exists("sampelMat", envir = .GlobalEnv) &&
-		 exists("fs", envir = .GlobalEnv) ) {
+		 exists("sampelMat", envir = .GlobalEnv)) {
 		
 		#Get parameters
 		mat <- get("mat", envir = .GlobalEnv)
@@ -273,8 +266,6 @@ normalizeLoessParaSFnodes <- function(subset,
 		II <- dim(mat)[1]
 		
 		sampelMat <- get("sampelMat", envir = .GlobalEnv)
-		newData <- get("newData", envir = .GlobalEnv)
-		fs <- get("fs", envir = .GlobalEnv)
 		
 		if (iter == 1){
 			w <- c(0, rep(1,length(subset)), 0)
@@ -284,7 +275,7 @@ normalizeLoessParaSFnodes <- function(subset,
 		}
 		
 		means <- matrix(0,II,J) ##contains temp of what we substract
-		sample_names <- colnames(newData)
+		sample_names <- colnames(mat)
 		colnames(means) <- sample_names
 		
 		#Normalization
@@ -293,8 +284,8 @@ normalizeLoessParaSFnodes <- function(subset,
 			for (k in (j+1):J){
 				spalte <-sample_names[k]
 				sampelMat[zeile,spalte]<-1
-				y <- newData[,j] - newData[,k]	
-				x <- (newData[,j] + newData[,k]) / 2
+				y <- mat[,j] - mat[,k]	
+				x <- (mat[,j] + mat[,k]) / 2
 				index <- c(order(x)[1], subset, order(-x)[1])
 				xx <- x[index]
 				yy <- y[index]
@@ -317,12 +308,12 @@ normalizeLoessParaSFnodes <- function(subset,
 ###
 getArraySF <- function(sampleName)
 {
-	if ( exists("newData", envir = .GlobalEnv) ) {
+	if ( exists("mat", envir = .GlobalEnv) ) {
 		
 		#Get parameters
-		newData <- get("newData", envir = .GlobalEnv)
-		if ( any( colnames(newData)==sampleName ) )
-			return( newData[,sampleName] )
+		mat <- get("mat", envir = .GlobalEnv)
+		if ( any( colnames(mat)==sampleName ) )
+			return( mat[,sampleName] )
 	}else
 		return(NA)	
 }
@@ -336,7 +327,6 @@ normalizeLoessParaSFbetNodes <- function(arrayInt,
 		family.loess, object.length)
 {
 	if ( exists("mat", envir = .GlobalEnv) &&
-		 exists("newData", envir = .GlobalEnv) &&
 		 exists("w", envir = .GlobalEnv) &&
 		 exists("means", envir = .GlobalEnv) ){
 		
@@ -345,16 +335,14 @@ normalizeLoessParaSFbetNodes <- function(arrayInt,
 		J <- dim(mat)[2]
 		II <- dim(mat)[1]
 		
-		newData <- get("newData", envir = .GlobalEnv)
-
 		w <- get("w", envir = .GlobalEnv)
 		means <- get("means", envir = .GlobalEnv)
 		meansZw <- matrix(0,II,1) ##contains temp of what we substract
 		
 		for (k in toNorm){
-			if (any(colnames(newData)==k)){
-				y <- arrayInt - newData[,k]
-				x <- (arrayInt + newData[,k]) / 2
+			if (any(colnames(mat)==k)){
+				y <- arrayInt - mat[,k]
+				x <- (arrayInt + mat[,k]) / 2
 				index <- c(order(x)[1], subset, order(-x)[1])
 				xx <- x[index]
 				yy <- y[index]
@@ -401,20 +389,16 @@ writeMeansArraySF <- function(j, aux)
 writeArraySF <- function(subset)
 {
 	if ( exists("mat", envir = .GlobalEnv) &&
-		 exists("fs", envir = .GlobalEnv) &&
 	     exists("means", envir = .GlobalEnv) ) {
 		
 		#Get parameters
 		mat <- get("mat", envir = .GlobalEnv)
-		fs <- get("fs", envir = .GlobalEnv)
 		means <- get("means", envir = .GlobalEnv)
 		
-		fs <- fs + means
-		newData <- mat - fs
+		mat <- mat - means
 		
 		#Save results
-		assign("fs", value=fs, envir= .GlobalEnv)
-		assign("newData", value=newData, envir= .GlobalEnv)
+		assign("mat", value=mat, envir= .GlobalEnv)
 		
 		#Calculate change for iteration
 		change <- max(colMeans((means[subset,])^2))
@@ -430,20 +414,20 @@ writeArraySF <- function(subset)
 reassignMatrizenSF <- function(log.it)
 {
 	if ( exists("AffyBatch", envir = .GlobalEnv) &&
-			exists("newData", envir = .GlobalEnv) &&
+			exists("mat", envir = .GlobalEnv) &&
 			exists("Index", envir = .GlobalEnv)) {
 		
 		#Get matrices
 		AffyBatch <- get("AffyBatch", envir = .GlobalEnv)
-		newData <- get("newData", envir = .GlobalEnv)
+		mat <- get("mat", envir = .GlobalEnv)
 		Index <- get("Index", envir = .GlobalEnv)
 		
 		# Rescale if necessary
 		if(log.it) 
-			newData <- 2^newData
+			mat <- 2^mat
 		
 		#Rewriting Data
-		intensity(AffyBatch)[Index,] <- newData
+		intensity(AffyBatch)[Index,] <- mat
 		assign("AffyBatch", value=AffyBatch, envir= .GlobalEnv)
 		
 		return(TRUE)
