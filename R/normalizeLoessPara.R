@@ -426,6 +426,8 @@ reassignMatrizenSF <- function(log.it)
 		if(log.it) 
 			mat <- 2^mat
 		
+		if(any(colnames(mat)!=sampleNames(AffyBatch))) stop("Error with sampleNames")
+		
 		#Rewriting Data
 		intensity(AffyBatch)[Index,] <- mat
 		assign("AffyBatch", value=AffyBatch, envir= .GlobalEnv)

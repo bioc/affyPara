@@ -136,7 +136,7 @@ normalizeQuantilesPara <- function(cluster,
 		# remove list with length ==1 bzw. NAs
 		row_m <- row_m[!unlist(lapply(row_m,length)==1)]
 		#Calculate rowMean for all Parts
-		rowMat <- do.call(cbind, lapply(row_m, get("/"), object.length) )
+		rowMat <- do.call(cbind, lapply(row_m, get("/"), object.length) )	
 	 	row_mean <- rowSums(rowMat)
 	 	t1 <- proc.time()
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))

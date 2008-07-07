@@ -11,12 +11,13 @@
 # 05.12.2007 : Version 0.5 - bugFixes files.remove -> unlink
 # 06.12.2007 : Version 0.6 - code dokumentation
 # 12.12.2007 : Version 0.7 - output fixed
+# 02.07.2008 : Version 0.8 - default value for path added
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 removeDistributedFiles <- function(cluster, 
-		path, verbose=FALSE)
+		path="/usr1/tmp/CELfiles", verbose=FALSE)
 {
 
 	#Check for snow
@@ -27,7 +28,9 @@ removeDistributedFiles <- function(cluster,
     
     #Remove Files at Master
 	if (verbose) cat("Remove files on Master ")
-		unlink(path, recursive=TRUE)
+		check<-unlink(path, recursive=TRUE)
+		if (check == 1)
+			check<-unlink(path, recursive=TRUE)
 	if (verbose) cat("... DONE\n")
 
 	#Remove Files at Slaves

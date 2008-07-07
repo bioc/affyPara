@@ -9,6 +9,7 @@
 # 06.12.2007 : Version 0.4 - code cleaning and dokumentation
 # 10.12.2007 : Version 0.5 - #Remove NA's from list added
 # 14.12.2007 : Version 0.6 - Input from combineMatrices changed to matrices.list
+# 07.07.2008 : Version 0.7 - mergeAffyBatches improved for great Matrices
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -44,6 +45,7 @@ mergeAffyBatches <- function (abatch.list,
     										#row.names(pData(data))
     										sampleNames(data)
     										})))
+					
     #Check notes
     if (length(notes) == 0){
       notes(description) <- list(paste("Merge of", length(abatch.list),"AffyBatches with notes:",lapply(abatch.list,data<-function(data){
@@ -52,10 +54,16 @@ mergeAffyBatches <- function (abatch.list,
     }
     else
       notes(description) <- notes
-  
+   
   	#Generat Exprs-Matrix
-	exprs <- matrix( unlist(lapply(abatch.list,intensity)), nrow=ncol(abatch.list[[1]])*nrow(abatch.list[[1]]) )
-  
+	exprs <- intensity(abatch.list[[1]])
+	if ( length(abatch.list) > 1){
+		for( k in 2:length(abatch.list)){
+			exprs <- cbind(exprs,intensity(abatch.list[[k]]))
+			abatch.list[[k]]<-NA
+		}
+	}
+	
     #Return ONE AffyBatch
     return(new("AffyBatch", exprs = exprs, 
         phenoData = phenodata, experimentData = description, 

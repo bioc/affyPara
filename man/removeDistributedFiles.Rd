@@ -9,7 +9,7 @@ This function removes distributed files from a special path at the disk at all s
 }
 
 \usage{
-removeDistributedFiles(cluster, path, verbose = FALSE)
+removeDistributedFiles(cluster, path="/usr1/tmp/CELfiles", verbose = FALSE)
 
 removeFilesSF(path, recursive = TRUE)
 accessFilesSF(path, mode = 0)
@@ -17,7 +17,7 @@ accessFilesSF(path, mode = 0)
 }
 \arguments{
   \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the \code{SNOW} package. }
-  \item{path}{ A \code{character} that defines which path (inclusive files) should be removed at every slave. }
+  \item{path}{ A \code{character} that defines which path (inclusive files) should be removed at every slave. Default: /usr1/tmp/CELfiles }
   \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages.}
   \item{recursive}{ A logical value. Should directories be deleted recursively? }
   \item{mode}{ A integer specifying access mode required. See \link[base]{file.access}}

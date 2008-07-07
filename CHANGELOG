@@ -2,6 +2,15 @@
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
+affyPara 1.1.6 (build 07. July 2008)
+- mergeAffyBatches improved for great dim matrices (-> hgu133 Plus 2.0 chips)
+- initAffyBatchSF: error for small numbers of nodes fixed
+
+affyPara 1.1.5 (build 02. July 2008)
+distributeFiles and removeDistributedFiles improved
+- default path variable
+- option for removing directory before distributing 
+- some safety checks
 
 affyPara 1.1.4 (build 23. June 2008)
 normalizeAffyBatchLoessPara memory improvement

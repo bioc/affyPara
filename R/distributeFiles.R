@@ -13,6 +13,8 @@
 # 07.03.2008 : Version 0.11 - bugfixes in verbose and for more nodes at one workstation
 # 17.03.2008 : Version 0.12 - extending protocol for scp, adding master distribution
 # 16.05.2008 : Version 0.13 - one node bug fix
+# 02.07.2008 : Version 0.14 - warning, if directory already exists
+# 02.07.2008 : Version 0.15 - delExistTo added
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -20,7 +22,7 @@
 distributeFiles <- function(cluster, 
 		files, to="/usr1/tmp/CELfiles",
 		protocol=c("R","RCP","SCP"), hierarchicallyDist=FALSE,
-		master=TRUE,
+		master=TRUE, delExistTo=FALSE,
 		full.names=FALSE, verbose=FALSE)
 {
 
@@ -29,13 +31,27 @@ distributeFiles <- function(cluster,
 	
 	protocol <- match.arg(protocol)
 
+	###################
+	#Delete directories
+	###################
+	if (delExistTo == TRUE){
+		if (verbose>0) cat("Remove Directories ")
+		t1 <- proc.time()
+		check <- removeDistributedFiles(cluster, path=to, verbose=FALSE)
+		t2 <- proc.time()
+		if (verbose>0) cat(round(t2[3]-t1[3],3),"sec DONE\n")
+	}
+	
     ###################
 	#Create directories
 	###################
 	if (verbose>0) cat("Create Directories ")
 		t1 <- proc.time()
 		error <- system(paste("mkdir ",to,sep=""))
+		if ( error != 0)
+			warning("Directory ",to," already exists at master.")
 		error <- clusterCall(cluster, dir.create, to, showWarnings = TRUE, recursive = TRUE)
+		check <- lapply(error, function(x){ if(x==0) warning("Directory ",to," already exists at slave.")} )
 		t2 <- proc.time()
 	if (verbose>0) cat(round(t2[3]-t1[3],3),"sec DONE\n")
 	

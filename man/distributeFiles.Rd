@@ -11,7 +11,7 @@ This function distributes files from the master node to the disk of the slaves i
 distributeFiles(cluster, 
 	files, to = "/usr1/tmp/CELfiles",
 	protocol = c("R", "RCP", "SCP"), hierarchicallyDist = FALSE, 
-	master=TRUE,
+	master=TRUE, delExistTo=FALSE,
 	full.names=FALSE, verbose = FALSE)
 	
 hirarchicalDistSF(to, nodes, protocol)
@@ -20,10 +20,11 @@ hirarchicalDistSF(to, nodes, protocol)
 \arguments{
   \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the \code{SNOW} package. }
   \item{files}{ A \code{character} vector containing the names of the files. }
-  \item{to}{ A \code{character} that defines the path where the files should be stored at the slaves. }
+  \item{to}{ A \code{character} that defines the path where the files should be stored at the slaves. Default: /usr1/tmp/CELfiles }
   \item{protocol}{ A \code{character} that defines the Copy-Protocol: "R", "RCP", "SCP" }
   \item{hierarchicallyDist}{ A logical value. If \code{TRUE} data will be hierarchically distributed to all slaves. If \code{FALSE} at every slave only a part of data is available. }
-  \item{master}{ A logical value. If \code{TRUE} all data will be copied to the 'to' directory at the master node. }
+  \item{master}{ A logical value. If \code{TRUE} all data will be copied to the 'to' directory at the master node. Default = TRUE }
+  \item{delExistTo}{ A logical value. If \code{TRUE} directory 'to' will be deleted at master and all nodes first. Default = FALSE}
   \item{full.names}{ A logical value. If \code{TRUE}, the directory path is prepended to the file names. If \code{FALSE}, only the file names are returned . }
   \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages.} 
   \item{nodes}{ A list of \code{character} with the node names where the files have to be send.}

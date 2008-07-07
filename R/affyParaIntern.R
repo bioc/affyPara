@@ -11,6 +11,9 @@
 # 23.05.2008 : Version 0.8 - permArrays added
 # 26.05.2008 : Version 0.9 - permArrays finished
 # 28.05.2008 : Version 0.12 - never used functions removed
+# 23.06.2008 : Version 0.13 - permMatrix added
+# 23.06.2008 : Version 0.14 - error for Repermutation fixed
+# 07.07.2008 : Version 0.15 - initAffyBatchSF, error for small numbers of nodes fixed
 # 
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -20,10 +23,7 @@
 ###
 permArrays <- function(cluster, sample.names, verbose=TRUE)
 {
-	require(affy)
-	
 	t0 <- proc.time();
-	
 	# Permutation
 	perm <- sample(sample.names)
 	
@@ -45,7 +45,6 @@ permArrays <- function(cluster, sample.names, verbose=TRUE)
 	
 	return(perm)
 }
-
 #####
 # get intensities of array for special sample name from slaves
 #####
@@ -65,11 +64,10 @@ getArraySF <- function(sample_name)
 	} else
 		return(NA)
 }
-
 #####
 # save intensities of array for special sample-Name at slaves
 #####
-setArraySF <- function(arrayNEU, sample_name_Neu, alter_name_neue_pos)
+setArraySF <- function(colNEU, col_name_Neu, alter_name_neue_pos)
 {
 	if (exists("AffyBatch", envir = .GlobalEnv)) {
 		
@@ -79,14 +77,14 @@ setArraySF <- function(arrayNEU, sample_name_Neu, alter_name_neue_pos)
 		
 		#load or initialize tmp mat
 		if ( exists("mat", envir = .GlobalEnv) && 
-			 exists("sample_NAMES_neu", envir = .GlobalEnv)	){
-				mat <- get("mat", envir = .GlobalEnv)
-				sample_NAMES_neu <- get("sample_NAMES_neu", envir = .GlobalEnv)
+				exists("sample_NAMES_neu", envir = .GlobalEnv)	){
+			mat <- get("mat", envir = .GlobalEnv)
+			sample_NAMES_neu <- get("sample_NAMES_neu", envir = .GlobalEnv)
 		} else {
 			dimAB <- dim( exprs(AffyBatch) )
 			mat <- matrix( ncol=dimAB[2], nrow=dimAB[1], dimnames=list(c(),sampleNames(AffyBatch)) )
 			sample_NAMES_neu <- vector(length=dimAB[2])
-					
+			
 		}
 		
 		#write new array intensities to right position
@@ -94,7 +92,7 @@ setArraySF <- function(arrayNEU, sample_name_Neu, alter_name_neue_pos)
 			mat[, alter_name_neue_pos] <- arrayNEU
 			sample_NAMES_neu[which(sampleNames(AffyBatch)==alter_name_neue_pos)] <- sample_name_Neu
 		}
-
+		
 		#save data
 		assign("mat", value=mat, envir= .GlobalEnv)
 		assign("sample_NAMES_neu", value=sample_NAMES_neu, envir= .GlobalEnv)
@@ -103,16 +101,15 @@ setArraySF <- function(arrayNEU, sample_name_Neu, alter_name_neue_pos)
 	} else
 		return(NA)
 }
-
 ####
 # Rewrite tmp matrix to affyBatch
 ####
 resetABSF <- function()
 {
 	if (exists("AffyBatch", envir = .GlobalEnv) &&
-		exists("mat", envir = .GlobalEnv) && 
-		exists("sample_NAMES_neu", envir = .GlobalEnv)	) {
-	
+			exists("mat", envir = .GlobalEnv) && 
+			exists("sample_NAMES_neu", envir = .GlobalEnv)	) {
+		
 		require(affy)
 		#load data
 		AffyBatch <- get("AffyBatch", envir = .GlobalEnv)
@@ -124,16 +121,123 @@ resetABSF <- function()
 		sampleNames(AffyBatch) <- sample_NAMES_neu
 		
 		#remove data and save AffyBatch
-		rm(mat,sample_NAMES_neu)
+		rm(mat,sample_NAMES_neu, envir= .GlobalEnv )
 		assign("AffyBatch", value=AffyBatch, envir= .GlobalEnv)
 		
 		return(sampleNames(AffyBatch))
-			
+		
 	} else
 		return(NA)
 }
 
-####################################################
+#####################################################################################
+###
+# Permutation of Matrix by column (over Nodes)
+###
+permMatrix <- function(cluster, matName="mat", sample.names, sample.names.perm, verbose=TRUE)
+{
+	t0 <- proc.time();
+
+	for (i in sample.names.perm){
+		alter_name_neue_pos <- sample.names[which(sample.names.perm==i)]
+		if (verbose) cat("\t\tMove column: ", alter_name_neue_pos, " -> ",i,"\n")
+		#get column from slaves
+		col <- clusterCall(cluster, getColSF, matName, i)
+		col <- col[[which(!is.na(col))]]
+		# move column to new positon
+		check <- clusterCall(cluster, setColSF, matName, col, i, alter_name_neue_pos)
+	}
+
+	#write new matrix over old matrix at slave
+	col.names <- clusterCall(cluster, resetMatSF, matName)
+
+	t1 <- proc.time();
+	if (verbose) cat("\t\t",round(t1[3]-t0[3],3),"sec DONE\n")		
+	
+	return(unlist(col.names))
+}
+#####
+# get col-intensities of matix for special name from slaves
+#####
+getColSF <- function(matName="mat", col_name)
+{
+	if (exists(matName, envir = .GlobalEnv)) {
+		#load mat
+		mat <- get(matName, envir = .GlobalEnv)
+		if ( any(colnames(mat)==col_name) ){
+			col <- as.matrix( mat[,col_name] )
+			colnames(col) <- col_name
+			return(col)	
+		}
+		else
+			return(NA)
+	} else
+		return(NA)
+}
+#####
+# save col-intensities of matrix for special col-Name at slaves
+#####
+setColSF <- function(matName = "mat", colNEU, col_name_Neu, alter_name_neue_pos)
+{
+	if (exists(matName, envir = .GlobalEnv)) {
+		#load mat
+		mat <- get(matName, envir = .GlobalEnv)
+		
+		if ( any(colnames(mat)==alter_name_neue_pos) ){
+		
+			#load or initialize tmp mat
+			if ( exists("matZw", envir = .GlobalEnv) && 
+				 exists("col_NAMES_neu", envir = .GlobalEnv)	){
+					matZw <- get("matZw", envir = .GlobalEnv)
+					col_NAMES_neu <- get("col_NAMES_neu", envir = .GlobalEnv)
+			} else {
+				dimMat <- dim( mat )
+				matZw <- matrix( ncol=dimMat[2], nrow=dimMat[1], dimnames=list(c(),colnames(mat)) )
+				col_NAMES_neu <- vector(length=dimMat[2])		
+			}		
+			#write new mat intensities to correct position
+			matZw[, alter_name_neue_pos] <- colNEU
+			col_NAMES_neu[which(colnames(mat)==alter_name_neue_pos)] <- col_name_Neu
+		
+			#save data
+			assign("matZw", value=matZw, envir= .GlobalEnv)
+			assign("col_NAMES_neu", value=col_NAMES_neu, envir= .GlobalEnv)
+			
+			return(TRUE)
+		} else
+			return(NA)
+	} else
+		return(NA)
+}
+####
+# Rewrite tmp matrix
+####
+resetMatSF <- function(matName="mat")
+{
+	if ( exists(matName, envir = .GlobalEnv) &&
+		 exists("matZw", envir = .GlobalEnv) && 
+		 exists("col_NAMES_neu", envir = .GlobalEnv)	) {
+		
+		#load data
+		mat <- get(matName, envir = .GlobalEnv)
+		matZw <- get("matZw", envir = .GlobalEnv)
+		col_NAMES_neu <- get("col_NAMES_neu", envir = .GlobalEnv)
+		
+		#Rewrite data
+		mat <- matZw
+		colnames(mat) <- col_NAMES_neu
+		
+		#remove data and save matrix
+		rm(matZw,col_NAMES_neu, envir= .GlobalEnv)
+		assign(matName, value=mat, envir= .GlobalEnv)
+		
+		return(colnames(mat))
+		
+	} else
+		return(NA)
+}
+
+##########################################################################
 ###
 # Initializing AffyBatch at Slaves
 ###
@@ -147,8 +251,10 @@ initAffyBatchSF <- function(object, object.type)
 	#create AffyBatch
 	if (object.type == "AffyBatch")
 		AffyBatch <- object
-	else 
+	else if( length(object) != 0 )
 		AffyBatch <- ReadAffy(filenames=object)
+	else
+		return(FALSE)
 
 	#temporary save AffyBatch
 	assign("AffyBatch", value=AffyBatch, envir= .GlobalEnv)
