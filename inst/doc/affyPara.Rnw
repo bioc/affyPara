@@ -22,9 +22,9 @@ plainpages,pdftex]{hyperref}
 \SweaveOpts{keep.source=TRUE,eps=FALSE,include=FALSE,width=4,height=4.5}
 
 \author{Markus Schmidberger
-\footnote{Package maintainer, Email: \texttt {schmidb@ibe.med.uni-muenchen.de}}
-\footnote{Chair of Biometrics and Bioinformatics, IBE, University of Munich, 81377 Munich, Germany}
-\and Ulrich Mansmann \footnote{Chair of Biometrics and Bioinformatics, IBE, University of Munich, 81377 Munich, Germany}
+	\footnote{Package maintainer, Email: \texttt{schmidb@ibe.med.uni-muenchen.de}}
+	\footnote{Chair of Biometrics and Bioinformatics, IBE, University of Munich, 81377 Munich, Germany}
+	\and Ulrich Mansmann
 }
 
 \title{Description of the \Rpackage{affyPara} package: Parallelized preprocessing methods for Affymetrix Oligonucleotide Arrays}
@@ -58,9 +58,12 @@ and versions \Sexpr{package.version("affy")} and \Sexpr{package.version("snow")}
 \section{Changes to previous Versions} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Version 1.1.3}
+\subsection{Version 1.1.7}
 \begin{itemize}
-\item Vignette extended
+\item Parallelized partial Loess normalization with Permutation  added
+\item several code improvements and safety checks
+\item all Package building errors fixed
+\item  Package cleaning
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -69,12 +72,6 @@ and versions \Sexpr{package.version("affy")} and \Sexpr{package.version("snow")}
 \item Array Permutation over nodes added (intern function)
 \item Parallelized Loess normalization added:
 \Rfunction{normalizeAffyBatchLoessPara}
-\end{itemize}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Version 1.1.1}
-\begin{itemize}
-\item Bug fix for cluster with one node.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

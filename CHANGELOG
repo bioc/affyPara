@@ -2,6 +2,11 @@
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
+affyPara 1.1.7 (build 17. July 2008)
+- Parallelized partial Loess normalization with Permutation added
+- all Package building errors fixed
+- Package cleaning
+
 affyPara 1.1.6 (build 07. July 2008)
 - mergeAffyBatches improved for great dim matrices (-> hgu133 Plus 2.0 chips)
 - initAffyBatchSF: error for small numbers of nodes fixed

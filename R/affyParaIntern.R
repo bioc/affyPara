@@ -3,17 +3,12 @@
 # generall support SLAVE - functions for affyPara
 #
 # History
-# 27.03.2008 : ... old stuff removed ...
-# 11.12.2007 : Version 0.4 - file.name improved
-# 28.12.2007 : Version 0.5 - readHeader added
-# 03.01.2008 : Version 0.6 - getFUNAffyBatchSF added
-# 27.03.2008 : Version 0.7 - checkObjectType and checkPartSize added
-# 23.05.2008 : Version 0.8 - permArrays added
-# 26.05.2008 : Version 0.9 - permArrays finished
+# 17.07.2008 : ... old stuff removed ...
 # 28.05.2008 : Version 0.12 - never used functions removed
 # 23.06.2008 : Version 0.13 - permMatrix added
 # 23.06.2008 : Version 0.14 - error for Repermutation fixed
 # 07.07.2008 : Version 0.15 - initAffyBatchSF, error for small numbers of nodes fixed
+# 17.07.2008 : Version 0.16 - bugFix in setArraySF
 # 
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -46,29 +41,11 @@ permArrays <- function(cluster, sample.names, verbose=TRUE)
 	return(perm)
 }
 #####
-# get intensities of array for special sample name from slaves
-#####
-getArraySF <- function(sample_name)
-{
-	if (exists("AffyBatch", envir = .GlobalEnv)) {
-		require(affy)
-		#load AffyBatch
-		AffyBatch <- get("AffyBatch", envir = .GlobalEnv)
-		if ( any(sampleNames(AffyBatch)==sample_name) ){
-			mat <- as.matrix( exprs(AffyBatch)[,sample_name] )
-			colnames(mat) <- sample_name
-			return(mat)	
-		}
-		else
-			return(NA)
-	} else
-		return(NA)
-}
-#####
 # save intensities of array for special sample-Name at slaves
 #####
 setArraySF <- function(colNEU, col_name_Neu, alter_name_neue_pos)
 {
+	
 	if (exists("AffyBatch", envir = .GlobalEnv)) {
 		
 		require(affy)
@@ -89,8 +66,8 @@ setArraySF <- function(colNEU, col_name_Neu, alter_name_neue_pos)
 		
 		#write new array intensities to right position
 		if ( any(sampleNames(AffyBatch)==alter_name_neue_pos) ){
-			mat[, alter_name_neue_pos] <- arrayNEU
-			sample_NAMES_neu[which(sampleNames(AffyBatch)==alter_name_neue_pos)] <- sample_name_Neu
+			mat[, alter_name_neue_pos] <- colNEU
+			sample_NAMES_neu[which(sampleNames(AffyBatch)==alter_name_neue_pos)] <- col_name_Neu
 		}
 		
 		#save data
@@ -98,6 +75,25 @@ setArraySF <- function(colNEU, col_name_Neu, alter_name_neue_pos)
 		assign("sample_NAMES_neu", value=sample_NAMES_neu, envir= .GlobalEnv)
 		
 		return(sample_NAMES_neu)
+	} else
+		return(NA)
+}
+#####
+# get intensities of array for special sample name from slaves
+#####
+getArraySF <- function(sample_name)
+{
+	if (exists("AffyBatch", envir = .GlobalEnv)) {
+		require(affy)
+		#load AffyBatch
+		AffyBatch <- get("AffyBatch", envir = .GlobalEnv)
+		if ( any(sampleNames(AffyBatch)==sample_name) ){
+			mat <- as.matrix( exprs(AffyBatch)[,sample_name] )
+			colnames(mat) <- sample_name
+			return(mat)	
+		}
+		else
+			return(NA)
 	} else
 		return(NA)
 }
