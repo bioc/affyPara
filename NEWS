@@ -2,6 +2,10 @@
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
+affyPara 1.1.8 (build 22. August 2009)
+- computeExpressionSet improved
+- changelog renamed to NEWS
+
 affyPara 1.1.7 (build 17. July 2008)
 - Parallelized partial Loess normalization with Permutation added
 - all Package building errors fixed

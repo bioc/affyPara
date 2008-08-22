@@ -56,65 +56,7 @@ and versions \Sexpr{package.version("affy")} and \Sexpr{package.version("snow")}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Changes to previous Versions} 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Version 1.1.7}
-\begin{itemize}
-\item Parallelized partial Loess normalization with Permutation  added
-\item several code improvements and safety checks
-\item all Package building errors fixed
-\item  Package cleaning
-\end{itemize}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Version 1.1.2}
-\begin{itemize}
-\item Array Permutation over nodes added (intern function)
-\item Parallelized Loess normalization added:
-\Rfunction{normalizeAffyBatchLoessPara}
-\end{itemize}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Version 0.99.2}
-\begin{itemize}
-\item Compilation error in vignette removed
-\item Vignette extended
-\item Object.type as input removed from all functions 
-\end{itemize}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Version 0.99.0}
-\begin{itemize}
-\item Finalizing for BioConductor release.
-\item Code cleaning.
-\end{itemize}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Version 0.3.0}
-\begin{itemize}
-\item Documentation added.
-\item Function \Rfunction{rmaPara} added.
-\item Modularization.
-\end{itemize}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Version 0.2.0}
-\begin{itemize}
-\item Testcode implemented and code testing -> several small bugs fixed
-\end{itemize}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Version 0.1.0}
-\begin{itemize}
-\item Implementation / parallelization of funtions ...
-	\begin{itemize}
-	\item \Rfunction{bgCorrectPara}
-	\item \Rfunction{normalizeAffyBatchConstantPara}, \Rfunction{normalizeAffyBatchInvariantsetPara}, \Rfunction{normalizeAffyBatchQuantilesPara}
-	\item \Rfunction{computeExprSetPara}
-	\item \Rfunction{preproPara}
-	\item \Rfunction{distributeFiles}, \Rfunction{removeDistributedFiles}
-	\end{itemize}
-\end{itemize}
+For major changes see NEWS file in the source code or use the function \Rfunction{readNEWS}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
