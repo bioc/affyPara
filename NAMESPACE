@@ -1,5 +1,5 @@
 export(distributeFiles, removeDistributedFiles, 
-	splitAffyBatch, splitFileVector, splitMatrix, file.name,
+	splitAffyBatch, splitFileVector, splitMatrix,
 	bgCorrectPara,
 	normalizeAffyBatchQuantilesPara, normalizeAffyBatchInvariantsetPara, normalizeAffyBatchConstantPara, 
 	normalizeAffyBatchLoessPara, normalizeAffyBatchLoessIterPara, 
@@ -7,3 +7,5 @@ export(distributeFiles, removeDistributedFiles,
 	preproPara, rmaPara,
 	mergeAffyBatches, combineMatrices
 )
+
+importClassesFrom("vsn", "vsnInput")

@@ -12,12 +12,14 @@
 # 06.12.2007 : Version 0.6 - code dokumentation
 # 12.12.2007 : Version 0.7 - output fixed
 # 02.07.2008 : Version 0.8 - default value for path added
+# 10.10.2008 : Version 0.9 - path set to tempdir()
+# 12.10.2008 : Version 0.10 - code cleaning and bugfix in file removing (only files, not directory)
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 removeDistributedFiles <- function(cluster, 
-		path="/usr1/tmp/CELfiles", verbose=FALSE)
+		path=tempdir(), verbose=FALSE)
 {
 
 	#Check for snow
@@ -28,9 +30,9 @@ removeDistributedFiles <- function(cluster,
     
     #Remove Files at Master
 	if (verbose) cat("Remove files on Master ")
-		check<-unlink(path, recursive=TRUE)
+		check<-unlink(paste(path,"*",sep="/"), recursive=TRUE)
 		if (check == 1)
-			check<-unlink(path, recursive=TRUE)
+			check<-unlink(paste(path,"*",sep="/"), recursive=TRUE)
 	if (verbose) cat("... DONE\n")
 
 	#Remove Files at Slaves
@@ -41,7 +43,7 @@ removeDistributedFiles <- function(cluster,
 	#Check if cleanup was successfull
 	if (verbose) cat("Check: ")
 		masterCheck <- file.access(path, mode = 0)
-		slaveCheck <- unlist(clusterCall(cluster, accessFilesSF, path))
+		slaveCheck <- unlist(clusterCall(cluster, file.access, path, mode=0))
 		anzSlaves <- length(cluster)
 		if (sum(slaveCheck) == (-1 * anzSlaves) && masterCheck == -1) {
       output <- TRUE
@@ -60,13 +62,5 @@ removeDistributedFiles <- function(cluster,
 # remove Files at slaves
 ###
 removeFilesSF <- function(path, recursive=TRUE) {
-	unlink(path, recursive=recursive)
-}
-
-###
-# Slavefunction
-# access Files at slaves
-###
-accessFilesSF <- function(path, mode = 0){
-	file.access(path, mode = mode)
+	unlink(paste(path,"*",sep="/"), recursive=recursive)
 }

@@ -9,6 +9,8 @@
 # 23.06.2008 : Version 0.14 - error for Repermutation fixed
 # 07.07.2008 : Version 0.15 - initAffyBatchSF, error for small numbers of nodes fixed
 # 17.07.2008 : Version 0.16 - bugFix in setArraySF
+# 11.09.2008 : Version 0.17 - file.name removed -> basename
+# 15.09.2008 : Version 0.18 - output von initAffyBatchSF set to dimAB
 # 
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -254,7 +256,7 @@ initAffyBatchSF <- function(object, object.type)
 
 	#temporary save AffyBatch
 	assign("AffyBatch", value=AffyBatch, envir= .GlobalEnv)
-	return(TRUE)
+	return(dim(exprs(AffyBatch)))
 }
 
 ########################################
@@ -350,24 +352,6 @@ ReadHeaderSF <- function(object)
 		return( .Call("ReadHeader", as.character(object[[1]]), PACKAGE = "affyio") )
 	else
 		return(NA)
-}
-
-#################################
-###
-# Get file name from filecharacter with path
-###
-file.name <- function(file, fsep = .Platform$file.sep)
-{
-	i <- nchar(file)
-	while(i>0){
-		string <- substr(file,i,i)
-		if (string==fsep){
-			output <- substr(file,i+1,nchar(file))
-			return(output)	
-		}
-		i=i-1
-	}
-	return(file)
 }
 
 ####################################

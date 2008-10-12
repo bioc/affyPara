@@ -7,7 +7,7 @@ Parallelized partial cyclic loess normalization of arrays with permutation.
 \usage{
 normalizeAffyBatchLoessIterPara(cluster,
 		object,
-		maxPerm = 3,
+		percentPerm = 0.75,
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
 		type=c("separate","pmonly","mmonly","together"), 
 		subset = NULL,
@@ -20,7 +20,7 @@ normalizeAffyBatchLoessIterPara(cluster,
   \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the \code{SNOW} package. }
   \item{object}{ An object of class \link[affy:AffyBatch-class]{AffyBatch} OR a \code{character} vector with the names of CEL files OR a (partitioned) list of \code{character} vectors with CEL file names.}
  
-  \item{maxPerm}{Maximum number of permutations.}
+  \item{percentPerm}{Percent of permutations to do.}
  
   \item{phenoData}{ An \link[Biobase]{AnnotatedDataFrame} object. }
   \item{cdfname}{ Used to specify the name of an alternative cdf package. If set to \code{NULL}, the usual cdf package based on Affymetrix' mappings will be used. }
@@ -59,7 +59,7 @@ data(affybatch.example)
 
 c1 <- makeCluster(3)
 
-AffyBatch <- normalizeAffyBatchLoessIterPara(c1, maxPerm=3, affybatch.example, verbose=TRUE)
+AffyBatch <- normalizeAffyBatchLoessIterPara(c1, percentPerm=0.75, affybatch.example, verbose=TRUE)
 
 stopCluster(c1)
 }

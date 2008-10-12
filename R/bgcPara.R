@@ -11,6 +11,7 @@
 # 27.03.2008 : Version 0.14 - object.type as input removed
 # 08.04.2008 : Version 0.15 - some code cleaning
 # 16.05.2008 : Version 0.16 - one node bug fix
+# 08.09.2008 : Version 0.17 - remove all variables from all slaves added (von Esmeralda)
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do BG-Correction is faster.
@@ -71,6 +72,8 @@ bgCorrectPara <- function(cluster,
 	##################################
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 		t0 <- proc.time();
+		#remove all variables from all slaves
+		check <- clusterCall(cluster, function(){rm(list=ls())})
 	    check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type) 
 		t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))

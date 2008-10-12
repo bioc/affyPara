@@ -6,7 +6,6 @@
 \alias{getCompIntensityMatrixSF}
 \alias{getFUNAffyBatchSF}
 \alias{writeLinesSF}
-\alias{file.name}
 \alias{ReadHeaderSF}
 \alias{getObjectType}
 \alias{checkPartSize}
@@ -29,8 +28,6 @@ getFUNAffyBatchSF(FUN)
 writeLinesSF(data, fileName)
 ReadHeaderSF(object)
 
-file.name(file, fsep = .Platform$file.sep)
-
 getObjectType(object)
 checkPartSize(object, number.parts)
 }
@@ -44,8 +41,6 @@ checkPartSize(object, number.parts)
   \item{FUN}{ A function generating a value from a an \link[affy:AffyBatch-class]{AffyBatch}. e.g. \code{dim} }
   \item{data}{ A \code{character} vector, containing the data for the file.}
   \item{fileName}{ A \code{character} string with the file name.}
-  \item{file}{ A \code{character} vector of file names with prepended directory path.}
-  \item{fsep}{ A \code{character} string, giving the file separator used on your platform. }
   \item{number.parts}{ Number of nodes in the computer cluster.}
 }
 \details{
@@ -60,8 +55,6 @@ Internal functions for the \code{affyPara} package. The functions have to be use
 
 \item{\code{writeLinesSF}}{ Slavefunction to write data into a file at slaves.}
 \item{\code{ReadHeaderSF}}{ Slavefunction to return Header-Informations from CEL Files at slaves. }
-
-\item{\code{file.name}}{ Function to get file name from a \code{character} with complete file path (directory path and filename).}
 
 \item{\code{getObjectType}}{ Function to get type from object.}
 \item{\code{checkPartSize}}{ Function to check object for length.}

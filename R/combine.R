@@ -10,6 +10,7 @@
 # 10.12.2007 : Version 0.5 - #Remove NA's from list added
 # 14.12.2007 : Version 0.6 - Input from combineMatrices changed to matrices.list
 # 07.07.2008 : Version 0.7 - mergeAffyBatches improved for great Matrices
+# 27.08.2008 : Version 0.8 - mergeAffyBatches bugfix in annotations
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -41,11 +42,20 @@ mergeAffyBatches <- function (abatch.list,
     }
     #Create phenodata
     phenodata <- phenoData(abatch.list[[1]])
-    pData(phenodata) <- data.frame(sample=unlist(lapply(abatch.list,pData)),row.names=unlist(lapply(abatch.list,names<-function(data){
-    										#row.names(pData(data))
-    										sampleNames(data)
-    										})))
-					
+	
+   # pData(phenodata) <- data.frame(sample=unlist(lapply(abatch.list,pData)),
+	#							   row.names=unlist(lapply(abatch.list,names<-function(data){
+    #										#row.names(pData(data))
+    #										#sampleNames(data)
+	#	
+    ##										})))
+	#		
+	if ( length(abatch.list) > 1){
+		for( k in 2:length(abatch.list)){
+			pData(phenodata) <- rbind(pData(phenodata), pData(abatch.list[[k]]))
+		}
+	}	
+		
     #Check notes
     if (length(notes) == 0){
       notes(description) <- list(paste("Merge of", length(abatch.list),"AffyBatches with notes:",lapply(abatch.list,data<-function(data){

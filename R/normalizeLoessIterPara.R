@@ -8,6 +8,7 @@
 # 07.07.2008 : Version 0.3 - Bugfix for great Matrices
 # 13.07.2008 : Version 0.4 - permutation Matrix added
 # 14.07.2008 : Version 0.5 - output improved
+# 27.08.2008 : Version 0.6 - maxPerm removed and percentPerm introduced
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -19,7 +20,7 @@
 
 normalizeAffyBatchLoessIterPara <- function(cluster,
 		object,
-		maxPerm = 3,
+		percentPerm = 0.75,
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
 		type=c("separate","pmonly","mmonly","together"), 
 		subset = NULL,
@@ -104,10 +105,10 @@ normalizeAffyBatchLoessIterPara <- function(cluster,
 	if(type == "separate"){
 		if (verbose) cat("PM and MM loess separate normalization\n")
 		type <- "pmonly"
-		normalizeLoessIterPara(cluster, maxPerm, samples.names, type, subset, epsilon, maxit, span, family.loess, log.it, object.length, verbose)
+		normalizeLoessIterPara(cluster, percentPerm, samples.names, type, subset, epsilon, maxit, span, family.loess, log.it, object.length, verbose)
 		type <- "mmonly"
 	}
-	normalizeLoessIterPara(cluster, maxPerm, samples.names, type, subset, epsilon, maxit, span, family.loess, log.it, object.length, verbose)
+	normalizeLoessIterPara(cluster, percentPerm, samples.names, type, subset, epsilon, maxit, span, family.loess, log.it, object.length, verbose)
 	t1 <- proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
 	
@@ -131,7 +132,7 @@ normalizeAffyBatchLoessIterPara <- function(cluster,
 # Normalization Function for normalizeAffyBatchLoessPara
 ###
 normalizeLoessIterPara <- function(cluster,
-		maxPerm = 3,
+		percentPerm = 0.75,
 		samples.names, type, subset,
 		epsilon, maxit, 
 		span, family.loess,
@@ -158,9 +159,10 @@ normalizeLoessIterPara <- function(cluster,
 		subset <- sample(1:dimMat$nrow, min(c(5000,dimMat$nrow)))
 	
 	#Iteration for Permutation
+	percent <- 0
 	iterPerm <- 0
 	samples.names.akt <- samples.names
-	while(iterPerm < maxPerm){
+	while(percent < percentPerm){
 		iterPerm <- iterPerm +1
 		if(verbose) cat("\t", iterPerm, "Permutation of Arrays\n")
                                                                                                           
@@ -176,21 +178,27 @@ normalizeLoessIterPara <- function(cluster,
 		iter <- 0
 		while(iter < maxit){
 			iter <- iter + 1
-			if(verbose) cat("\tIteration ",iter,"\n")
+			if(verbose) cat("\t\tIteration ",iter,"\n")
 			
 			#Do normalization at nodes
 			if(verbose) cat("\t\tNormalization at slaves","\n")
 			normPairMat_list <- clusterCall(cluster, normalizeLoessIterParaSFnodes, subset, span, family.loess, iter, object.length)
 			for (l in 1:length(normPairMat_list))
 		    	normPairMat <- normPairMat +  normPairMat_list[[l]]
-			perzentNorm <- 1 - ( table(normPairMat==0)[2] / nenner )
 			
+			zaehler <- table(normPairMat==0)[2]
+			if( is.na(zaehler) )#all filled
+				percent <- 1
+			else
+				percent <- 1 - ( zaehler / nenner )
+					
 			#Calculate change
 			change <- clusterCall(cluster, writeArraySF, subset)
 			change <- max(unlist(change))
 			
-			if(verbose) cat("\t\tChange: ",change,"\n\t\tNormalization: ",perzentNorm*100,"%\n")
+			if(verbose) cat("\t\t\tChange: ",change,"\n\t\t\tNormalization: ",percent*100,"%\n")
 		}
+		
 	}
 	
 	if (iterPerm > 1){

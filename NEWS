@@ -1,8 +1,13 @@
-# R Package AffyPara - Changelog
+# R Package AffyPara - NEWS
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
-affyPara 1.1.8 (build 22. August 2009)
+
+affyPara 1.1.9 (build 08. October 2008)
+- finalizing for new BioConductor Version
+- small code improvements in distibuteFiles (for multiprocessor machines)
+
+affyPara 1.1.8 (build 22. August 2008)
 - computeExpressionSet improved
 - changelog renamed to NEWS
 
