@@ -60,12 +60,12 @@ An object of class \link[Biobase]{ExpressionSet}.
 \dontrun{
 library(affyPara)
 
-data(affybatch.example)
+data(Dilution)
 
 c1 <- makeCluster(3)
 
 esset <- preproPara(cluster,
-    affybatch.example,
+    Dilution,
     bgcorrect = TRUE, bgcorrect.method = "rma2",
     normalize = TRUE, normalize.method = "quantil",
     pmcorrect.method = "pmonly",

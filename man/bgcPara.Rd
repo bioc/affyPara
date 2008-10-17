@@ -39,12 +39,12 @@ For using this function a computer cluster using the \code{snow} package has to 
 \dontrun{
 library(affyPara)
 
-data(affybatch.example)
+data(Dilution)
 
 c1 <- makeCluster(3)
 
-##bgc will be the bg corrected version of affybatch.example 
-bgc <- bgCorrectPara(c1, affybatch.example, method="rma", verbose=TRUE)
+##bgc will be the bg corrected version of Dilution 
+bgc <- bgCorrectPara(c1, Dilution, method="rma", verbose=TRUE)
 
 stopCluster(c1)
 }

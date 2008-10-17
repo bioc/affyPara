@@ -43,11 +43,11 @@ An object of class \link[Biobase]{ExpressionSet}.
 \dontrun{
 library(affyPara)
 
-data(affybatch.example)
+data(Dilution)
 
 c1 <- makeCluster(3)
 
-esset <- rmaPara(cluster, affybatch.example)
+esset <- rmaPara(cluster, Dilution)
     
 stopCluster(c1)
 }

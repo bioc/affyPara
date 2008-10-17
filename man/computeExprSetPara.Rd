@@ -47,12 +47,12 @@ An object of class \link[Biobase]{ExpressionSet}.
 \dontrun{
 library(affyPara)
 
-data(affybatch.example)
+data(Dilution)
 
 c1 <- makeCluster(3)
 
 esset <- computeExprSetPara(cluster,
-    affybatch.example,
+    Dilution,
     pmcorrect.method = "pmonly",
     summary.method = "avgdiff",
     verbose = TRUE)

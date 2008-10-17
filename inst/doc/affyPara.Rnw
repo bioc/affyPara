@@ -127,7 +127,7 @@ the \Rpackage{affy} package an object of class \Rfunction{AffyBatch} can be crea
 \item Make sure your working directory contains the CEL files (\Rfunction{getwd()}, \Rfunction{setwd()}). 
 \item Then read in the data:
 \begin{Sinput}
-R> affybatch.example <- ReadAffy()
+R> Dilution <- ReadAffy()
 \end{Sinput}
 \end{itemize}
 This \Rfunction{AffyBatch} can be used to do preprocessing (with functions from the \Rpackage{affyPara} and
@@ -154,10 +154,10 @@ bgcorrect.methods
 @
 
 \subsubsection{Use Background Correction Para}
-The function \Rfunction{bgCorrectPara} needs a cluster object (c1), an input data object (affybatch.example)
+The function \Rfunction{bgCorrectPara} needs a cluster object (c1), an input data object (Dilution)
 and the background correction method (method="rma") as input parameters.
 \begin{Sinput}
-R> affyBatchGBC <- bgCorrectPara(c1, affybatch.example,
+R> affyBatchGBC <- bgCorrectPara(c1, Dilution,
 					method="rma")
 \end{Sinput}
 
@@ -183,11 +183,11 @@ The parallelized normalization functions need a cluster object, an input data ob
 parameters as input paramters.
 
 \subsubsection{Use Quantile Normalization Para}
-The function \Rfunction{normalizeAffyBatchQuantilesPara} needs a cluster object (c1), an input data object (affybatch.example)
+The function \Rfunction{normalizeAffyBatchQuantilesPara} needs a cluster object (c1), an input data object (Dilution)
 and quantil normalization parameters as input parameters (type = "pmonly").
 \begin{Sinput}
 R> affyBatchNORM <- normalizeAffyBatchQuantilesPara(c1,
-		affybatch.example, type = "pmonly")
+		Dilution, type = "pmonly")
 \end{Sinput}
 
 If you do not want to use an \Rfunction{AffyBatch} as input data, you can directly give the CEL files and a vector of the
@@ -217,11 +217,11 @@ pmcorrect.methods
 @
 
 \subsubsection{Use Summarization Para}
-The function \Rfunction{computeExprSetPara} needs a cluster object (c1), an input data object (affybatch.example)
+The function \Rfunction{computeExprSetPara} needs a cluster object (c1), an input data object (Dilution)
 and the summarization parameters as input parameters (pmcorrect.method = "pmonly", summary.method = "avgdiff").
 \begin{Sinput}
 R> esset <- computeExprSetPara(c1,
-	affybatch.example,
+	Dilution,
 	pmcorrect.method = "pmonly",
 	summary.method = "avgdiff")
 \end{Sinput}
@@ -249,11 +249,11 @@ be built, and the time-consuming rebuilding of the Affy-Batches is no longer nec
 It is important to note that not every preprocessing method can be combined together. For more details see the vignettes in
 the \Rpackage{affyPara} package. 
 
-The function \Rfunction{preproPara} needs a cluster object (c1), an input data object (affybatch.example)
+The function \Rfunction{preproPara} needs a cluster object (c1), an input data object (Dilution)
 and the parameters for BGC, normalization and summarization as input parameters.
 \begin{Sinput}
 R> esset <- preproPara(c1,
-	affybatch.example, 
+	Dilution, 
 	bgcorrect = TRUE, bgcorrect.method = "rma2",
 	normalize = TRUE, normalize.method = "quantil",
 	pmcorrect.method = "pmonly",
@@ -285,7 +285,7 @@ The parallelized version of \Rfunction{rma} is called \Rfunction{rmaPara} and is
 function \Rfunction{preproPara}.
 
 \begin{Sinput}
-R> esset <- rmaPara(c1,affybatch.example)
+R> esset <- rmaPara(c1,Dilution)
 \end{Sinput}
 It is not very reasonable to have an \Rfunction{AffyBatch} as input data object for this function.
 Because therefore you have to create a complete \Rfunction{AffyBatch} (very memory intensive).
@@ -329,9 +329,9 @@ R> removeDistributedFiles(c1, "/usr1/tmp/CELfiles")
 In view of machine accuracy, the parallelized functions produce same results as serialized methods. To compare results
 from different functions you can use the functions \Rfunction{identical} or \Rfunction{all.equal} from the \Rpackage{base} package.
 \begin{Sinput}
-R> affybatch1 <- bg.correct(affybatch.example,
+R> affybatch1 <- bg.correct(Dilution,
 		method="rma") 
-R> affybatch2 <- bgCorrectPara(c1, affybatch.example,
+R> affybatch2 <- bgCorrectPara(c1, Dilution,
 		method="rma")
 R> identical(exprs(affybatch1),exprs(affybatch2))
 [1] TRUE
@@ -346,9 +346,9 @@ Attention for loess normalization: In loess normalization a random sub sample wi
 has to be reset for evry run: 
 \begin{Sinput}
 R> set.seed(1234)
-R> affybatch1 <- normalize.AffyBatch.loess(c1, affybatch.example)
+R> affybatch1 <- normalize.AffyBatch.loess(c1, Dilution)
 R> set.seed(1234)
-R> affybatch2 <- normalizeAffyBatchLoessPara(affybatch.example) 
+R> affybatch2 <- normalizeAffyBatchLoessPara(Dilution) 
 R> identical(exprs(affybatch1),exprs(affybatch2))
 [1] TRUE
 \end{Sinput}

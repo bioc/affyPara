@@ -36,9 +36,9 @@ A \code{list} of the split objects.
 \examples{
 library(affyPara)
 
-data(affybatch.example)
+data(Dilution)
 
-spAffyB <- splitAffyBatch(affybatch.example, 2)
+spAffyB <- splitAffyBatch(Dilution, 2)
 }
 
 \keyword{programming}

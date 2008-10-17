@@ -35,10 +35,10 @@ Functions to merge or combine a \code{list} of split objects.
 \examples{
 library(affyPara)
 
-data(affybatch.example)
+data(Dilution)
 
 #split AffyBatch
-abatch.list<- splitAffyBatch(affybatch.example, 2)
+abatch.list<- splitAffyBatch(Dilution, 2)
 
 #Merge AffyBatch
 AffyBatch <- mergeAffyBatches(abatch.list)
