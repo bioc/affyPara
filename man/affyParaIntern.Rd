@@ -17,7 +17,7 @@ Internal functions for the \code{affyPara} package.
 }
 
 \usage{
-initAffyBatchSF(object, object.type)
+initAffyBatchSF(object, object.type, rm.all)
 
 getAffyBatchSF()
 getIntensitySF(rows, refindexname)
@@ -35,6 +35,7 @@ checkPartSize(object, number.parts)
 \arguments{
   \item{object}{ An object of class \link[affy:AffyBatch-class]{AffyBatch} OR a \code{character} vector with the names of CEL files OR a (partitioned) list of \code{character} vectors with CEL file names.}
   \item{object.type}{ Declaration for the type of the argument \code{object}: "AffyBatch", "CELfileVec", "partCELfileList" }
+  \item{rm.all}{ A logical value. If \code{TRUE} all variables in the global environment will be removed before initialization of the AffyBatch}
   \item{rows}{ Number of rows which have to be changed. }
   \item{refindexname}{ The name of the array used as a reference. }
   \item{drop}{ A logical value. If \code{TRUE} the dimensions of an array which have only one level will be deleted. } 

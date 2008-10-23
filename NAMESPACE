@@ -3,9 +3,11 @@ export(distributeFiles, removeDistributedFiles,
 	bgCorrectPara,
 	normalizeAffyBatchQuantilesPara, normalizeAffyBatchInvariantsetPara, normalizeAffyBatchConstantPara, 
 	normalizeAffyBatchLoessPara, normalizeAffyBatchLoessIterPara, 
+	justvsnPara,
 	computeExprSetPara,
 	preproPara, rmaPara,
-	mergeAffyBatches, combineMatrices
+	mergeAffyBatches, combineMatrices,
+	boxplotPara
 )
 
 importClassesFrom("vsn", "vsnInput")

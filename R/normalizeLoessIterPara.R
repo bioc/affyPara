@@ -9,6 +9,7 @@
 # 13.07.2008 : Version 0.4 - permutation Matrix added
 # 14.07.2008 : Version 0.5 - output improved
 # 27.08.2008 : Version 0.6 - maxPerm removed and percentPerm introduced
+# 18.10.2008 : Version 0.7 - cluster - assign substituted by clusterExport
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -152,7 +153,8 @@ normalizeLoessIterPara <- function(cluster,
 		for(j in 1:n)
 			if (i<j) normPairMat[i,j]<-0
   	}
-  	check <- clusterCall(cluster, assign, "normPairMat", value=normPairMat, envir= .GlobalEnv) 
+  	#check <- clusterCall(cluster, assign, "normPairMat", value=normPairMat, envir= .GlobalEnv) 
+	clusterExport(cluster, list("normPairMat"))
 	
 	#Generate subset
 	if (is.null(subset))

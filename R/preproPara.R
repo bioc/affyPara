@@ -12,6 +12,7 @@
 # 27.03.2008 : Version 0.16 - object.type as input removed
 # 16.05.2008 : Version 0.17 - one node bug fix
 # 28.05.2008 : Version 0.18 - loess normalization added
+# 23.10.2008 : Version 0.19 - awfull bug in checks remuved
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -40,7 +41,7 @@ preproPara <- function(cluster,
     if(bgcorrect){
     	if (is.null(bgcorrect.method))
     		stop("You have to choose a BG-Method")
-    	if (any(bgcorrect.method == bgcorrect.methods) == 0)
+    	if (any(bgcorrect.method == bgcorrect.methods()) == 0)
 			stop(paste("Unknown BG-method (cannot find function '", bgcorrect.method,"')",sep=""))
     } else {
     	bgcorrect.method="none"

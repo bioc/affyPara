@@ -11,6 +11,9 @@
 # 17.07.2008 : Version 0.16 - bugFix in setArraySF
 # 11.09.2008 : Version 0.17 - file.name removed -> basename
 # 15.09.2008 : Version 0.18 - output von initAffyBatchSF set to dimAB
+# 13.10.2008 : Version 0.19 - initAffyBatchSF rm.all added
+# 14.10.2008 : Version 0.20 - setIntMatSF added
+# 21.10.2008 : Version 0.21 - rowMeansPara and rowVPara added
 # 
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -239,12 +242,15 @@ resetMatSF <- function(matName="mat")
 ###
 # Initializing AffyBatch at Slaves
 ###
-initAffyBatchSF <- function(object, object.type)
+initAffyBatchSF <- function(object, object.type, rm.all=FALSE)
 {
 	require(affy)
 	#remove old AffyBatches
 	if (exists("AffyBatch", envir = .GlobalEnv))
 		rm(AffyBatch, envir = .GlobalEnv)
+	#remove everything from nodes
+	if(rm.all)
+		rm(list=ls(envir = .GlobalEnv), envir = .GlobalEnv)
 	
 	#create AffyBatch
 	if (object.type == "AffyBatch")
@@ -257,6 +263,26 @@ initAffyBatchSF <- function(object, object.type)
 	#temporary save AffyBatch
 	assign("AffyBatch", value=AffyBatch, envir= .GlobalEnv)
 	return(dim(exprs(AffyBatch)))
+}
+
+###
+# set Intensity Matrix at Slaves
+###
+setIntMatSF <- function(rm.AB=TRUE, drop=FALSE)
+{
+	require(affy)
+	if (exists("AffyBatch", envir = .GlobalEnv)){
+		#get AffyBatch
+		AffyBatch <- get("AffyBatch", envir = .GlobalEnv)
+		#get intensity matrix
+		x <- intensity(AffyBatch)[,,drop=drop ]
+		#save intensity matrix
+		assign("x", value=x, envir= .GlobalEnv)
+		if(rm.AB)
+			rm(AffyBatch, envir = .GlobalEnv)
+		return(TRUE)
+	} else
+		return(NA)
 }
 
 ########################################
@@ -391,5 +417,58 @@ checkPartSize <- function(object, number.parts)
 	} else
 		return( list(number.parts=number.parts, object.length=length(object)) )
 }
-	
-	
+
+#############################################
+###
+# rowSumsPara
+###
+rowMeansPara <- function(name, nr, slot=NULL)
+{
+	rowSums_list <- clusterCall(cluster, rowMeansParaSF, name, slot)
+	sum <- rep(0, length(rowSums_list[[1]]) )
+	for(i in 1:length(rowSums_list))
+		sum <- sum + rowSums_list[[i]]
+	return(sum/nr)	
+}
+
+rowMeansParaSF <- function(name, slot)
+{
+	if (exists(name, envir = .GlobalEnv)) {
+		mat <- get(name, envir = .GlobalEnv)	
+		if( !is.null(slot) )
+			mat <- mat[[slot]]
+		rowSumsMat <- rowSums(as.matrix(mat), na.rm=TRUE)
+		return(rowSumsMat)
+	} else
+		return(FALSE)
+}
+
+#############################################
+###
+# rowVPara
+###
+rowVPara <- function(name, mean, slot=NULL)
+{
+	rvar_list <- clusterCall(cluster, rowVParaSF, name, slot, mean)	
+	rvar <- 0
+	n <- 0
+	for(i in 1:length(rvar_list)){
+		rvar <- rvar + rvar_list[[i]][[1]]
+		n <- n + rvar_list[[i]][[2]]
+	}
+	return( rvar/(n-1) )
+}
+
+rowVParaSF <- function(name, slot, mean)
+{
+	if (exists(name, envir = .GlobalEnv)) {
+		mat <- get(name, envir = .GlobalEnv)	
+		if( !is.null(slot) )
+			mat <- mat[[slot]]
+		sqr = function(x)  x*x
+		n = rowSums(!is.na(mat))
+		n[n<1]  = NA
+		return( list( rowSums( sqr(hy-mean) ), n) )
+	}else
+		return(NA)
+}
