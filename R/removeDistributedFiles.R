@@ -57,12 +57,3 @@ removeDistributedFiles <- function(cluster,
   #Return result
   return( output )
 }
-
-###
-# Slavefunction
-# remove Files and Directory at slaves
-###
-removeFilesSF <- function(path, recursive=TRUE) {
-	#unlink(paste(path,"*",sep="/"), recursive=recursive)
-	unlink(path, recursive=recursive)
-}
