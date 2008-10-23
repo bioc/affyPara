@@ -14,6 +14,7 @@
 # 02.07.2008 : Version 0.8 - default value for path added
 # 10.10.2008 : Version 0.9 - path set to tempdir()
 # 12.10.2008 : Version 0.10 - code cleaning and bugfix in file removing (only files, not directory)
+# 23.10.2008 : Version 0.11 - cleanup improved
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -28,30 +29,30 @@ removeDistributedFiles <- function(cluster,
 	#Check cluster
 	checkCluster(cluster)
     
-    #Remove Files at Master
+    #Remove Files at Master, but nor directroy
 	if (verbose) cat("Remove files on Master ")
 		check<-unlink(paste(path,"*",sep="/"), recursive=TRUE)
 		if (check == 1)
 			check<-unlink(paste(path,"*",sep="/"), recursive=TRUE)
 	if (verbose) cat("... DONE\n")
 
-	#Remove Files at Slaves
+	#Remove files and directories at slaves
 	if (verbose) cat("Remove files on Slaves ")
-		clusterCall(cluster, removeFilesSF, path)
+		clusterCall(cluster, unlink, path, recursive=TRUE)
 	if (verbose) cat("... DONE\n")
 		
 	#Check if cleanup was successfull
 	if (verbose) cat("Check: ")
-		masterCheck <- file.access(path, mode = 0)
-		slaveCheck <- unlist(clusterCall(cluster, file.access, path, mode=0))
-		anzSlaves <- length(cluster)
-		if (sum(slaveCheck) == (-1 * anzSlaves) && masterCheck == -1) {
-      output <- TRUE
-	    if (verbose) cat("Files successfully removed!\n");
+		masterCheck <- length(list.files(path))
+	 	slaveCheck <- sum( unlist(clusterCall(cluster, function(x) length(list.files(x)), path) ) )
+		if ( slaveCheck == 0 && masterCheck == 0) {
+			output <- TRUE
+			if (verbose) cat("Files successfully removed!\n");
 		} else {
-		  output <- FALSE
+			output <- FALSE
+			if (verbose) cat("Files not successfully removed!\n");
 			warning("Files not successfully removed!\n")
-    }
+		}
 
   #Return result
   return( output )
@@ -59,8 +60,9 @@ removeDistributedFiles <- function(cluster,
 
 ###
 # Slavefunction
-# remove Files at slaves
+# remove Files and Directory at slaves
 ###
 removeFilesSF <- function(path, recursive=TRUE) {
-	unlink(paste(path,"*",sep="/"), recursive=recursive)
+	#unlink(paste(path,"*",sep="/"), recursive=recursive)
+	unlink(path, recursive=recursive)
 }
