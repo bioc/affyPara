@@ -12,7 +12,7 @@
 # 27.03.2008 : Version 0.16 - object.type as input removed
 # 16.05.2008 : Version 0.17 - one node bug fix
 # 28.05.2008 : Version 0.18 - loess normalization added
-# 23.10.2008 : Version 0.19 - awfull bug in checks remuved
+# 23.10.2008 : Version 0.19 - awfull bug in checks removed
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -56,7 +56,7 @@ preproPara <- function(cluster,
     }
    	if (is.null(summary.method))
     	stop("You have to choose a Summarization-Method")
-    if (any(generateExprSet.methods==summary.method) == 0)
+    if (any(generateExprSet.methods()==summary.method) == 0)
     	stop("Unknown Summarization-Method")
 
 	#Check object type
