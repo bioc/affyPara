@@ -17,6 +17,7 @@
 # 02.07.2008 : Version 0.15 - delExistTo added
 # 11.09.2008 : Version 0.16 - file.name removed -> basename
 # 10.10.2008 : Version 0.17 - to set to tempdir()
+# 23.10.2008 : Version 0.18 - Improvements in directory creation
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -46,21 +47,20 @@ distributeFiles <- function(cluster,
 	
     ###################
 	#Create directories
-	# only if not tempdir
 	###################
-
-		if (verbose>0) cat("Create Directories ")
-			t1 <- proc.time()
-			if(to != tempdir()){
+	if (verbose>0) cat("Create Directories ")
+		t1 <- proc.time()
+		#at master: only if not tempdir
+		if(to != tempdir()){
 			error <- system(paste("mkdir ",to,sep=""))
-			if ( error != 0)
-				warning("Directory ",to," already exists at master.")
+			if ( error != 0) warning("Directory ",to," already exists at master.")
 		}
-			error <- clusterCall(cluster, dir.create, to, showWarnings = TRUE, recursive = TRUE)
-			check <- lapply(error, function(x){ if(x==0) warning("Directory ",to," already exists at slave.")} )
-			t2 <- proc.time()
-		if (verbose>0) cat(round(t2[3]-t1[3],3),"sec DONE\n")
-
+		#at slaves
+		error <- clusterCall(cluster, dir.create, to, showWarnings = TRUE, recursive = TRUE)
+		check <- lapply(error, function(x){ if(x!=TRUE) warning("Directory ",to," already exists at slaves.")} )
+		
+		t2 <- proc.time()
+	if (verbose>0) cat(round(t2[3]-t1[3],3),"sec DONE\n")
 	
 	###################
 	#Partition of files
@@ -99,8 +99,10 @@ distributeFiles <- function(cluster,
 			for (j in files){
 				if (verbose>0) cat(".")
 				if (protocol == "RCP") {
+					if(verbose>1) cat(paste("rcp ", j," ",to,"/",sep=""),"\n")
 					error <- system(paste("rcp ", j," ",to,"/",sep=""))
 				} else if (protocol == "SCP") {
+					if(verbose>1) cat(paste("scp ", j," ",to,"/",sep=""),"\n")
 					error <- system(paste("scp ", j," ",to,"/",sep=""))
 				}
 			}
@@ -138,8 +140,10 @@ distributeFiles <- function(cluster,
 				if (verbose>0) cat(".")
 				for (j in filesPart[[i]]){
 					if (protocol == "RCP") {
+						if(verbose>1) cat(paste("rcp ", j," ",host,sep=""),"\n")
 						error <- system(paste("rcp ", j," ",host,sep=""))
 					} else if (protocol == "SCP") {
+						if(verbose>1) cat(paste("scp ", j," ",host,sep=""),"\n")
 						error <- system(paste("scp ", j," ",host,sep=""))
 					}
 				}
@@ -159,8 +163,7 @@ distributeFiles <- function(cluster,
 				out <- clusterCall(cluster, hirarchicalDistSF, to, nodes, protocol=protocol)
 				if (verbose>1) print(out)		
 			} else if (protocol == "R") {
-				#TODO machbar �ber c[1]
-				warning("hierarchically dist wirh R not yet implemented")
+				warning("TODO hierarchically dist with R not yet implemented")
 			}
 			t2 <- proc.time()
 		if (verbose>0) cat(round(t2[3]-t1[3],3),"sec DONE\n")
