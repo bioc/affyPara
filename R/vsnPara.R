@@ -7,6 +7,7 @@
 # xx.09.2008 : Version 0.2 - implementation
 # 14.10.2008 : Version 0.3 - first running version
 # 21.10.2008 : Version 0.4 - everything vectorized and strata removed 
+# 24.10.2008 : Version 0.5 - subsamples no work correct
 #
 # TODO: vsnrma
 # TODO: reference
@@ -203,7 +204,7 @@ vsnMatrixPara <- function(cluster,
 	res@hoffset = log2(2*scalingFactorTransformation(rowMeans(cof[,,2L,drop=FALSE])))
 	
 	## calculate the data matrix transformed according to 'coefficients'
-	vsn2trsfPara(cluster, coefficients(res), hoffset = res@hoffset, reset=TRUE)
+	vsn2trsfPara(cluster, coefficients(res), hoffset = res@hoffset, wh=FALSE, reset=TRUE)
 
 	stopifnot(validObject(res))
 
@@ -226,29 +227,19 @@ vsnSamplePara <- function(cluster,
   	}
 
 	if(!is.null(wh)){
-		# reduce x to subsample dim
+		# reduce x to subsample dim / save subsample id
 		check <- clusterCall(cluster, function(wh){
-					if (exists("x", envir = .GlobalEnv)) {
-						x <- get("x", envir = .GlobalEnv)
-						x <- x[wh,,drop=FALSE]
-						assign("x", value=x, envir= .GlobalEnv)
-						return(TRUE)
-					} else
-						return(NA)
+					assign("wh", value=wh, envir= .GlobalEnv)
+					return(TRUE)
 				}, wh)
-		tmp <- v@dimAB[1] #idee
-		v@dimAB[1] <- length(wh) #idee
+		
+		tmpDim <- v@dimAB[1] 
+		v@dimAB[1] <- length(wh) 
 		#call next vsn step
 		res = vsnStrataPara(cluster, v, verbose)
 		## put back the results from subsampling
-		v@dimAB[1] <- tmp #idee
+		v@dimAB[1] <- tmpDim
 		newmu = rep(NA_real_, nrow(v))
-		
-		print(length(newmu))
-		print(length(newmu[wh]))
-		print(length(res@mu)) #TODO Fehler darf nur 30.000 haben! (villeicht nmit hy??)
-		
-		
 		newmu[wh] = res@mu
 		res@mu = newmu
 	} else {
@@ -302,7 +293,7 @@ vsnLTSPara <- function(cluster,
 			break
 		
 		## apply to all data
-		vsn2trsfPara(cluster, coefficients(rsv))
+		vsn2trsfPara(cluster, coefficients(rsv), wh=TRUE)
 		v@pstart = coefficients(rsv)
 		
 		## Calculate residuals
@@ -322,8 +313,6 @@ vsnLTSPara <- function(cluster,
 				tmp[whsel] = rsv@mu
 				rsv@mu = tmp
 			}
-			
-			print(length(rsv@mu))
 		}
 		
 		## row variances
@@ -342,8 +331,6 @@ vsnLTSPara <- function(cluster,
 		
 		meds    = grmed[as.character(slice)]
 		whsel   = which(rvar <= meds)
-		
-		print(length(whsel))
 
         #convergence check
 		#TODO convCheck bisher nicht implementiert
@@ -362,12 +349,12 @@ vsnLTSPara <- function(cluster,
 ################################################################################
 vsn2trsfPara<- function(cluster,
 		par, hoffset=NULL, 
-		reset=FALSE)
+		wh=TRUE, reset=FALSE)
 {
-	check <- clusterCall(cluster, vsn2trsfParaSF, par, hoffset, reset)			
+	check <- clusterCall(cluster, vsn2trsfParaSF, par, hoffset, wh, reset)			
 }
 
-vsn2trsfParaSF <- function(par, hoffset, reset)
+vsn2trsfParaSF <- function(par, hoffset, wh, reset)
 {
 	# vectorized
 	if (exists("dist", envir = .GlobalEnv) &&
@@ -375,6 +362,11 @@ vsn2trsfParaSF <- function(par, hoffset, reset)
 		
 		dist <- get("dist", envir = .GlobalEnv)
 		x <- get("x", envir = .GlobalEnv)
+		if (exists("wh", envir = .GlobalEnv) && wh==TRUE){
+			wh <- get("wh", envir = .GlobalEnv)
+			x <- x[wh,]
+			x <- as.matrix(x)
+		}
 		
 		# calculate parameter
 		a <- par[1:(length(par)/2)] #first part
@@ -511,6 +503,11 @@ setupParaSF <- function(Spar)
 		px <- list()
 		px$npar <- length(Spar)
 		x <- get("x", envir = .GlobalEnv)
+		if (exists("wh", envir = .GlobalEnv)){
+			wh <- get("wh", envir = .GlobalEnv)
+			x <- x[wh,]
+			x <- as.matrix(x)
+		}	
 		if (exists("whsel", envir = .GlobalEnv)){
 			whsel <- get("whsel", envir = .GlobalEnv)
 			x <- x[whsel,]
