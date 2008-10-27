@@ -9,6 +9,7 @@
 # 14.10.2008 : Version 0.20 - setIntMatSF added
 # 21.10.2008 : Version 0.21 - rowMeansPara and rowVPara added
 # 27.10.2008 : Version 0.22 - rowMeansPara and rowVPara improved
+# 27.10.2008 : Version 0.23 - removeNA added
 # 
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -420,9 +421,12 @@ checkPartSize <- function(object, number.parts)
 rowMeansPara <- function(cluster, name, nr, slot=NULL)
 {
 	rowSums_list <- clusterCall(cluster, rowMeansParaSF, name, slot)
+	rowSums_list <- removeNA(rowSums_list)
 	sum <- rep(0, length(rowSums_list[[1]]) )
 	for(i in 1:length(rowSums_list))
 		sum <- sum + rowSums_list[[i]]
+	
+
 	return(sum/nr)	
 }
 
@@ -435,7 +439,7 @@ rowMeansParaSF <- function(name, slot)
 		rowSumsMat <- rowSums(as.matrix(mat), na.rm=TRUE)
 		return(rowSumsMat)
 	} else
-		return(FALSE)
+		return(NA)
 }
 
 #############################################
@@ -444,7 +448,8 @@ rowMeansParaSF <- function(name, slot)
 ###
 rowVPara <- function(cluster, name, mean, slot=NULL)
 {
-	rvar_list <- clusterCall(cluster, rowVParaSF, name, slot, mean)	
+	rvar_list <- clusterCall(cluster, rowVParaSF, name, slot, mean)
+	rvar_list <- removeNA(rvar_list)
 	rvar <- 0
 	n <- 0
 	for(i in 1:length(rvar_list)){
@@ -466,4 +471,15 @@ rowVParaSF <- function(name, slot, mean)
 		return( list( rowSums( sqr(mat-mean) ), n) )
 	}else
 		return(NA)
+}
+
+#######################################################
+# Function to remove NAs from lists
+removeNA <- function(x)
+{
+	omit <- !unlist( lapply(x,function(xel){
+						if( is.na(xel) && length(xel)==1 ) return(TRUE)
+						else return(FALSE)
+					}) ) 		
+	return( x[omit] )
 }

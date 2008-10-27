@@ -25,8 +25,8 @@
 justvsnPara <- function(cluster,
 	object,
 	phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-	subsample, ...,
-	verbose=TRUE) 
+	reference, subsample,
+	..., verbose=TRUE) 
 {	
     ########
     # Checks
@@ -76,7 +76,7 @@ justvsnPara <- function(cluster,
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 		t0 <- proc.time();
 		#initialize affybatch
-		dimAB <- clusterApply(cluster, object.list, initAffyBatchSF, object.type, rm.all=FALSE)
+		dimAB <- clusterApply(cluster, object.list, initAffyBatchSF, object.type, rm.all=TRUE)
 		#initialize intensity matrix and remove AB
 		check <- clusterCall(cluster, setIntMatSF, rm.AB=FALSE)
 		#calculate data distribution
@@ -103,7 +103,7 @@ justvsnPara <- function(cluster,
 	nrow <- dimAB[1]
 	dimAB <- c(nrow,ncol)
 	
-	vsn2Para(cluster, dimAB, subsample, ... , verbose=verbose)
+	vsn2Para(cluster, dimAB, reference, subsample, ... , verbose=verbose)
 	
 	##############################
 	#Combine / Rebuild affyBatches
@@ -317,7 +317,7 @@ vsnLTSPara <- function(cluster,
 		}
 		
 		## row variances
-		rvar <- rowVPara("hy", hmean)
+		rvar <- rowVPara(cluster, "hy", hmean)
 		
 		## select those data points whose rvar is within the quantile; do this separately
 		## within each stratum, and also within strata defined by hmean
@@ -546,6 +546,7 @@ logikPara <- function(par,
 	# 1st sweep through the data: compute Y_ki, h(y_ki), A_ki, B_ki 
 	######
 	jac <- clusterCall(cluster, logikParaSF1, par)
+	jac <- removeNA(jac)
 	jac1 <- sum( unlist(jac)[seq(1,length(unlist(jac)),3)] )
 	jac2 <- sum( unlist(jac)[seq(2,length(unlist(jac)),3)] )
 	nt <- sum( unlist(jac)[seq(3,length(unlist(jac)),3)] )
@@ -558,6 +559,7 @@ logikPara <- function(par,
 		
 	#vectorized
 	ssq_list <- clusterCall(cluster, logikParaSF2, px$mu)
+	ssq_list <- removeNA(ssq_list)
 	ssq <- sum( unlist(ssq_list) )
 	sigsq <- ssq/nt
 	px$sigsq <- sigsq
@@ -639,6 +641,7 @@ grad_loglikPara <- function(par, px, cluster, verbose)
 	
 	#vectorized gradient calculation at nodes
 	gr_list <- clusterCall(cluster, grad_loglikParaSF, rfac, par)
+	gr_list <- removeNA(gr_list)
 	gr1 <- vector(length=0)
 	gr2 <- vector(length=0)
 	for(i in 1:length(gr_list)){
