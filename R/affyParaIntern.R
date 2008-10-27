@@ -3,17 +3,12 @@
 # generall support SLAVE - functions for affyPara
 #
 # History
-# 17.07.2008 : ... old stuff removed ...
-# 28.05.2008 : Version 0.12 - never used functions removed
-# 23.06.2008 : Version 0.13 - permMatrix added
-# 23.06.2008 : Version 0.14 - error for Repermutation fixed
-# 07.07.2008 : Version 0.15 - initAffyBatchSF, error for small numbers of nodes fixed
-# 17.07.2008 : Version 0.16 - bugFix in setArraySF
-# 11.09.2008 : Version 0.17 - file.name removed -> basename
+# 27.10.2008 : ... old stuff removed ...
 # 15.09.2008 : Version 0.18 - output von initAffyBatchSF set to dimAB
 # 13.10.2008 : Version 0.19 - initAffyBatchSF rm.all added
 # 14.10.2008 : Version 0.20 - setIntMatSF added
 # 21.10.2008 : Version 0.21 - rowMeansPara and rowVPara added
+# 27.10.2008 : Version 0.22 - rowMeansPara and rowVPara improved
 # 
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -422,7 +417,7 @@ checkPartSize <- function(object, number.parts)
 ###
 # rowSumsPara
 ###
-rowMeansPara <- function(name, nr, slot=NULL)
+rowMeansPara <- function(cluster, name, nr, slot=NULL)
 {
 	rowSums_list <- clusterCall(cluster, rowMeansParaSF, name, slot)
 	sum <- rep(0, length(rowSums_list[[1]]) )
@@ -447,7 +442,7 @@ rowMeansParaSF <- function(name, slot)
 ###
 # rowVPara
 ###
-rowVPara <- function(name, mean, slot=NULL)
+rowVPara <- function(cluster, name, mean, slot=NULL)
 {
 	rvar_list <- clusterCall(cluster, rowVParaSF, name, slot, mean)	
 	rvar <- 0
@@ -468,7 +463,7 @@ rowVParaSF <- function(name, slot, mean)
 		sqr = function(x)  x*x
 		n = rowSums(!is.na(mat))
 		n[n<1]  = NA
-		return( list( rowSums( sqr(hy-mean) ), n) )
+		return( list( rowSums( sqr(mat-mean) ), n) )
 	}else
 		return(NA)
 }

@@ -8,6 +8,7 @@
 # 14.10.2008 : Version 0.3 - first running version
 # 21.10.2008 : Version 0.4 - everything vectorized and strata removed 
 # 24.10.2008 : Version 0.5 - subsamples no work correct
+# 27.10.2008 : Version 0.6 - rowMeansPara and rowVPara improved
 #
 # TODO: vsnrma
 # TODO: reference
@@ -302,7 +303,7 @@ vsnLTSPara <- function(cluster,
 			hmean = v@reference@mu
 		} else {
 			## without reference:
-			hmean <- rowMeansPara("hy",ncol(v))
+			hmean <- rowMeansPara(cluster, "hy",ncol(v))
 			## double check with what was computed in vsnML:
 			if(iter==1L) {
 				if(rsv@lbfgsb==0L) stopifnot(vsn:::isSmall(rsv@mu-hmean))
@@ -553,7 +554,7 @@ logikPara <- function(par,
 	#######
 	# 2nd sweep through the data: compute r_ki                      
 	#######
-	px$mu <-rowMeansPara("px", px$ncol, slot="asly")
+	px$mu <-rowMeansPara(cluster, "px", px$ncol, slot="asly")
 		
 	#vectorized
 	ssq_list <- clusterCall(cluster, logikParaSF2, px$mu)
