@@ -11,6 +11,7 @@
 # 16.05.2008 : Version 0.9 - one node bug fix
 # 08.08.2008 : Version 0.10 - calculate expressionSet at nodes -> speed improvement
 # 22.08.2008 : Version 0.11 - different summary.methods
+# 23.10.2008 : Version 0.12 - awfull bug in checks remuved
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -42,9 +43,9 @@ computeExprSetPara <- function(cluster,
 	object.length <- parts$object.length
 	
 	#Check Parameter
-	pmcorrect.method <- match.arg(pmcorrect.method, pmcorrect.methods)
-	express.summary.stat.methods <- c(express.summary.stat.methods, 'medianpolish_orig', 'liwong_orig', 'farms_orig', 'playerout_orig')
-	summary.method <- match.arg(summary.method, express.summary.stat.methods)
+	pmcorrect.method <- match.arg(pmcorrect.method, pmcorrect.methods())
+	upDate.express.summary.stat.methods(c(express.summary.stat.methods(), 'medianpolish_orig', 'liwong_orig', 'farms_orig', 'playerout_orig'))
+	summary.method <- match.arg(summary.method, express.summary.stat.methods())
 	if (summary.method == "medianpolish")
 		warning("Medianpolish only at nodes, not over complete AffyBatch!\nFor same results use 'medianpolish_orig' (slow)")
 	if (summary.method == "liwong")
