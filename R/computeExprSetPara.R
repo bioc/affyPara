@@ -3,15 +3,11 @@
 # Parallelization of the computeExprSet function
 #
 # History
-# 27.03.2008 : ... old stuff removed ...
-# 15.02.2008 : Version 0.5 - code cleaning and dokumentation
-# 19.02.2000 : Version 0.6 - progressbar removed (Namespace Problems)
-# 22.02.2008 : Version 0.7 - modularization
-# 27.03.2008 : Version 0.8 - object.type as input removed
-# 16.05.2008 : Version 0.9 - one node bug fix
+# 28.10.2008 : ... old stuff removed ...
 # 08.08.2008 : Version 0.10 - calculate expressionSet at nodes -> speed improvement
 # 22.08.2008 : Version 0.11 - different summary.methods
-# 23.10.2008 : Version 0.12 - awfull bug in checks remuved
+# 23.10.2008 : Version 0.12 - awfull bug in checks removed
+# 28.10.2008 : Version 0.13 - doSummarizationPara imporved
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -120,13 +116,14 @@ computeExprSetPara <- function(cluster,
 		eset_list <- clusterApply(cluster, object.list, calculateExprSetSF, 
 				ids=ids, pmcorrect.method=pmcorrect.method, summary.method=summary.method,
 				summary.param=summary.param, pmcorrect.param=pmcorrect.param, verbose=verbose)
-		
+	
 		#Generat Exprs-Matrix
 		eset_mat <- exprs(eset_list[[1]])[ sort(rownames(exprs(eset_list[[1]]))) ,]
 		
 		if ( length(eset_list) > 1){
 			for( k in 2:length(eset_list)){
-				eset_mat <- cbind(eset_mat,exprs(eset_list[[k]])[ sort(rownames(exprs(eset_list[[k]]))) ,] )
+				if( class(eset_list[[k]]) == "ExpressionSet" )
+					eset_mat <- cbind(eset_mat,exprs(eset_list[[k]])[ sort(rownames(exprs(eset_list[[k]]))) ,] )
 				eset_list[[k]]<-NA
 			}
 		}
@@ -146,7 +143,7 @@ computeExprSetPara <- function(cluster,
 	#playerout_orig farms_orig medianpolish_orig liwong_orig
 	}else {
 		summary.method <- substr(summary.method,1,regexpr("_orig", summary.method)-1)
-		eset <- doSummarizationPara(cluster, object.list, AffyBatch, 
+		eset <- doSummarizationPara(cluster, object.length, AffyBatch, 
 				samples.names, ids=ids, pmcorrect.method=pmcorrect.method, summary.method=summary.method,
 				summary.param=summary.param, pmcorrect.param=pmcorrect.param, verbose=verbose)		
 	}
@@ -185,7 +182,7 @@ calculateExprSetSF <- function( cluster, object.list,
 # Function for parallel summarization
 ###
 doSummarizationPara <- function(cluster, 
-		object.list, AffyBatch, 
+		nsamples, AffyBatch, 
 		samples.names, ids=NULL,
 		pmcorrect.method, summary.method,
 		summary.param=list(), pmcorrect.param=list(),
@@ -197,7 +194,8 @@ doSummarizationPara <- function(cluster,
 	if (verbose) cat("Get Parameters ")
 	t0=proc.time();
 	## Anzahl von samples
-	n <- sum(unlist(lapply(object.list,length)))
+	#n <- sum(unlist(lapply(object.list,length)))
+	n <- nsamples
 	
 	## if 'ids' is NULL compute for all ids
 	if (is.null(ids)){

@@ -153,8 +153,7 @@ normalizeLoessIterPara <- function(cluster,
 		for(j in 1:n)
 			if (i<j) normPairMat[i,j]<-0
   	}
-  	#check <- clusterCall(cluster, assign, "normPairMat", value=normPairMat, envir= .GlobalEnv) 
-	clusterExport(cluster, list("normPairMat"))
+  	check <- clusterCall(cluster, assign, "normPairMat", value=normPairMat, envir= .GlobalEnv) 
 	
 	#Generate subset
 	if (is.null(subset))

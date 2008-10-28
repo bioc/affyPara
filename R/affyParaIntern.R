@@ -254,7 +254,7 @@ initAffyBatchSF <- function(object, object.type, rm.all=FALSE)
 	else if( length(object) != 0 )
 		AffyBatch <- ReadAffy(filenames=object)
 	else
-		return(FALSE)
+		return(NA)
 
 	#temporary save AffyBatch
 	assign("AffyBatch", value=AffyBatch, envir= .GlobalEnv)

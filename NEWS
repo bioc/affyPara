@@ -2,6 +2,13 @@
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
+affyPara 1.3.2 (build 28. October 2008)
+- vsnPara (incl. doku) added
+- affyPara now works on multiprocessor machines and mulicomputer systems correctly
+- a lot of code improvements especially in data distribution
+
+affyPara 1.2.0 (build 22. October 2008)
+- new BioConductor Version 2.3
 
 affyPara 1.1.9 (build 08. October 2008)
 - finalizing for new BioConductor Version

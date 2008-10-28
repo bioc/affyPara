@@ -3,16 +3,11 @@
 # Parallelization of the Preprocessing Function
 #
 # History
-# 01.03.2008 : ... old stuff removed ...
-# 15.02.2008 : Version 0.11 - bugfixes in summarization
-# 18.02.2008 : Version 0.12 - bugfixes in constant normalization and check
-# 19.02.2008 : Version 0.13 - progressbar removed (Namespace Problems)
-# 22.02.2008 : Version 0.14 - modularization (first part)
-# 28.02.2008 : Version 0.15 - modularization (second part)
-# 27.03.2008 : Version 0.16 - object.type as input removed
+# 28.10.2008 : ... old stuff removed ...
 # 16.05.2008 : Version 0.17 - one node bug fix
 # 28.05.2008 : Version 0.18 - loess normalization added
 # 23.10.2008 : Version 0.19 - awfull bug in checks removed
+# 28.10.2008 : Version 0.20 - doSummarizationPara imporved
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -253,7 +248,7 @@ preproPara <- function(cluster,
 	#################
 	#Do Summarization
 	#################
-	eset <- doSummarizationPara(cluster, object.list, AffyBatch, 
+	eset <- doSummarizationPara(cluster, object.length, AffyBatch, 
 			samples.names, ids=ids, pmcorrect.method=pmcorrect.method, summary.method=summary.method,
 			summary.param=summary.param, pmcorrect.param=pmcorrect.param, verbose=verbose)
 		
