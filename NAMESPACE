@@ -7,7 +7,7 @@ export(distributeFiles, removeDistributedFiles,
 	computeExprSetPara,
 	preproPara, rmaPara,
 	mergeAffyBatches, combineMatrices,
-	boxplotPara
+	boxplotPara, MAplotPara
 )
 
 importClassesFrom("vsn", "vsnInput")
