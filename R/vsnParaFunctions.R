@@ -10,6 +10,7 @@
 # 24.10.2008 : Version 0.5 - subsamples no work correct
 # 27.10.2008 : Version 0.6 - rowMeansPara and rowVPara improved
 # 28.10.2008 : Version 0.7 - file vsnPara and vsnParaFunctions created
+# 06.11.2008 : Version 0.8 - vsn reference implemented
 #
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
@@ -45,12 +46,12 @@ vsnMatrixPara <- function(cluster,
 		if(nc<=1L)
 			stop("'x' needs to have 2 or more columns if no 'reference' is specified.")
 		reference = new("vsn")
-	}# else {
-	#	if(nrow(reference)!=nrow(x))
-	#		stop("'nrow(reference)' must be equal to 'nrow(x)'.")
-	#	if(nrow(reference)!=length(reference@mu))
-	#		stop(sprintf("The slot 'reference@mu' has length %d, but expected is n=%d", nrow(reference)))
-	#}
+	} else {
+		if(nrow(reference)!=nr)
+			stop("'nrow(reference)' must be equal to 'nrow(x)'.")
+		if(nrow(reference)!=length(reference@mu))
+			stop(sprintf("The slot 'reference@mu' has length %d, but expected is n=%d", nrow(reference)))
+	}
 	
 	if(!(is.list(optimpar)&&all(names(optimpar)%in%vsn:::optimparNames)&&!any(duplicated(names(optimpar)))))
 		stop(paste("Names of elements of 'optimpar' must be from: ",
@@ -97,11 +98,21 @@ vsnMatrixPara <- function(cluster,
 vsnSamplePara <- function(cluster,
 		v, verbose=TRUE)
 {
+	if( (v@subsample>0L) && (length(v@reference@mu)>0L) )
+		stop("\n\nThe 'subsample' and 'normalization to reference' options cannot be mixed. ",
+				"'normalization to reference' needs to use the same subsampling as the one ",
+				"used for creating the reference. If you want to use 'normalization to reference', ",
+				"please call this function without the 'subsample' argument.\n\n")
+		
 	wh = NULL
   
   	if(v@subsample>0L) {
     	wh = sample(nrow(v), size=v@subsample)	
   	}
+	
+	if(length(v@reference@mu)>0L) {
+		wh = which(!is.na(v@reference@mu))
+	}
 
 	if(!is.null(wh)){
 		# reduce x to subsample dim / save subsample id
@@ -135,10 +146,68 @@ vsnStrataPara <- function(cluster,
 {
   v@ordered = TRUE
 
-  res =  vsnLTSPara(cluster, v, verbose)
+  res = if(length(v@reference@mu)>0L) {
+			  vsnColumnByColumnPara(cluster, v, verbose)
+		  } else {
+			  vsnLTSPara(cluster, v, verbose)
+		  }
   
   return(res)
 } 
+
+################################################################################
+## vsnColumnByColumn for vsn with reference 
+################################################################################
+vsnColumnByColumnPara <- function(cluster, 
+		v, verbose=TRUE) 
+{
+	rlv_list <- clusterCall(cluster, vsnColumnByColumnParaSF, v)
+	rlv <- unlist(rlv_list, recursive=FALSE)
+
+	d <- dim( rlv[[1]] )
+	stopifnot(d[2L]==1L)
+	n = v@dimAB[2]
+	cf = array(NA_real_, dim=c(d[1L], n, d[3L]))
+	for(j in 1:length(rlv))
+		cf[,j,] = rlv[[j]]
+		
+	return(new("vsn", coefficients=cf, 
+					mu = v@reference@mu[!is.na(v@reference@mu)], sigsq = v@reference@sigsq,
+					hoffset=rep(NA_real_,dim(cf)[1])))
+}
+
+vsnColumnByColumnParaSF <- function(v)
+{
+	if( exists("x", envir = .GlobalEnv) ){
+		require(vsn)
+		x <- get("x", envir = .GlobalEnv)
+		#set subsample
+		if (exists("wh", envir = .GlobalEnv)){
+			wh <- get("wh", envir = .GlobalEnv)
+			x <- x[wh,]
+			x <- as.matrix(x)	
+			v@reference = v@reference[wh,,drop=FALSE]
+		}
+		#for every array or column
+		rlv <- list()
+		for( i in 1:dim(x)[2]){
+			#build new v
+			v_temp = new("vsnInput",
+					x      = as.matrix(x[,i,drop=FALSE]),
+					strata = factor(integer(0),levels="all"),
+					pstart = v@pstart[,i,,drop=FALSE],
+					reference = v@reference,
+					lts.quantile = v@lts.quantile,
+					optimpar = v@optimpar,
+					subsample = v@subsample,
+					verbose   = v@verbose,
+					ordered   = v@ordered)
+			rlv[[i]] <- coefficients( vsn:::vsnLTS(v_temp) )
+		}
+		return(rlv)
+	}else
+		return(NA)
+}
 
 ################################################################################
 ## vsnLTS : parallelized robust modification of the ML estimator
@@ -175,8 +244,8 @@ vsnLTSPara <- function(cluster,
 		
 		## Calculate residuals
 		if(length(v@reference@mu)>0L) {
-			## with reference:
-			hmean = v@reference@mu
+			## with reference: na.rm=TRUE vor rowVPara
+			hmean = v@reference@mu[!is.na(v@reference@mu)]
 		} else {
 			## without reference:
 			hmean <- rowMeansPara(cluster, "hy",ncol(v))
@@ -228,7 +297,7 @@ vsn2trsfPara<- function(cluster,
 		par, hoffset=NULL, 
 		wh=TRUE, reset=FALSE)
 {
-	check <- clusterCall(cluster, vsn2trsfParaSF, par, hoffset, wh, reset)			
+	check <- clusterCall(cluster, vsn2trsfParaSF, par, hoffset, wh, reset)		
 }
 
 vsn2trsfParaSF <- function(par, hoffset, wh, reset)
@@ -285,6 +354,7 @@ vsnMLPara <- function(cluster,
 	p = as.vector(v@pstart)
 	
 	o = vsn2_optimPara(cluster, v@dimAB, p, v@optimpar, verbose)#istrat
+	#TODO ref mu und sigsq
 	
 	rv = new("vsn", coefficients=o$coefficients, 
 			mu=o$mu, sigsq=o$sigsq, lbfgsb=o$fail, hoffset=rep(NA_real_,dim(o$coefficients)[1]))

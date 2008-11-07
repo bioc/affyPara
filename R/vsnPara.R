@@ -5,6 +5,7 @@
 #
 # History
 # 28.10.2008 : Version 0.1 - file vsnPara and vsnParaFunctions created
+# 06.11.2008 : Version 0.2 - vsn reference implemented
 #
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
@@ -72,7 +73,11 @@ vsn2Para <- function(cluster,
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 	t0 <- proc.time();
 	#initialize affybatch
-	dimAB <- clusterApply(cluster, object.list, initAffyBatchSF, object.type, rm.all=TRUE)
+	if(missing(reference))
+		rm.list="ALL"
+	else
+		rm.list=c("wh", "whsel", "px")
+	dimAB <- clusterApply(cluster, object.list, initAffyBatchSF, object.type, rm.list=rm.list)
 	dimAB <- removeNA(dimAB)
 	#initialize intensity matrix and remove AB
 	check <- clusterCall(cluster, setIntMatSF, rm.AB=FALSE)
@@ -102,7 +107,7 @@ vsn2Para <- function(cluster,
 	
 	#TODO wollen wir die 30000 wirklich?
 	if(missing(subsample)){
-		if( nrow > 30000L )
+		if( nrow > 30000L && missing(reference) )
 			subsample = 30000L
 		else
 			subsample = 0L
