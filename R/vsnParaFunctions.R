@@ -353,8 +353,7 @@ vsnMLPara <- function(cluster,
 {
 	p = as.vector(v@pstart)
 	
-	o = vsn2_optimPara(cluster, v@dimAB, p, v@optimpar, verbose)#istrat
-	#TODO ref mu und sigsq
+	o = vsn2_optimPara(cluster, v@dimAB, p, v@optimpar, verbose)
 	
 	rv = new("vsn", coefficients=o$coefficients, 
 			mu=o$mu, sigsq=o$sigsq, lbfgsb=o$fail, hoffset=rep(NA_real_,dim(o$coefficients)[1]))
