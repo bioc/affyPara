@@ -11,6 +11,7 @@
 # 27.10.2008 : Version 0.22 - rowMeansPara and rowVPara improved
 # 27.10.2008 : Version 0.23 - removeNA added
 # 06.11.2008 : Version 0.24 - initAffyBatchSF rm.all changed to rm.list
+# 07.11.2008 : Version 0.24 - initAffyBatchSF rm.list, default parameter changed
 # 
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -239,7 +240,7 @@ resetMatSF <- function(matName="mat")
 ###
 # Initializing AffyBatch at Slaves
 ###
-initAffyBatchSF <- function(object, object.type, rm.list=NULL)
+initAffyBatchSF <- function(object, object.type, rm.list=FALSE)
 {
 	require(affy)
 	#remove old AffyBatches

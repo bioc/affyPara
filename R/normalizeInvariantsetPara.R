@@ -77,7 +77,7 @@ normalizeAffyBatchInvariantsetPara <- function(cluster,
 	##################################
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 		t0 <- proc.time();
-		check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type) 
+		check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type)
 		t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
 	
