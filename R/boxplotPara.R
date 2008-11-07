@@ -8,6 +8,7 @@
 #                            or both: statical and graphics
 # 18.10.2008 : Version 0.3 - code and output cleaning
 # 18.10.2008 : Version 0.4 - Documentation File move to .Rd file
+# 06.11.2008 : Version 0.5 - initAffyBatchSF rm.all changed to rm.list
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do BG-Correction is faster.
@@ -93,7 +94,7 @@ boxplotPara <- function(cluster,
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 	t0 <- proc.time();
 	#send the Cel files liste to the slaves #remove all variables from all slaves
-	check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type, rm.all=TRUE) 
+	check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type, rm.list="ALL") 
 	t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
 		

@@ -10,6 +10,7 @@
 # 21.10.2008 : Version 0.21 - rowMeansPara and rowVPara added
 # 27.10.2008 : Version 0.22 - rowMeansPara and rowVPara improved
 # 27.10.2008 : Version 0.23 - removeNA added
+# 06.11.2008 : Version 0.24 - initAffyBatchSF rm.all changed to rm.list
 # 
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -238,15 +239,17 @@ resetMatSF <- function(matName="mat")
 ###
 # Initializing AffyBatch at Slaves
 ###
-initAffyBatchSF <- function(object, object.type, rm.all=FALSE)
+initAffyBatchSF <- function(object, object.type, rm.list=NULL)
 {
 	require(affy)
 	#remove old AffyBatches
 	if (exists("AffyBatch", envir = .GlobalEnv))
 		rm(AffyBatch, envir = .GlobalEnv)
-	#remove everything from nodes
-	if(rm.all)
+	#remove variables everything from nodes
+	if(rm.list=="ALL")
 		rm(list=ls(envir = .GlobalEnv), envir = .GlobalEnv)
+	else
+		rm(list=rm.list, envir = .GlobalEnv)
 	
 	#create AffyBatch
 	if (object.type == "AffyBatch")
