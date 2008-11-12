@@ -6,7 +6,7 @@
 # 10.10.2008 : Version 0.1 - added to package
 # 17.10.2008 : Version 0.2 - parameter plot, !plotAllBoxes (improved with colors), function boxplotParaChecknSamples
 # 18.10.2008 : Version 0.3 - code and output cleaning
-#
+# 10.11.2008 : Version 0.4 - Samples' problem to be ploted (function getNumberPlots) and color/label (function boxplotParaDrawn) in plot corrected.
 #
 # Copyright (C) 2008 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
 # 
@@ -456,7 +456,7 @@ drawHistDiff <- function(differencenS,
 boxplotParaDrawn <- function(boxpl.st,
 		defaultS, qualityProblem,
 		lim, nSample,
-		plotAllBoxes=TRUE, verbose=TRUE)
+		plotAllBoxes, verbose)
 {
 
   if (verbose) cat("\n\tPlot will be generated\n")
@@ -514,9 +514,9 @@ boxplotParaDrawn <- function(boxpl.st,
     nbxp <- length(toBoxpl$stats[1,])
     tmpnames <- toBoxpl$names
     cols <- rep("lightblue",nbxp )
-    cols[grep("[a-zA-Z]+[.]mdIQR[1-9]+",namesuQP)] <- "red"
-    cols[grep("[a-zA-Z]+[.]md[1-9]+",namesuQP)] <- "orange"
-    cols[grep("[a-zA-Z]+[.]IQR[1-9]+",namesuQP)] <- "pink"
+    cols[grep("[a-zA-Z]+[.]mdIQR[1-9]?",namesuQP)] <- "red"
+    cols[grep("[a-zA-Z]+[.]md[1-9]?",namesuQP)] <- "orange"
+    cols[grep("[a-zA-Z]+[.]IQR[1-9]?",namesuQP)] <- "pink"
     
     if (verbose) cat(nbxp, " Samples will be used to create the boxplot\n")
   }else{ # When all samples should be ploted
@@ -526,45 +526,59 @@ boxplotParaDrawn <- function(boxpl.st,
     #to gives the color and the names of the qualityProblem Sample
     nam <- rep("", nbxp)
     cols <- rep("lightblue", nbxp)
+    #if not "bad" quality arrays found, then names to labeled are the number of the Samples in Affybatch object
+    if(length(uQP)>0){
     #class 1: color=red, Samples as medIQR
-    nam[uQP[grep("[a-zA-Z]+[.]mdIQR[1-9]+",namesuQP)]] <-uQP[grep("[a-zA-Z]+[.]mdIQR[1-9]+",namesuQP)]
-    cols[uQP[grep("[a-zA-Z]+[.]mdIQR[1-9]+",namesuQP)]] <- "red"
+    nam[uQP[grep("[a-zA-Z]+[.]mdIQR[1-9]?",namesuQP)]] <-uQP[grep("[a-zA-Z]+[.]mdIQR[1-9]?",namesuQP)]
+    cols[uQP[grep("[a-zA-Z]+[.]mdIQR[1-9]?",namesuQP)]] <- "red"
     #class 2: color=orange, Samples as med
-    cols[uQP[grep("[a-zA-Z]+[.]md[1-9]+",namesuQP)]] <- "orange"
-    nam[uQP[grep("[a-zA-Z]+[.]md[1-9]+",namesuQP)]] <- uQP[grep("[a-zA-Z]+[.]md[1-9]+",namesuQP)]
+    cols[uQP[grep("[a-zA-Z]+[.]md[1-9]?",namesuQP)]] <- "orange"
+    nam[uQP[grep("[a-zA-Z]+[.]md[1-9]?",namesuQP)]] <- uQP[grep("[a-zA-Z]+[.]md[1-9]?",namesuQP)]
     #class 3: color= pink, Samples as IQR
-    cols[uQP[(grep("[a-zA-Z]+[.]IQR[1-9]+",namesuQP))]] <- "pink"
-    nam[uQP[grep("[a-zA-Z]+[.]IQR[1-9]+",namesuQP)]] <- uQP[grep("[a-zA-Z]+[.]IQR[1-9]+",namesuQP)]
+    cols[uQP[(grep("[a-zA-Z]+[.]IQR[1-9]?",namesuQP))]] <- "pink"
+    nam[uQP[grep("[a-zA-Z]+[.]IQR[1-9]?",namesuQP)]] <- uQP[grep("[a-zA-Z]+[.]IQR[1-9]?",namesuQP)]
+    }else{
+      nam<- c(1:nbxp)
+    }  
     #remplace the names of the boxplot$name with only the names of the critical Samples
     toBoxpl$names <- nam
   }
  #to test if  are necessary more as one boxplot(nplot)
+ necBoxplot <- NULL
+ lastPlot <- NULL
  if(nbxp > nSample){
+   
    necBoxplot <- getNumberPlots(nbxp, nSample)
    nplot<- necBoxplot[1]
    nSample <- necBoxplot[2]
+   lastPlot <- necBoxplot[3]
+   if(verbose) cat(nplot, "plots will be used to plot ",nSample, "nSample/plot " )
   }else{
    nSample = nbxp
    nplot <- 1
   }
- if (verbose) cat( paste(nSample, " Samples will be used to create ", nplot, "figure with boxplots\n"))
  #the boxplot are separated in median and mean to drawn the defaultSample
-
  #when the media for the DefaultSample has been calculated
  if(!mDdef == 0){
    nS <- 1
    nE <- nSample
-   file_txt <- paste( "boxplot_", nS, "-", nE, "Samples",sep="")
-   main_txt <- paste("Median", file_txt, sep="")
-   #paper =size of paper (a4r : A4 landscape) , onefile= all generated boxplots are saved as one File
+   colBox<- NULL
+ 
   #loop to drawn the boxplots
   for (n in 1:nplot){
-      bxp.plot <- boxplotSplit(toBoxpl,nS, nE) 
-      drawnBxp(bxp.plot, defaultSmD, cols, main_txt, mDdef, mDHL, mDHU, "median","darkviolet")
-
-      #nS and nE values for the next loop
-      nS = nS+nSample
-      nE = nE +nSample
+   bxp.plot <- boxplotSplit(toBoxpl,nS, nE)
+   file_txt <- paste( "boxplot_", nS, "-", nE, "Samples",sep="")
+   main_txt <- paste("Median", file_txt, sep="")
+   colBox<- cols[c(nS:nE)] 
+   drawnBxp(bxp.plot, defaultSmD, colBox, main_txt, mDdef, mDHL, mDHU, "median","darkviolet")
+   #nS and nE values for the next loop
+   #test the plot number, if it is the last, check if the last plot shoudl be greater as nSample
+   if(n == (nplot-1) & !is.null(lastPlot) ){ 
+     nE = nE + lastPlot    
+   }else{
+    nE = nE +nSample 
+   }
+    nS = nS+nSample
       #check the End sample at set it as last sample when greader than number of total samples to be ploted
       if(nE > nbxp) nE = nbxp
 
@@ -576,20 +590,27 @@ boxplotParaDrawn <- function(boxpl.st,
  if(!mNdef == 0){
   nS <- 1
   nE <- nSample
-  file_txt <- paste( "boxplot_", nS, "-", nE, "Samples",sep="")
-  main_txt <- paste("Mean", file_txt, sep="")
+  colBox<- NULL
   #loop to drawn the boxplots
   for (n in 1:nplot){
    bxp.plot <- boxplotSplit(toBoxpl,nS, nE) 
-   drawnBxp(bxp.plot, defaultSmN, cols, main_txt, mNdef, mNHL, mNHU, "mean","green")
+   file_txt <- paste( "boxplot_", nS, "-", nE, "_Samples",sep="")
+   main_txt <- paste("Mean", file_txt, sep="")
+   colBox<- cols[c(nS:nE)]
+   drawnBxp(bxp.plot, defaultSmN, colBox, main_txt, mNdef, mNHL, mNHU, "mean","green")
    #nS and nE values for the next loop
-   nS = nS+nSample
-   nE = nE +nSample
-   #check the End sample at set it as last sample when greader than number of total samples to be ploted
-   if(nE > nbxp) nE = nbxp
+   #test the plot number, if it is the last, check if the last plot shoudl be greater as nSample
+   if(n == (nplot-1) & !is.null(lastPlot) ){ 
+     nE = nE + lastPlot    
+   }else{
+    nE = nE +nSample 
    }
+    nS = nS+nSample
+   #check the End sample at set it as last sample when greader than number of total samples to be ploted
+   if(nE > nbxp) nE <- nbxp
+  
   }
-
+ }
  #set back the correct names for the boxplot$names
  toBoxpl$names <- tmpnames
 
@@ -606,9 +627,10 @@ boxplotSplit <- function(StatsObject,
   #create a new stats list with the samples to be ploted at once
   bxp.plot<- vector("list", 6)
   names(bxp.plot)<-c("stats", "n","conf", "out", "group", "names")
-    bxp.plot$stats <- matrix(StatsObject$stats[,c(nSamplesS:nSamplesE)],ncol=nSamplesE, nrow=5)
+	nCols<-	nSamplesE - nSamplesS +1
+    bxp.plot$stats <- matrix(StatsObject$stats[,c(nSamplesS:nSamplesE)],ncol=nCols, nrow=5)
     bxp.plot$n <- StatsObject$n[c(nSamplesS:nSamplesE)]
-    bxp.plot$conf <-  matrix(StatsObject$conf[,c(nSamplesS:nSamplesE)], ncol=nSamplesE, nrow=2)
+    bxp.plot$conf <-  matrix(StatsObject$conf[,c(nSamplesS:nSamplesE)], ncol=nCols, nrow=2)
 
     if(length(StatsObject$out) == 0) bxp.plot$out <- StatsObject$out[c(nSamplesS:nSamplesE)]
     bxp.plot$out <- NULL
@@ -655,7 +677,7 @@ drawnBxp <- function(bxp.plot,
 		main_txt, mdef, 
 		mHL,mHU, 
 		typ, colTyp ){
- 
+
  #boxplot for all samples
  bxp(bxp.plot, boxfill=cols, main=main_txt, lwd=0.5, medcol="white", varwidth=TRUE, xlab="Probe Arrays from the E-GEOD-7123 Data", ylab="Unprocesed log scale probe intensities", las=2)
  #boxplot for the defaultSample
@@ -679,21 +701,31 @@ drawnBxp <- function(bxp.plot,
 getNumberPlots <- function(nbxp, 
 		nSample)
 {
+  cat("1 nSample" , nSample,"\n")
   #calculate the number of boxplots
-  if(nSample > 0 & nSample < nbxp) {
-    nplot <- ceiling(nbxp / nSample)
-    lastPlot <- nbxp %% nSample
-    if(lastPlot > 0 & lastPlot <= 175 & nplot >= 1){
-      nplot<- nplot-1
-      nSample <- nSample + ceiling(lastPlot/nplot)
+    
+    lastPlot <- NULL  
+    if(nSample < 1){
+      if(nbxp < 200){
+         nSample <- nbxp
+         nplot <- 1
+      }else{
+         nSample <- 200 
+         nSample<- getNumberPlots(nbxp,  nSample)[2]
+        
+          cat("5 nSample" , nSample,"\n")
+       }
+    }else{  
+      nplot <- ceiling(nbxp / nSample)
+      lastPlot <- nbxp %% nSample
+      if(lastPlot > 0 & lastPlot <= 175 & nplot > 1){
+          nplot<- nplot-1
+          lastPlot <- nSample + ceiling(lastPlot/nplot)          
+       }
     }
-   }else{
-     nplot <- 1
-     nSample <- nbxp
-   }
   #to start variable whith the first and the last sample to be ploted
-  return(c(nplot, nSample))
-
+  
+    return(c(nplot, nSample, lastPlot)) 
 }
 
 #############################################################################
@@ -703,7 +735,7 @@ getNumberPlots <- function(nbxp,
 #
 #############################################################################
 boxplotParagMedIQR <- function(IQRmedMatrix, 
-		plot=TRUE, verbose=TRUE)
+		plotDraw, verbose)
 {
  #calculate IQR
    iqrSam<- abs(IQRmedMatrix[,1] - IQRmedMatrix[,2])
@@ -722,7 +754,7 @@ boxplotParagMedIQR <- function(IQRmedMatrix,
  #first boxplot with the medians from all samples
     iqrnam <- "IQR_Samples"
     mednam <- "Med_Samples"
-    if (plot){ 
+    if (plotDraw){ 
     op<- par(mfrow=c(1,2))
     #First boxplot: median
     bxp(med.st, main="Medians Boxplot from all Samples", ylab="log2(Median) from Intensities")

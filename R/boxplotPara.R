@@ -8,13 +8,12 @@
 #                            or both: statical and graphics
 # 18.10.2008 : Version 0.3 - code and output cleaning
 # 18.10.2008 : Version 0.4 - Documentation File move to .Rd file
-# 06.11.2008 : Version 0.5 - initAffyBatchSF rm.all changed to rm.list
+# 12.11.2008 : Version 0.5 - rename von plotDraw to plot
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do BG-Correction is faster.
 # Using the right combination "size of AffyBatch on slaves" - "number of slaves" the parallelized
 # version is more than ten times faster as the serial version. 
-#
 #
 # Copyright (C) 2008 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
 ###############################################################################
@@ -25,7 +24,7 @@ boxplotPara <- function(cluster,
 		iqrMethod=TRUE,
     percent=0.05,
 		typDef="mean",
-    plot=TRUE,	 
+    	plot=TRUE,	 
 		plotAllBoxes=TRUE,
 		verbose=FALSE) 
 {
@@ -93,8 +92,9 @@ boxplotPara <- function(cluster,
 	##################################
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 	t0 <- proc.time();
-	#send the Cel files liste to the slaves #remove all variables from all slaves
-	check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type, rm.list="ALL") 
+ 	#send the Cel files liste to the slaves# and remove data from slaves
+	check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type, rm.list="ALL")  
+	if (verbose > 1) print(check)	  
 	t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
 		
@@ -174,15 +174,15 @@ boxplotPara <- function(cluster,
     qualityProblemBxp <- boxplotParacheckCritSamp(criticSamplesBxp, iqrMethod, verbose)
     t10 <- proc.time()
     if (verbose) cat(paste(round(t10[3] - t9[3],3)," sec DONE\n"))
-	#if plot parametere== TRUE , drawn the boxplot 
-	if (plot) {
-		t11 <- proc.time()
+  	t11 <- proc.time()
+   	#if plot parametere== TRUE , drawn the boxplot 
+	  if (plot) { 	
     	if(verbose) cat("Drawn the boxplots with Bad Quality Samples ")     
     	boxplotParaDrawn(boxpl.st, defaultS, qualityProblemBxp, limitSamplesBxp, nSample, plotAllBoxes, verbose)
-		t12 <- proc.time()
-		if (verbose) cat(paste(round(t12[3] - t11[3],3),"sec DONE\n"))
-	}
-	if(verbose>1) cat("Total Time necessary to calculate and draw boxplotPara :", round((t12[3] +t11[3] +t10[3] +t9[3])- t1[3],3), "sec\n")  
+		}
+	  t12 <- proc.time()
+	  if (verbose) cat(paste(round(t12[3] - t11[3],3),"sec DONE\n"))
+	  if(verbose>1) cat("Total Time necessary to calculate and draw boxplotPara :", round((t12[3] +t11[3] +t10[3] +t9[3])- t1[3],3), "sec\n")  
     # to merge the statistical results for all Samples whit the problematic samples together
     boxpl.st$QualityPS.IQR <- qualityProblemBxp     
     return(boxpl.st)
@@ -205,12 +205,12 @@ boxplotPara <- function(cluster,
    t5 <- proc.time()
    #calculate the differences between the Default calculated Sample(defaultS) and the rest of the samples   
    differencen<- boxplotParaCalAllDiff(boxpl.st$stats, mstats, verbose)
-   if(verbose) print(differencen)
+   if(verbose) cat(differencen)
    # to save the difference values
    if(verbose > 1) save(differencen, file="differencen.Rdata")
    #calculate  the levels for a concretes percent which is gives from boxplotPara function as parameter
    limits<- boxplotParagLimits(differencen, percent, plot, verbose)
-   if(verbose) print(limits) 
+   if(verbose) cat(limits) 
    #calculate the critical samples from the limits       
    criticSamples <- boxplotParagCrSamp(differencen, limits, iqrMethod, verbose)
    #check the different obtained values and classified them in 3 classes(mdIQR, md, IQR) 
@@ -223,11 +223,10 @@ boxplotPara <- function(cluster,
    t7 <- proc.time()
    #drawn the boxplot
    if (plot) 
-    boxplotParaDrawn(boxpl.st,defaultS, qualityProblem, limits, nSample, plotAllBoxes, verbose)
-   
+   	boxplotParaDrawn(boxpl.st,defaultS, qualityProblem, limits, nSample, plotAllBoxes, verbose)
    t8 <- proc.time()
-   if(verbose) cat(paste(round(t8[3] - t7[3],3), "sec DONE\n"))
-	if(verbose > 1)cat("Total Time necessary to calculate and drawn boxplotPara : ", round((t8[3] +t7[3] + t6[3] +t5[3]) - t1[3],3), " sec\n") 
+   if(verbose) cat(paste(round(t8[3] - t7[3],3), "sec DONE\n"))  
+	 if(verbose > 1)cat("Total Time necessary to calculate and drawn boxplotPara : ", round((t8[3] +t7[3] + t6[3] +t5[3]) - t1[3],3), " sec\n") 
    #to merge the statistical results for all Samples whit the problematic samples together
    boxpl.st$QualityPS.Diff <- qualityProblem
    
