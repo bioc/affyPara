@@ -9,5 +9,3 @@ export(distributeFiles, removeDistributedFiles,
 	mergeAffyBatches, combineMatrices,
 	boxplotPara, MAplotPara
 )
-
-importClassesFrom("vsn", "vsnInput")
