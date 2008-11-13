@@ -251,4 +251,5 @@ vsnrmaPara <- function(cluster,
 	
 }
 
-#TODO predict
+#predict
+#we use the predict function from vsn. useDataInFit=FALSE has to be set. There is no Data in the fit object stored.

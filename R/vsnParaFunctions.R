@@ -162,7 +162,6 @@ vsnColumnByColumnPara <- function(cluster,
 		v, verbose=TRUE) 
 {
 	rlv_list <- clusterCall(cluster, vsnColumnByColumnParaSF, v)
-	#TODO NAs to remove
 	rlv_list <- removeNA(rlv_list)
 	rlv <- unlist(rlv_list, recursive=FALSE)
 
