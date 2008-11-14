@@ -7,6 +7,8 @@
 # 17.10.2008 : Version 0.2 - parameter plot, !plotAllBoxes (improved with colors), function boxplotParaChecknSamples
 # 18.10.2008 : Version 0.3 - code and output cleaning
 # 10.11.2008 : Version 0.4 - Samples' problem to be ploted (function getNumberPlots) and color/label (function boxplotParaDrawn) in plot corrected.
+# 14.11.2008 : Version 0.5 - boxplotParaDrawn function corrected when : 'bad' quality samples aren't found or the number of samples to be ploted
+#                            are smaller than the parameter nSamples or sample to be ploted is 1. 
 #
 # Copyright (C) 2008 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
 # 
@@ -265,6 +267,11 @@ getDifferenceBox <- function(hl1,
   return (tDif)
   }
 
+###############################################################################
+# Function to calculate the 'bad' quality Samples from the limits calculated as
+# percent when parameter iqrMethod=FALSE
+# parameter: differencen for every sample, limits to be considered as critical, iqrL(iqrMethod)=TRUE/FALSE
+################################################################################
 
 boxplotParagCrSamp <- function(differencen, 
 		limits, iqrL, 
@@ -273,25 +280,24 @@ boxplotParagCrSamp <- function(differencen,
      n<- dim(differencen)[2]
      l<-1
      nam<- colnames(limits)
- #to calcualte the Quality Problem Index under the first methode - whith percent
+ #to calcualte the Quality Problem Index under the percent methode 
 
      if(iqrL){
-        index <- vector("list",n+2)
-
+       index <- vector("list",n+2)
        for(i in 1:n){
-          index[l]<- list(which(differencen[,i] < limits[1,l]))
+          
+           index[l]<- list(which(differencen[,i] < limits[1,l]))
            l<-l+1
-          index[l]<- list(which(differencen[,i] > limits[1,l]))
-           l<- l+1
+           index[l]<- list(which(differencen[,i] > limits[1,l]))
+           l<-l+1
        }
-        names(index) <- nam
+       names(index) <- nam
      }else{
-         index <- vector("list",n)
+       index <- vector("list",n)
          for(i in 1:n){
             index[i]<- list(which(differencen[,i] >= limits[1,i]))
          }
-         names(index) <- nam
-
+        names(index) <- nam
      }
     return(index)
 }
@@ -391,7 +397,7 @@ boxplotParacheckCritSamp <- function(index,
 # percent= to be considered as limit between critical Samples and ok samples
 ########################################################################################################
 boxplotParagLimits <- function(differencen, 
-		percent, plotDrawn, 
+		percent, plot, 
 		verbose=TRUE)
 {
 
@@ -400,7 +406,7 @@ boxplotParagLimits <- function(differencen,
   #built the matrix to save the limit values from percent and total samples
   r<- matrix(rep(0, (n*3)),c(3,n))
   rownames(r) <- c(paste("limit values for", percent, "%"), paste(((1-percent)*100),"% Samples"), paste((percent*100),"% Samples"))
-  if(plotDrawn){
+  if(plot){
   file_txt <- paste("Hist_",percent,"percent", sep="")
   op <- par(mfrow=c(2,n/2))
   }
@@ -421,12 +427,12 @@ boxplotParagLimits <- function(differencen,
 	  #amount of values to be considered as "normal"
 	  r[3,i] <- per.l
 	  #function to drawn the histogram
-	  if(plotDrawn)
+	  if(plot)
 	   drawHistDiff(differencenS,r[1,i], nam[i])
  
   }
   #End of the drawHist, reset to previous settings
-  if(plotDrawn) par(op)
+  if(plot) par(op)
   #saved the colnames of the matrix from the origin of the calculated differences: med, IQR
   colnames(r)<-nam
   return(r)
@@ -461,7 +467,7 @@ boxplotParaDrawn <- function(boxpl.st,
 
   if (verbose) cat("\n\tPlot will be generated\n")
 
-  if (verbose>1) cat("\tPlot ALL ? : ", plotAllBoxes,"\n")
+  if (verbose) cat("\tPlot ALL ? : ", plotAllBoxes,"\n")
   #When default is calculate for only one typDef or two (he median and mean)
   mNdef <- 0
   mDdef <- 0
@@ -511,14 +517,18 @@ boxplotParaDrawn <- function(boxpl.st,
   if(!plotAllBoxes){
     #get only the bad quality Problem samples
     toBoxpl <- getTotalBoxToDrawn(boxpl.st, uQP)
-    nbxp <- length(toBoxpl$stats[1,])
-    tmpnames <- toBoxpl$names
-    cols <- rep("lightblue",nbxp )
-    cols[grep("[a-zA-Z]+[.]mdIQR[1-9]?",namesuQP)] <- "red"
-    cols[grep("[a-zA-Z]+[.]md[1-9]?",namesuQP)] <- "orange"
-    cols[grep("[a-zA-Z]+[.]IQR[1-9]?",namesuQP)] <- "pink"
+    if(length(toBoxpl) >1){
+       nbxp <- length(toBoxpl$names)
+       tmpnames <- toBoxpl$names
+       cols <- rep("lightblue",nbxp )
+       cols[grep("[a-zA-Z]+[.]mdIQR[1-9]?",namesuQP)] <- "red"
+       cols[grep("[a-zA-Z]+[.]md[1-9]?",namesuQP)] <- "orange"
+       cols[grep("[a-zA-Z]+[.]IQR[1-9]?",namesuQP)] <- "pink"
     
-    if (verbose) cat(nbxp, " Samples will be used to create the boxplot\n")
+      if (verbose) cat(nbxp, " Samples will be used to create the boxplot\n")
+    }else
+       warning("No 'bad' quality Samples are been detected. No plots will be generated\n", call. = FALSE)
+    
   }else{ # When all samples should be ploted
     toBoxpl <- boxpl.st
     nbxp<- length(boxpl.st$stats[1,])
@@ -565,51 +575,65 @@ boxplotParaDrawn <- function(boxpl.st,
    colBox<- NULL
  
   #loop to drawn the boxplots
-  for (n in 1:nplot){
-   bxp.plot <- boxplotSplit(toBoxpl,nS, nE)
-   file_txt <- paste( "boxplot_", nS, "-", nE, "Samples",sep="")
-   main_txt <- paste("Median", file_txt, sep="")
-   colBox<- cols[c(nS:nE)] 
-   drawnBxp(bxp.plot, defaultSmD, colBox, main_txt, mDdef, mDHL, mDHU, "median","darkviolet")
-   #nS and nE values for the next loop
-   #test the plot number, if it is the last, check if the last plot shoudl be greater as nSample
-   if(n == (nplot-1) & !is.null(lastPlot) ){ 
-     nE = nE + lastPlot    
-   }else{
-    nE = nE +nSample 
-   }
-    nS = nS+nSample
+  if(nplot>1){
+    for (n in 1:nplot){
+    bxp.plot <- boxplotSplit(toBoxpl,nS, nE)
+    file_txt <- paste( "boxplot_", nS, "-", nE, "Samples",sep="")
+    main_txt <- paste("Median", file_txt, sep="")
+    colBox<- cols[c(nS:nE)] 
+    drawnBxp(bxp.plot, defaultSmD, colBox, main_txt, mDdef, mDHL, mDHU, "median","darkviolet")
+    #nS and nE values for the next loop
+    #test the plot number, if it is the last, check if the last plot shoudl be greater as nSample
+    if(n == (nplot-1) && (lastPlot > 0) ){ 
+      nE = nE + lastPlot    
+    }else{
+      nE = nE +nSample 
+    }
+      nS = nS+nSample
       #check the End sample at set it as last sample when greader than number of total samples to be ploted
       if(nE > nbxp) nE = nbxp
-
    }
+               
+   }else{                                                                                    
+      file_txt <- paste( "boxplot_1_Sample")                                                 
+      main_txt <- paste("Media", file_txt, sep="")                                            
+      colBox <- cols                                                                         
+      drawnBxp(bxp.plot, defaultSmD, colBox, main_txt, mDdef, mDHL, mDHU, "median","darkviolet")                         
+   } 
    
-  }
-
+ }  
+                                                                                           
  #when the media for the DefaultSample has been calculated
  if(!mNdef == 0){
   nS <- 1
   nE <- nSample
   colBox<- NULL
   #loop to drawn the boxplots
-  for (n in 1:nplot){
-   bxp.plot <- boxplotSplit(toBoxpl,nS, nE) 
-   file_txt <- paste( "boxplot_", nS, "-", nE, "_Samples",sep="")
-   main_txt <- paste("Mean", file_txt, sep="")
-   colBox<- cols[c(nS:nE)]
-   drawnBxp(bxp.plot, defaultSmN, colBox, main_txt, mNdef, mNHL, mNHU, "mean","green")
-   #nS and nE values for the next loop
-   #test the plot number, if it is the last, check if the last plot shoudl be greater as nSample
-   if(n == (nplot-1) & !is.null(lastPlot) ){ 
-     nE = nE + lastPlot    
-   }else{
-    nE = nE +nSample 
-   }
+  if(nplot>1){
+   for (n in 1:nplot){
+    bxp.plot <- boxplotSplit(toBoxpl,nS, nE) 
+    file_txt <- paste( "boxplot_", nS, "-", nE, "_Samples",sep="")
+    main_txt <- paste("Mean", file_txt, sep="")
+    colBox<- cols[c(nS:nE)]
+    drawnBxp(bxp.plot, defaultSmN, colBox, main_txt, mNdef, mNHL, mNHU, "mean","green")
+    #nS and nE values for the next loop
+    #test the plot number, if it is the last, check if the last plot shoudl be greater as nSample
+    if(n == (nplot-1) && (lastPlot > 0) ){ 
+      nE = nE + lastPlot    
+    }else{
+      nE = nE +nSample 
+    }
     nS = nS+nSample
    #check the End sample at set it as last sample when greader than number of total samples to be ploted
    if(nE > nbxp) nE <- nbxp
   
-  }
+   }
+  }else{
+     file_txt <- paste( "boxplot_1_Sample")    
+     main_txt <- paste("Mean", file_txt, sep="")
+     colBox <- cols
+     drawnBxp(bxp.plot, defaultSmN, colBox, main_txt, mNdef, mNHL, mNHU, "mean","green")   
+  }                          
  }
  #set back the correct names for the boxplot$names
  toBoxpl$names <- tmpnames
@@ -650,23 +674,32 @@ getTotalBoxToDrawn <- function(boxpl.st,
 		uqp)
 {
   n <- length(uqp)
-  bxp.plot<- vector("list", 6)
-  names(bxp.plot)<-c("stats", "n","conf", "out", "group", "names")
-  bxp.plot$stats <- boxpl.st$stats[,uqp]
-  bxp.plot$n <- boxpl.st$n[c(1:n)]
-  bxp.plot$conf <- boxpl.st$conf[,uqp]
+  if(n > 0){
+   bxp.plot<- vector("list", 6)
+   names(bxp.plot)<-c("stats", "n","conf", "out", "group", "names")
+   bxp.plot$stats <- matrix(boxpl.st$stats[,uqp],ncol=n, nrow=5)
+   bxp.plot$n <- boxpl.st$n[c(1:n)]
+   bxp.plot$conf <- matrix(boxpl.st$conf[,uqp], ncol=n, nrow=2)
 
-  bxp.plot$out <- 0
-  if (!is.null(boxpl.st$out) & length(boxpl.st$out)>0 ){ bxp.plot$out <- boxpl.st$out[,uqp]}
+   bxp.plot$out <- 0
+   if (!is.null(boxpl.st$out) & length(boxpl.st$out)>0 ){ bxp.plot$out <- boxpl.st$out[,uqp]}
 
-  bxp.plot$group <- 0
-  if(!is.null(boxpl.st$group) & length(boxpl.st$group)>0) bxp.plot$group <- boxpl.st$group[,uqp]
-  tempName<- uqp[[1]]
-  for(i in 2:n){
-  tempName<- c(tempName, uqp[[i]])
-  }
-  bxp.plot$names <- tempName
+   bxp.plot$group <- 0
+   if(!is.null(boxpl.st$group) & length(boxpl.st$group)>0) bxp.plot$group <- boxpl.st$group[,uqp]
+   tempName<- NULL
+   if(n ==1) bxp.plot$names <- uqp[[1]]
+   else{
+    for(i in 1:n){
+    tempName<- c(tempName, uqp[[i]])
+    }
+     bxp.plot$names <- tempName 
+   } 
+  
+  
   return(bxp.plot)
+  }else
+    return(NA)
+  
 }
 
 #######################################################################################
@@ -701,8 +734,7 @@ drawnBxp <- function(bxp.plot,
 getNumberPlots <- function(nbxp, 
 		nSample)
 {
-  cat("1 nSample" , nSample,"\n")
-  #calculate the number of boxplots
+   #calculate the number of boxplots
     
     lastPlot <- NULL  
     if(nSample < 1){
@@ -718,7 +750,7 @@ getNumberPlots <- function(nbxp,
     }else{  
       nplot <- ceiling(nbxp / nSample)
       lastPlot <- nbxp %% nSample
-      if(lastPlot > 0 & lastPlot <= 175 & nplot > 1){
+      if(lastPlot > 0 && lastPlot <= 175 && nplot > 1){
           nplot<- nplot-1
           lastPlot <- nSample + ceiling(lastPlot/nplot)          
        }
@@ -846,7 +878,7 @@ boxplotParaChecknSamples <- function(nS,
 ###########################################
 # function to check the parameter percent
 ##########################################
-boxplotParaCheckPercentnSample <-  function(perc, 
+boxplotParaCheckPercentSamples <-  function(perc, 
 		lobject)
 {
       if(trunc(perc) == 0 & perc*lobject < 0.5){

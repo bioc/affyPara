@@ -9,6 +9,7 @@
 # 18.10.2008 : Version 0.3 - code and output cleaning
 # 18.10.2008 : Version 0.4 - Documentation File move to .Rd file
 # 12.11.2008 : Version 0.5 - rename von plotDraw to plot
+# 14.11.2008 : Version 0.6 - errors by ploting are fixed as warning message
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do BG-Correction is faster.
@@ -20,11 +21,11 @@
 
 boxplotPara <- function(cluster,
 		object,
- 	  nSample=if(length(object)> 200) nSample<-200 else nSample <- length(object),
+ 		nSample=if(length(object)> 200) nSample<-200 else nSample <- length(object),
 		iqrMethod=TRUE,
-    percent=0.05,
+    	percent=0.05,
 		typDef="mean",
-    	plot=TRUE,	 
+ 	  	plot=TRUE,	 
 		plotAllBoxes=TRUE,
 		verbose=FALSE) 
 {
@@ -43,8 +44,8 @@ boxplotPara <- function(cluster,
   if(!iqrMethod){ 
     if(!boxplotParaCheckPercent(percent)) stop("Please check the Parameter percent. It should be a number > 0 and <1")
     else{
-    if(boxplotParaCheckPercentnSample(percent,nSample)== 0)stop("Please check the value of percent.It gives 0 Samples to be considered as critical") 
-    if(boxplotParaCheckPercentnSample(percent,nSample)== 2){
+    if(boxplotParaCheckPercentSamples(percent,lobject)== 0)stop("Please check the value of percent.It gives 0 Samples to be considered as critical") 
+    if(boxplotParaCheckPercentSamples(percent,lobject)== 2){
       message("There arent enought Samples to calculate the ", percent, " The Quality Problem Samples will be calculated with the IQR method")
       iqrMethod <- TRUE
       }
@@ -93,7 +94,7 @@ boxplotPara <- function(cluster,
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 	t0 <- proc.time();
  	#send the Cel files liste to the slaves# and remove data from slaves
-	check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type, rm.list="ALL")  
+	check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type)  
 	if (verbose > 1) print(check)	  
 	t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
@@ -178,7 +179,7 @@ boxplotPara <- function(cluster,
    	#if plot parametere== TRUE , drawn the boxplot 
 	  if (plot) { 	
     	if(verbose) cat("Drawn the boxplots with Bad Quality Samples ")     
-    	boxplotParaDrawn(boxpl.st, defaultS, qualityProblemBxp, limitSamplesBxp, nSample, plotAllBoxes, verbose)
+    	try(boxplotParaDrawn(boxpl.st, defaultS, qualityProblemBxp, limitSamplesBxp, nSample, plotAllBoxes, verbose), TRUE)
 		}
 	  t12 <- proc.time()
 	  if (verbose) cat(paste(round(t12[3] - t11[3],3),"sec DONE\n"))
@@ -223,7 +224,7 @@ boxplotPara <- function(cluster,
    t7 <- proc.time()
    #drawn the boxplot
    if (plot) 
-   	boxplotParaDrawn(boxpl.st,defaultS, qualityProblem, limits, nSample, plotAllBoxes, verbose)
+   	try(boxplotParaDrawn(boxpl.st,defaultS, qualityProblem, limits, nSample, plotAllBoxes, verbose), TRUE)
    t8 <- proc.time()
    if(verbose) cat(paste(round(t8[3] - t7[3],3), "sec DONE\n"))  
 	 if(verbose > 1)cat("Total Time necessary to calculate and drawn boxplotPara : ", round((t8[3] +t7[3] + t6[3] +t5[3]) - t1[3],3), " sec\n") 
@@ -233,6 +234,4 @@ boxplotPara <- function(cluster,
    return(boxpl.st)
  }
 
-
-   
-  }                            
+}
