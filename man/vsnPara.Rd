@@ -71,11 +71,11 @@ An \link[affy:AffyBatch-class]{AffyBatch} of normalized objects.
 \dontrun{
 library(affyPara)
 
-data(affybatch.example)
+data(Dilution)
 
 c1 <- makeCluster(3)
 
-AB1 <- justvsnPara(cluster, affybatch.example, verbose=verbose )
+AB1 <- justvsnPara(cluster, Dilution, verbose=verbose )
 
 stopCluster(c1)
 }

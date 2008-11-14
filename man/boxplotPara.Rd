@@ -3,7 +3,7 @@
 \title{Parallelized Box Plots for Microarray Data}
 
 \description{
-Parallelized functions for Box Plots for Microarray Data.
+Parallelized functions for Box Plots for Microarray Data. And optimized plots for a large number of microarrays.
 }
 \usage{
 boxplotPara(cluster,
@@ -49,12 +49,12 @@ data(Dilution)
 
 c1 <- makeCluster(3)
 
-##boxplot of affybatch.example 
+##boxplot of Dulution data (affybatch) 
 box1 <- boxplotPara(c1, Dilution)
 
 ## boxplots to a pdf file
 pdf(file="boxplot.pdf", title="AffyBatch Boxplot")
-box3 <- boxplotPara(c1, affybatch.example)
+box2 <- boxplotPara(c1, Dilution)
 dev.off()
 
 stopCluster(c1)
