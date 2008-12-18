@@ -7,5 +7,6 @@ export(distributeFiles, removeDistributedFiles,
 	computeExprSetPara,
 	preproPara, rmaPara,
 	mergeAffyBatches, combineMatrices,
-	boxplotPara, MAplotPara
+	boxplotPara, MAplotPara, MAplotSer,
+	makeCluster, stopCluster
 )
