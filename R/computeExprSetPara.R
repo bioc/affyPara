@@ -8,16 +8,17 @@
 # 22.08.2008 : Version 0.11 - different summary.methods
 # 23.10.2008 : Version 0.12 - awfull bug in checks removed
 # 28.10.2008 : Version 0.13 - doSummarizationPara imporved
+# 18.12.2008 : Version 0.14 - cluster object gets default parameter: .affyParaInternalEnv$cl
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
-computeExprSetPara <- function(cluster,
-		object,	ids=NULL,
+computeExprSetPara <- function(object,
+		ids=NULL,
 		pmcorrect.method, summary.method,
 		summary.param=list(), pmcorrect.param=list(),
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-		verbose=TRUE) 
+		cluster, verbose=TRUE) 
 {
 	#########
 	# Checks
@@ -25,6 +26,10 @@ computeExprSetPara <- function(cluster,
 	#Check for affy amd snow
 	require(affy)
 	require(snow)
+	
+	#Get cluster object form default environment
+	if(missing(cluster))
+		cluster <- .affyParaInternalEnv$cl
 	
 	#Check cluster and generate number.parts
 	checkCluster(cluster)

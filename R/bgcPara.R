@@ -3,17 +3,13 @@
 # Parallelization of the bg.correct function
 #
 # History
-# 08.04.2008 : ... old stuff removed ...
-# 12.11.2007 : Version 0.10 - cleaning of slave functions
-# 13.11.2007 : Version 0.11 - use of getAffyBatchSF
-# 27.11.2007 : Version 0.12 - merge.AffyBatches renamed to mergeAffyBatches, bugfixes variable cluster
-# 10.12.2007 : Version 0.13 - bugfixes method none!
-# 27.03.2008 : Version 0.14 - object.type as input removed
+# 17.12.2008 : ... old stuff removed ...
 # 08.04.2008 : Version 0.15 - some code cleaning
 # 16.05.2008 : Version 0.16 - one node bug fix
 # 08.09.2008 : Version 0.17 - remove all variables from all slaves added (von Esmeralda)
 # 23.10.2008 : Version 0.18 - awfull bug in checks remuved
 # 07.11.2008 : Version 0.19 - rm.list="ALL" added
+# 18.12.2008 : Version 0.20 - cluster object gets default parameter: .affyParaInternalEnv$cl
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do BG-Correction is faster.
@@ -23,9 +19,10 @@
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
-bgCorrectPara <- function(cluster,
-	object,	phenoData = new("AnnotatedDataFrame"),
-	method, verbose=FALSE)
+bgCorrectPara <- function(object,
+	phenoData = new("AnnotatedDataFrame"),
+	method, cluster,
+	verbose=FALSE)
 {
 	########
 	# Checks
@@ -33,6 +30,10 @@ bgCorrectPara <- function(cluster,
 	#Check for affy amd snow
 	require(affy)
 	require(snow)
+	
+	#Get cluster object form default environment
+	if(missing(cluster))
+		cluster <- .affyParaInternalEnv$cl
 	
 	#Check cluster and generate number.parts
 	checkCluster(cluster)

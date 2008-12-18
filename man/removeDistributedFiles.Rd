@@ -1,7 +1,5 @@
 \name{removeDistributedFiles}
 \alias{removeDistributedFiles}
-\alias{removeFilesSF}
-\alias{accessFilesSF}
 \title{Remove distributed files from slaves}
 
 \description{
@@ -9,17 +7,23 @@ This function removes distributed files from a special path at the disk at all s
 }
 
 \usage{
-removeDistributedFiles(cluster, path=tempdir(), verbose = FALSE)
+removeDistributedFiles(path=tempdir(), cluster, verbose = FALSE)
 }
 \arguments{
-  \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the \code{SNOW} package. }
   \item{path}{ A \code{character} that defines which path (inclusive files) should be removed at every slave. Default: tempdir() }
-  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages.}
+  \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the SNOW package. 
+  		For default \code{.affyParaInternalEnv$cl} will be used. }
+  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages.} 
 }
 \details{
 This function removes distributed files from a special path at the disk at all slaves in a computer cluster.
 
-For using this function a computer cluster using the \code{SNOW} package has to be started.
+For using this function a computer cluster using the SNOW package has to be started. 
+Starting the cluster with the command \code{makeCluster} generates an cluster object in the affyPara environment (.affyParaInternalEnv) and 
+no cluster object in the global environment. The cluster object in the affyPara environment will be used as default cluster object, 
+therefore no more cluster object handling is required.  
+The \code{makeXXXcluster} functions from the package SNOW can be used to create an cluster object in the global environment and 
+to use it for the preprocessing functions.
 }
 
 \value{
@@ -32,11 +36,11 @@ If \code{verbose = TRUE}, result of removing (successfully / not successfully) w
 \dontrun{
 library(affyPara)
 
-c1 <- makeCluster(10)
+makeCluster(10)
 
-removeDistributedFiles(c1, verbose=TRUE)
+removeDistributedFiles(verbose=TRUE)
 
-stopCluster(c1)
+stopCluster()
 }
 }
 

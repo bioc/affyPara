@@ -10,6 +10,7 @@
 # 14.07.2008 : Version 0.5 - output improved
 # 27.08.2008 : Version 0.6 - maxPerm removed and percentPerm introduced
 # 18.10.2008 : Version 0.7 - cluster - assign substituted by clusterExport
+# 18.12.2008 : Version 0.8 - cluster object gets default parameter: .affyParaInternalEnv$cl
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -19,15 +20,14 @@
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
-normalizeAffyBatchLoessIterPara <- function(cluster,
-		object,
+normalizeAffyBatchLoessIterPara <- function(object,
 		percentPerm = 0.75,
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
 		type=c("separate","pmonly","mmonly","together"), 
 		subset = NULL,
 		epsilon = 10^-2, maxit = 1, log.it = TRUE, 
 		span = 2/3, family.loess ="symmetric",
-		verbose=FALSE) 
+		cluster, verbose=FALSE) 
 {	
 	########
 	# Checks
@@ -35,6 +35,10 @@ normalizeAffyBatchLoessIterPara <- function(cluster,
 	#Check for affy amd snow
 	require(affy)
 	require(snow)
+	
+	#Get cluster object form default environment
+	if(missing(cluster))
+		cluster <- .affyParaInternalEnv$cl
 	
 	#Check cluster and generate number.parts
 	checkCluster(cluster)

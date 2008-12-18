@@ -10,6 +10,9 @@
 # 18.10.2008 : Version 0.4 - Documentation File move to .Rd file
 # 12.11.2008 : Version 0.5 - rename von plotDraw to plot
 # 14.11.2008 : Version 0.6 - errors by ploting are fixed as warning message
+# 21.11.2008 : Version 0.7 - boxplot delivered results are improved to facility further analysis(matrix and list are combined,
+#                            more information and analysis are added) 
+# 18.12.2008 : Version 0.8 - cluster object gets default parameter: .affyParaInternalEnv$cl
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do BG-Correction is faster.
@@ -19,21 +22,26 @@
 # Copyright (C) 2008 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
 ###############################################################################
 
-boxplotPara <- function(cluster,
-		object,
- 		nSample=if(length(object)> 200) nSample<-200 else nSample <- length(object),
+boxplotPara <- function(object,
+		nSample=if(length(object)> 200) nSample<-200 else nSample <- length(object),
 		iqrMethod=TRUE,
-    	percent=0.05,
-		typDef="mean",
+		percent=0.05,
+		typDef= "mean",
  	  	plot=TRUE,	 
 		plotAllBoxes=TRUE,
-		verbose=FALSE) 
+		cluster, verbose=FALSE) 
 {
    
 	#Check for affy
-	require(affyPara)
+	require(affy)
+	require(snow)
+	
+	#Get cluster object form default environment
+	if(missing(cluster))
+		cluster <- .affyParaInternalEnv$cl
+	
 	#get total number of samples   
-  lobject<- length(object)
+  	lobject<- length(object)
   ##############################
   #Check Functions parameter 
   ##############################
@@ -173,20 +181,23 @@ boxplotPara <- function(cluster,
     criticSamplesBxp <- boxplotParagCrSamp(diffMedIQRALLM, limitSamplesBxp, iqrMethod, verbose)
     #check the different obtained values and classified them in 3 classes(mdIQR, md, IQR) 
     qualityProblemBxp <- boxplotParacheckCritSamp(criticSamplesBxp, iqrMethod, verbose)
+    if(verbose > 1) save(qualityProblemBxp, file="qualityProblemBxp.Rdata")
     t10 <- proc.time()
     if (verbose) cat(paste(round(t10[3] - t9[3],3)," sec DONE\n"))
   	t11 <- proc.time()
    	#if plot parametere== TRUE , drawn the boxplot 
 	  if (plot) { 	
-    	if(verbose) cat("Drawn the boxplots with Bad Quality Samples ")     
+    	if(verbose) cat("Draw the boxplots with Bad Quality Samples ")     
     	try(boxplotParaDrawn(boxpl.st, defaultS, qualityProblemBxp, limitSamplesBxp, nSample, plotAllBoxes, verbose), TRUE)
 		}
 	  t12 <- proc.time()
 	  if (verbose) cat(paste(round(t12[3] - t11[3],3),"sec DONE\n"))
 	  if(verbose>1) cat("Total Time necessary to calculate and draw boxplotPara :", round((t12[3] +t11[3] +t10[3] +t9[3])- t1[3],3), "sec\n")  
     # to merge the statistical results for all Samples whit the problematic samples together
-    boxpl.st$QualityPS.IQR <- qualityProblemBxp     
-    return(boxpl.st)
+    boxpl.st$QualityPS.IQR <- qualityProblemBxp
+    boxpl.st$values_boxP <- list(diffMedIQRALLM,limitSamplesBxp)
+    names( boxpl.st$values_boxP) <- c("differencen", "limits")
+     boxpl.st$results_boxP <- getMatrixBQBoxLevels(boxpl.st$names, qualityProblemBxp)  
   } 
    
    
@@ -220,7 +231,7 @@ boxplotPara <- function(cluster,
    if(verbose > 1) save(qualityProblem, file="qualProblem.Rdata")
    t6 <- proc.time()
    if(verbose) cat(paste(round(t6[3] - t5[3],3),"sec DONE\n"))    
-   if(verbose) cat("Drawn the boxplots with Bad Quality Samples")
+   if(verbose) cat("Draw the boxplots with Bad Quality Samples")
    t7 <- proc.time()
    #drawn the boxplot
    if (plot) 
@@ -229,9 +240,15 @@ boxplotPara <- function(cluster,
    if(verbose) cat(paste(round(t8[3] - t7[3],3), "sec DONE\n"))  
 	 if(verbose > 1)cat("Total Time necessary to calculate and drawn boxplotPara : ", round((t8[3] +t7[3] + t6[3] +t5[3]) - t1[3],3), " sec\n") 
    #to merge the statistical results for all Samples whit the problematic samples together
-   boxpl.st$QualityPS.Diff <- qualityProblem
+   boxpl.st$qualityPS.Diff <- qualityProblem
+   differencen_matrix <-  matrix(differencen, ncol=1, nrow=length(boxpl.st$n))
+   boxpl.st$values_boxP <- list(differencen_matrix,limits)
+   names( boxpl.st$values_boxP) <- c("differencen", "limits")
+   boxpl.st$results_boxP <- getMatrixBQBoxLevels(boxpl.st$names, qualityProblem)  
    
-   return(boxpl.st)
+   
  }
 
-}
+   return(boxpl.st)
+   
+  }                            

@@ -8,6 +8,7 @@
 # 27.05.2008 : Version 0.3 - working on all nodes
 # 28.05.2008 : Version 0.4 - working for all types
 # 23.06.2008 : Version 0.5 - memory improvement, matrices fs and newdata removed
+# 18.12.2008 : Version 0.6 - cluster object gets default parameter: .affyParaInternalEnv$cl
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -17,14 +18,13 @@
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
-normalizeAffyBatchLoessPara <- function(cluster,
-	object,
+normalizeAffyBatchLoessPara <- function(object,
 	phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
 	type=c("separate","pmonly","mmonly","together"), 
 	subset = NULL,
 	epsilon = 10^-2, maxit = 1, log.it = TRUE, 
 	span = 2/3, family.loess ="symmetric",
-	verbose=FALSE) 
+	cluster, verbose=FALSE) 
 {	
     ########
     # Checks
@@ -32,6 +32,10 @@ normalizeAffyBatchLoessPara <- function(cluster,
 	#Check for affy amd snow
 	require(affy)
 	require(snow)
+	
+	#Get cluster object form default environment
+	if(missing(cluster))
+		cluster <- .affyParaInternalEnv$cl
 	
 	#Check cluster and generate number.parts
 	checkCluster(cluster)

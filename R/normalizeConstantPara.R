@@ -9,6 +9,7 @@
 # 22.02.2008 : Version 0.7 - modularization
 # 27.03.2008 : Version 0.8 - object.type as input removed
 # 16.05.2008 : Version 0.9 - one node bug fix
+# 18.12.2008 : Version 0.10 - cluster object gets default parameter: .affyParaInternalEnv$cl
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -18,11 +19,10 @@
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
-normalizeAffyBatchConstantPara <- function(cluster,
-		object,
+normalizeAffyBatchConstantPara <- function(object,
 		refindex=1, FUN=mean, na.rm=TRUE, 
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-		verbose=FALSE) 
+		cluster, verbose=FALSE) 
 {
     #########
     # Checks
@@ -30,6 +30,10 @@ normalizeAffyBatchConstantPara <- function(cluster,
 	#Check for affy amd snow
 	require(affy)
 	require(snow)
+	
+	#Get cluster object form default environment
+	if(missing(cluster))
+		cluster <- .affyParaInternalEnv$cl
 	
 	#Check cluster and generate number.parts
 	checkCluster(cluster)

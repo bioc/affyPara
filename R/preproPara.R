@@ -8,18 +8,18 @@
 # 28.05.2008 : Version 0.18 - loess normalization added
 # 23.10.2008 : Version 0.19 - awfull bug in checks removed
 # 28.10.2008 : Version 0.20 - doSummarizationPara imporved
+# 18.12.2008 : Version 0.21 - cluster object gets default parameter: .affyParaInternalEnv$cl
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
-preproPara <- function(cluster,
-		object,
+preproPara <- function(object,
 		bgcorrect=TRUE, bgcorrect.method=NULL, bgcorrect.param=list(), 
 		normalize=TRUE, normalize.method=NULL, normalize.param=list(), 
 		pmcorrect.method=NULL, pmcorrect.param=list(),
 		summary.method=NULL, summary.param=list(), ids=NULL,
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-		verbose=FALSE) 
+		cluster, verbose=FALSE) 
 {
 	#################
 	# Check Functions
@@ -27,6 +27,10 @@ preproPara <- function(cluster,
 	#Check for affy amd snow
 	require(affy)
 	require(snow)
+	
+	#Get cluster object form default environment
+	if(missing(cluster))
+		cluster <- .affyParaInternalEnv$cl
 	
 	#Check cluster and generate number.parts
 	checkCluster(cluster)

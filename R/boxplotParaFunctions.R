@@ -9,8 +9,11 @@
 # 10.11.2008 : Version 0.4 - Samples' problem to be ploted (function getNumberPlots) and color/label (function boxplotParaDrawn) in plot corrected.
 # 14.11.2008 : Version 0.5 - boxplotParaDrawn function corrected when : 'bad' quality samples aren't found or the number of samples to be ploted
 #                            are smaller than the parameter nSamples or sample to be ploted is 1. 
+# 21.11.2008 : Version 0.6 - function getMatrixBQBoxLevels is added to convert the quality sample levels as matrix to facility the analysis. 
+# 26.11.2008 : Version 0.7 - function boxplotParaDrawn and getNumberPlots improved for nplot =1 and lastplot. Small bug fixed to plot=TRUE
+# 30.11.2008 : Version 0.8 - function boxplotParaDrawn improved for the parameter plotAllBoxes=FALSE and  nSamples
 #
-# Copyright (C) 2008 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
+#Copyright (C) 2008 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
 # 
 ###############################################################################
 
@@ -331,7 +334,6 @@ boxplotParacheckCritSamp <- function(index,
  names(criticTmd) <- c("crit.mdIQR", "crit.md",  "crit.IQR")
 
  }else{ # when used method to calculate the problem samples is the difference-Method
-
  if(length(index[[1]])>0 & length(index[[2]])> 0){
    criticTmd <- vector("list",3)
    criticTmd[1] <- list(intersect(index[[1]], index[[2]]))
@@ -379,7 +381,7 @@ boxplotParacheckCritSamp <- function(index,
  }
  # to return the values of the critical samples if the median and mean are been used
  if(length(criticTmd)>0 & length(criticTmn)> 0 ){
-     criticTotal <- list(criticTmd, criticTmn)
+     criticTotal <- c(criticTmd, criticTmn)
    }else if(length(criticTmd)>0 & length(criticTmn) == 0 ){ #when only media has been used
      criticTotal <- criticTmd
    }else{ criticTotal <- criticTmn} #when only mean has been used
@@ -520,15 +522,17 @@ boxplotParaDrawn <- function(boxpl.st,
     if(length(toBoxpl) >1){
        nbxp <- length(toBoxpl$names)
        tmpnames <- toBoxpl$names
+      
        cols <- rep("lightblue",nbxp )
-       cols[grep("[a-zA-Z]+[.]mdIQR[1-9]?",namesuQP)] <- "red"
-       cols[grep("[a-zA-Z]+[.]md[1-9]?",namesuQP)] <- "orange"
-       cols[grep("[a-zA-Z]+[.]IQR[1-9]?",namesuQP)] <- "pink"
+       cols[which(is.element(tmpnames, uQP[grep("[a-zA-Z]+[.]mdIQR[1-9]?", namesuQP)]))] <- "red"
+       cols[which(is.element(tmpnames, uQP[grep("[a-zA-Z]+.md[1-9]?[0-9]?$",namesuQP)]))] <- "orange"
+       cols[which(is.element(tmpnames, uQP[grep("[a-zA-Z]+[.]IQR[1-9]?",namesuQP)]))] <- "pink"
     
-      if (verbose) cat(nbxp, " Samples will be used to create the boxplot\n")
+       if (verbose) cat(nbxp, " Samples will be used to create the boxplot \n")
+      
     }else
        warning("No 'bad' quality Samples are been detected. No plots will be generated\n", call. = FALSE)
-    
+     
   }else{ # When all samples should be ploted
     toBoxpl <- boxpl.st
     nbxp<- length(boxpl.st$stats[1,])
@@ -542,10 +546,10 @@ boxplotParaDrawn <- function(boxpl.st,
     nam[uQP[grep("[a-zA-Z]+[.]mdIQR[1-9]?",namesuQP)]] <-uQP[grep("[a-zA-Z]+[.]mdIQR[1-9]?",namesuQP)]
     cols[uQP[grep("[a-zA-Z]+[.]mdIQR[1-9]?",namesuQP)]] <- "red"
     #class 2: color=orange, Samples as med
-    cols[uQP[grep("[a-zA-Z]+[.]md[1-9]?",namesuQP)]] <- "orange"
-    nam[uQP[grep("[a-zA-Z]+[.]md[1-9]?",namesuQP)]] <- uQP[grep("[a-zA-Z]+[.]md[1-9]?",namesuQP)]
+    cols[uQP[grep("[a-zA-Z]+[.md][1-9]?[0-9]?$",namesuQP)]] <- "orange"
+    nam[uQP[grep("[a-zA-Z]+[.md][1-9]?[0-9]?$",namesuQP)]] <- uQP[grep("[a-zA-Z]+[.md][1-9]?[0-9]?$",namesuQP)]
     #class 3: color= pink, Samples as IQR
-    cols[uQP[(grep("[a-zA-Z]+[.]IQR[1-9]?",namesuQP))]] <- "pink"
+    cols[uQP[grep("[a-zA-Z]+[.]IQR[1-9]?",namesuQP)]] <- "pink"
     nam[uQP[grep("[a-zA-Z]+[.]IQR[1-9]?",namesuQP)]] <- uQP[grep("[a-zA-Z]+[.]IQR[1-9]?",namesuQP)]
     }else{
       nam<- c(1:nbxp)
@@ -562,7 +566,7 @@ boxplotParaDrawn <- function(boxpl.st,
    nplot<- necBoxplot[1]
    nSample <- necBoxplot[2]
    lastPlot <- necBoxplot[3]
-   if(verbose) cat(nplot, "plots will be used to plot ",nSample, "nSample/plot " )
+   if(verbose) cat(nplot, "plots will be used to plot ",nSample, "nSample/plot\n" )
   }else{
    nSample = nbxp
    nplot <- 1
@@ -595,10 +599,10 @@ boxplotParaDrawn <- function(boxpl.st,
    }
                
    }else{                                                                                    
-      file_txt <- paste( "boxplot_1_Sample")                                                 
-      main_txt <- paste("Media", file_txt, sep="")                                            
+      file_txt <- paste( "boxplot_1_",nSample,"_Samples", sep="")                                                 
+      main_txt <- paste("Median_", file_txt, sep="")                                            
       colBox <- cols                                                                         
-      drawnBxp(bxp.plot, defaultSmD, colBox, main_txt, mDdef, mDHL, mDHU, "median","darkviolet")                         
+      drawnBxp(toBoxpl, defaultSmD, colBox, main_txt, mDdef, mDHL, mDHU, "median","darkviolet")                         
    } 
    
  }  
@@ -629,10 +633,10 @@ boxplotParaDrawn <- function(boxpl.st,
   
    }
   }else{
-     file_txt <- paste( "boxplot_1_Sample")    
-     main_txt <- paste("Mean", file_txt, sep="")
+     file_txt <- paste( "boxplot_1_",nSample,"_Samples", sep="")                                                 
+     main_txt <- paste("Mean_", file_txt, sep="")                                            
      colBox <- cols
-     drawnBxp(bxp.plot, defaultSmN, colBox, main_txt, mNdef, mNHL, mNHU, "mean","green")   
+     drawnBxp(toBoxpl, defaultSmN, colBox, main_txt, mNdef, mNHL, mNHU, "mean","green")   
   }                          
  }
  #set back the correct names for the boxplot$names
@@ -674,6 +678,8 @@ getTotalBoxToDrawn <- function(boxpl.st,
 		uqp)
 {
   n <- length(uqp)
+  
+  if(is.unsorted(uqp)) uqp <- sort(uqp)
   if(n > 0){
    bxp.plot<- vector("list", 6)
    names(bxp.plot)<-c("stats", "n","conf", "out", "group", "names")
@@ -750,10 +756,15 @@ getNumberPlots <- function(nbxp,
     }else{  
       nplot <- ceiling(nbxp / nSample)
       lastPlot <- nbxp %% nSample
-      if(lastPlot > 0 && lastPlot <= 175 && nplot > 1){
+      if(lastPlot > 0 && (lastPlot < nSample) && (lastPlot + nSample)< 250&& nplot > 1){
           nplot<- nplot-1
-          lastPlot <- nSample + ceiling(lastPlot/nplot)          
+          nSample <- nSample + ceiling(lastPlot/nplot)
+          
+          if(nplot==1) nSample<- nSample + lastPlot
+          
+          lastPlot <- 0           
        }
+       
     }
   #to start variable whith the first and the last sample to be ploted
   
@@ -807,6 +818,36 @@ boxplotParagMedIQR <- function(IQRmedMatrix,
     return(boxplotCrT)
 
 }
+
+########################################################                     
+# function convert the results of the 'bad' quality samples as matrix                              
+# to facility the further possible calculations and analysis                                        
+#                                        
+#########################################################   
+
+getMatrixBQBoxLevels <- function(calQCSampleName, qualityProblem){
+
+     lSN <- length(calQCSampleName)
+     levelsNam <- names(qualityProblem)
+     lbQC <- length(levelsNam)
+     default<-rep(0,lSN) 
+     #built matrix
+     sampleLevel <- matrix( c(calQCSampleName,rep(default,lbQC)),  nrow=lSN , ncol=(lbQC+1))
+     colnames(sampleLevel) <- c("sampleNames", levelsNam)
+     #remplace the default values with the correct value: 0 is FALSE and 1 TRUE
+     if(lbQC>0){
+     for(i in 1: lbQC){
+         indexL<- unlist(qualityProblem[levelsNam[i]])
+         if(length(indexL) > 0)  sampleLevel[indexL,levelsNam[i]] <- 1
+            
+        
+     }
+     return(sampleLevel) 
+   }else
+     return(NA) 
+
+}
+
 
 ############################################################################
 #

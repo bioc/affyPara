@@ -7,16 +7,21 @@
 # 12.10.2008 : Version 0.10 - code cleaning and bugfix in file removing (only files, not directory)
 # 23.10.2008 : Version 0.11 - cleanup improved
 # 24.10.2008 : Version 0.12 - Improvements for multiprocessor machines
-# 27.10.2008 : Version 0.20 - Output improved to work at multiprocessor machines and clusters
+# 27.10.2008 : Version 0.13 - Output improved to work at multiprocessor machines and clusters
+# 18.12.2008 : Version 0.14 - cluster object gets default parameter: .affyParaInternalEnv$cl
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
-removeDistributedFiles <- function(cluster, 
-		path=tempdir(), verbose=FALSE)
+removeDistributedFiles <- function(path=tempdir(),
+		cluster, verbose=FALSE)
 {
 	#Check for snow
-	require(snow)	
+	require(snow)
+	
+	#Get cluster object form default environment
+	if(missing(cluster))
+		cluster <- .affyParaInternalEnv$cl
 	
 	#Check cluster
 	checkCluster(cluster)

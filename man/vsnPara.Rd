@@ -8,31 +8,33 @@ These parallel functions fit the vsn model to intensity data in an AffyBatch.
 They hav the same functionality than the vsn methods in the \code{vsn} package but are implemented in parallel (and only supports an AffyBatch as input data).
 }
 \usage{
-vsn2Para(cluster,
-	object,
+vsn2Para(object,
 	phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
 	reference, subsample,
-	..., verbose=TRUE) 
+	..., 
+	cluster, verbose=TRUE) 
 
-justvsnPara(cluster,
-		object,
-		..., verbose=TRUE) 
+justvsnPara(object,
+		...,
+		cluster, verbose=TRUE) 
 	
-vsnrmaPara(cluster,		
-	object,
+vsnrmaPara(object,
 	pmcorrect.method="pmonly", pmcorrect.param=list(),
 	summary.method="medianpolish", summary.param=list(),
 	ids=NULL,
 	phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-	..., verbose=TRUE)  
+	..., 
+	cluster, verbose=TRUE)  
 }
 
 \arguments{
-  \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the \code{SNOW} package. }
-  \item{object}{ An object of class \link[affy:AffyBatch-class]{AffyBatch} OR a \code{character} vector with the names of CEL files OR a (partitioned) list of \code{character} vectors with CEL file names.}
+  \item{object}{ An object of class \link[affy:AffyBatch-class]{AffyBatch} 
+  		OR a \code{character} vector with the names of CEL files 
+  		OR a (partitioned) list of \code{character} vectors with CEL file names.}
  
   \item{phenoData}{ An \link[Biobase]{AnnotatedDataFrame} object. }
-  \item{cdfname}{ Used to specify the name of an alternative cdf package. If set to \code{NULL}, the usual cdf package based on Affymetrix' mappings will be used. }
+  \item{cdfname}{ Used to specify the name of an alternative cdf package. If set to \code{NULL}, 
+  		the usual cdf package based on Affymetrix' mappings will be used. }
  
   \item{subsample}{Integer of length 1. If specified, the model parameters are
     estimated from a subsample of the data of size \code{subsample}
@@ -46,8 +48,10 @@ vsnrmaPara(cluster,
     argument is not specified, then the data are normalized
     "among themselves".}
   \item{\dots}{Further arguments that get passed and are similar to \code{vsn2}.}
-  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages. } 
-  
+  \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the SNOW package. 
+  		For default \code{.affyParaInternalEnv$cl} will be used. }
+  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages.} 
+ 
   \item{pmcorrect.method}{ The name of the PM adjustement method. }
   \item{pmcorrect.param}{ A list of parameters for \code{pmcorrect.method} (if needed/wanted). }
   \item{summary.method}{ The method used for the computation of expression values }
@@ -58,7 +62,12 @@ vsnrmaPara(cluster,
 \details{
 For the serial function and more details see the function \code{vsn2}.
 
-For using this function a computer cluster using the \code{snow} package has to be started.
+For using this function a computer cluster using the SNOW package has to be started. 
+Starting the cluster with the command \code{makeCluster} generates an cluster object in the affyPara environment (.affyParaInternalEnv) and 
+no cluster object in the global environment. The cluster object in the affyPara environment will be used as default cluster object, 
+therefore no more cluster object handling is required.  
+The \code{makeXXXcluster} functions from the package SNOW can be used to create an cluster object in the global environment and 
+to use it for the preprocessing functions.
 }
 
 \value{
@@ -73,11 +82,11 @@ library(affyPara)
 
 data(Dilution)
 
-c1 <- makeCluster(3)
+makeCluster(3)
 
-AB1 <- justvsnPara(cluster, Dilution, verbose=verbose )
+AB1 <- justvsnPara(Dilution, verbose=verbose )
 
-stopCluster(c1)
+stopCluster()
 }
 }
 

@@ -4,7 +4,13 @@
 #
 # History
 # 10.10.2008 : Version 0.1 - added to package
-# 14.11.2008 : Version 0.2 - code cleaning and further improvements
+# 14.11.2008 : Version 0.2 - fix small bug and plot parameters improvements
+# 18.11.2008 : Version 0.3 - add function to convert the results of the 'bad' quality samples as matrix 
+# 28.11.2008 : Version 0.4 - getMatrixBQLevels function improved and fix small bugs to plot
+# 01.12.2008 : Version 0.5 - function getBoxplot improvd for the parameter plot=FALSE
+# 04.12.2008 : Version 0.6 - fix small bugs for the function getMatrixBQLevels  when number of Samples are smaller than number of slaves
+# 04.12.2008 : Version 0.7 - set.seed for verbose > 3 added in getValuesChips 
+# 11.12.2008 : Version 0.8 - improve MAplot graphics - number of plots per page is limited to 8. 
 #
 # Copyright (C) 2008 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
 ###############################################################################
@@ -59,7 +65,7 @@ MAplotParaSFgMean <- function(type,
 getValuesChips <- function(meanchip, 
                                type, 
                                log, 
-                               cutoff, 
+                               cuttof, 
                                subset, 
                                span, 
                                family.loess, 
@@ -112,6 +118,8 @@ getValuesChips <- function(meanchip,
      subsets <- NULL
      if(J > 1){
       for(j in 1:J){
+		  #For Debugging
+		  if(verbose>2) set.seed(1234)
        if(is.null(subset)) subsets=sample(1:length(M[,j]),min(c(10000, length(M[,j]))))       
        else subsets = subset
        #Median and sigma for every Sample 
@@ -138,7 +146,7 @@ getValuesChips <- function(meanchip,
        osc.loess <- is.unsorted(aproxAM$y)                                          
        if(verbose) print(paste("osc.loess : ", osc.loess, "\n"))                    
        # the sigam value of the statics MAplot will be considered as a              
-       Var.sigma <- sigma > cutoff 
+       Var.sigma <- sigma > cuttof 
                                                         
        if(verbose) print(paste(" Var.sigma : ",  Var.sigma, "\n" ))                 
        #to write all calculates values in a list and return it as result
@@ -197,7 +205,7 @@ getValuesChips <- function(meanchip,
          osc.loess <- is.unsorted(aproxAM$y)                                       
          if(verbose) print(paste("osc.loess : ", osc.loess, "\n"))                 
          # the sigam value of the statics MAplot will be considered as a           
-         Var.sigma <- sigma > cutoff                                               
+         Var.sigma <- sigma > cuttof                                               
          if(verbose) print(paste(" Var.sigma : ",  Var.sigma, "\n" ))              
          #to write TRUE if the array is a "bad" quality array 
                            
@@ -222,21 +230,27 @@ getValuesChips <- function(meanchip,
 #       
 #########################################################
 getBoxplot<- function(sValues, 
-                      verbose)
+                      verbose,plot)
 {
  S.badQC<-NULL
- #calculate the statistical values 
- Sboxpl <- boxplot(sValues, plot=FALSE)
+ #calculate the statistical values
+ if(plot) op<-par(mfrow=c(2,2)) 
+ Sboxpl <- boxplot(sValues, plot=plot, main="S boxplot to detect outliers")
+ 
  S.stats <- Sboxpl$stats
- #take out only the Lower 'hinge' and Upper 'hinge'. These values will 
+ #take out only the Lower 'whisker' and Upper 'whisker'. These values will 
  # be considered as limit to classified the Samples as "outliers"("bad" quality Arrays)
- S.statsHL <- Sboxpl$stats[2,] 
- S.statsHU <- Sboxpl$stats[4,]
-
+ S.statsWL <- Sboxpl$stats[1,] 
+ S.statsWU <- Sboxpl$stats[5,]
+ if(plot){
+ abline(h= S.statsWL, lty=1, lwd=1, col="red")
+ abline(h= S.statsWU, lty=1, lwd=1, col="red")
+ par(op)
+ }
  # index of the "outliers" Samples are saved together
- S.badQC <- which(sValues < S.statsHL)  
- S.badQC<- c(S.badQC,  which(sValues > S.statsHU))
- # return only the name of the samples which are considered "outliers" from iths S values
+ S.badQC <- which(sValues < S.statsWL)  
+ S.badQC<- c(S.badQC,  which(sValues > S.statsWU))
+ # return only the name of the samples which are considered "outliers" from its S values
  return(S.badQC)
  
  
@@ -254,6 +268,59 @@ getBadQCLoessSigma <- function(lSValues,
     return(lS.badQC)
 }
 
+ ########################################################
+# function to give out the index/Name of the arrays in affybatch, which are classified as "bad" quality. The samples will be classified
+# in three levels: 
+#
+# 1 - badQC.sLoessSigma : samples which are classified as "bad" in checkBadQC.S, checkBadQC.loess and checkBadQC.sigma
+# 2 - badQC.sloess badQC.sSigma / badQC.loessSigma :  samples which are classified as "bad" only in two of three checkBAdCQ group (S- Loess, S-sigma, Loess-sigma)
+# 3 - badQC.loess/ badQC.S / badQC.sigma(samples which are classified as "bad" only in checkBadQC.loess 
+#return a list with only the index of the samples
+#########################################################
+
+
+getLevelsBQ<- function(checkBadQC.s, checkBadQC.loess, checkBadQC.sigma, verbose ){
+
+ #Samples of the second level but the first level isn�t considered yet:
+  badQC.sLoess <- sort(intersect(checkBadQC.s, checkBadQC.loess))
+  badQC.sSigma<- sort(intersect(checkBadQC.s, checkBadQC.sigma))
+  badQC.loessSigma<- sort(intersect(checkBadQC.loess, checkBadQC.sigma))
+  
+  #Samples of the first level:  intersect (sLoes(s , loess) , sigma) the three methods
+  badQC.sLoessSigma <- sort(intersect(badQC.sLoess ,checkBadQC.sigma))
+ 
+  #Samples of the second level: the samples of the second level whitout first level: 
+  #badQC.Sec_sLoess <- setdiff(badQC.sLoess, badQC.sLoessSigma) 
+ # badQC.Sec_sSigma <- setdiff(badQC.sSigma, badQC.sLoessSigma) 
+  #badQC.Sec_loessSigma <- setdiff(badQC.loessSigma, badQC.sLoessSigma) 
+  
+  #badQC.secondL <- list(badQC.Sec_sLoess, badQC.Sec_sSigma, badQC.Sec_loessSigma)
+  badQC.secondL <-list(badQC.sLoess, badQC.sSigma, badQC.loessSigma)
+  names(badQC.secondL) <- c("s-loess", "s-sigma", "loess-sigma")
+  
+  #Samples of the third level:
+  #badQC.unLoessSigma <- union(checkBadQC.loess, checkBadQC.sigma)
+  #badQC.s_LoessSigma <- sort(setdiff(checkBadQC.s, badQC.unLoessSigma))
+  
+ # badQC.unSSigma <-  union(checkBadQC.s, checkBadQC.sigma)
+  #badQC.l_SSigma <- sort(setdiff(checkBadQC.loess, badQC.unSSigma))
+  
+  #badQC.unSLoess <-  union(checkBadQC.s, checkBadQC.loess)
+  #badQC.sigma_SLoess <- sort(setdiff(checkBadQC.sigma, badQC.unSLoess))
+  
+ # badQC.thirdL <- list(badQC.s_LoessSigma,  badQC.l_SSigma, badQC.sigma_SLoess)
+  
+  badQC.thirdL<- list(checkBadQC.s, checkBadQC.loess, checkBadQC.sigma)
+  names(badQC.thirdL) <- c("s", "loess", "sigma")
+  
+  #the three levels are grouped to be ploted
+  badQC.MAplots <- list(badQC.sLoessSigma, badQC.secondL, badQC.thirdL)
+  names( badQC.MAplots) <- c("firstLevel", "secondLevel", "thirdLevel")
+
+  return(badQC.MAplots)
+
+}
+
 ########################################################
 # drawMAplot function to draw MAplot from only the "bad quality Arrays.
 # object: Affybatch object 
@@ -261,7 +328,7 @@ getBadQCLoessSigma <- function(lSValues,
 # meanchip : calculated reference chip as mean 
 # type: which kind of intensities should be considered :  "PM", "MM", "both"
 # log : logical - if true the intensities should be calculated as log2
-# subset: ?? used to calculate the loess.Smoother line 
+# subset: used to calculate the loess.Smoother line 
 #########################################################
 drawMAplot <- function(object, 
                        indexSamp, 
@@ -269,19 +336,20 @@ drawMAplot <- function(object,
                        type, 
                        log, 
                        subset,
-                       span, 
+                       spans, 
                        ref.title, 
-                       pch, 
-                       verbose)
+                       pchs,
+                       show.statistics,
+                       family.loess,
+                       verbose,
+                       ...)
 {
       
     lindex<- length(indexSamp)
     namesInd<- names(indexSamp)
     lobject<- length(object) 
-    print(paste("length index: ", lindex, "\n"))   
-    print(paste("length Obj :" , lobject))
-   
-      
+    if (verbose) cat(paste("Samples to be ploted: ", lindex, "\n"))   
+    # it is needed to calculate the M and A values only for the Arrays to be ploted     
     if (type == "both"){                                 
       pms <- unlist(indexProbes(object, "both"))        
     } else if (type == "pm"){                           
@@ -289,30 +357,101 @@ drawMAplot <- function(object,
     } else if (type == "mm"){                           
       pms <- unlist(mmindex(object))                    
     }                                                   
-    lobject<- length(object) 
+   
     
-       
-    for(i in 1:lindex){
-          
+     
+    
+     if (verbose) cat(paste("Samples to be ploted : " , lindex,  "\n"))                          
+        
+   
+     #to prepare the graphic window for the number of necessary MAplots
+     frame()
+     old.par <- par(no.readonly = TRUE)
+     on.exit(par(old.par))
+     par(mfrow=c(4,2),mgp=c(0,.2,0),mar=c(1,1,1,1),oma=c(1,1.4,2,1))
+     #to send individually the 'bad' quality index to the ma.plot function
+     
+   for(i in 1:lindex){
+              
+       #calculate the intensity for every array. it is necessary to calculate the M and A values    
       if(log){
           x <- log2(intensity(object[,indexSamp[i]])[pms, ])
       } else {
           x <- intensity(object[,indexSamp[i]])[pms, ]
       }
-       
-      
+           
       M <- x - meanchip                                                        
-      A <- (x + meanchip)/2   
-      cat(length(M))
-      cat(length(A))  
-      if(verbose) cat("Sample ", i , "will be ploted")
+      A <- (x + meanchip)/2 
+      
+      if(verbose) cat("Sample ", i , " will be ploted \n")
       if(is.null(subset)) subsets=sample(1:length(M),min(c(10000, length(M))))
       else subsets = subset
-      main.plot<-paste("Sample :", indexSamp[i], ref.title) 
-      check<- ma.plot(A, M, subset=subsets, show.statistics =TRUE, span=2/3, plot.method="normal", family.loess ="gaussian",add.loess =TRUE,pch, main=main.plot)
+     
+      main.plot<-paste("Sample : ", indexSamp[i], "-", ref.title)
       
-      print(check)
+      
+      
+      #call the generic function ma.plot for only the array i 
+      check<- ma.plot(A, M, subset=subsets, show.statistics =show.statistics, span=spans, family.loess=family.loess, pch=pchs, main=main.plot, ...)
+      if(verbose) print(check)
           
     }
+     invisible()
    
-} 
+}
+
+
+########################################################                     
+# function convert the results of the 'bad' quality samples as matrix                              
+# to facility the further possible calculations and analysis                                        
+#                                        
+#########################################################                    
+ 
+
+getMatrixBQLevels <- function(calQCSampleName, badQC.MAplots){
+
+     lSN <- length(calQCSampleName)
+     levelsNam <- names(badQC.MAplots)
+     lbQC <- length(levelsNam)
+     default<-rep(0,lSN) 
+     #built matrix
+     sampleLevelAll <- matrix( c(calQCSampleName, rep(default,lbQC)),  nrow=lSN , ncol=2)
+     #second and third level Quality will be splited for a better analysis
+    
+     
+     #remplace the default values with the correct value: 0 is FALSE and 1 TRUE
+     tempNamCol <- NULL
+     temp<- 1
+     for(i in 1: lbQC){
+         
+         NamIndexL<- sub("^[a-zA-Z]*[.]","",names(unlist(badQC.MAplots[levelsNam[i]])))
+         
+         NamIndex <- unique(sub("[1-9]*[0-9]*$","", NamIndexL)) 
+         li <- length(NamIndex)
+         #for subclasses of a class
+         if(li > 1){         
+              for( j in 1: li){
+                 
+                 temp<- temp +1
+                 if(dim(sampleLevelAll)[2]< temp) sampleLevelAll<- cbind(sampleLevelAll, rep(0,lSN))                
+                 sampleLevelAll[badQC.MAplots[[i]][[NamIndex[[j]]]], temp] <- 1
+                 tempNamCol <- c(tempNamCol, NamIndex[j])
+                 
+              }   
+         }else if(li ==1){
+                temp<- temp +1
+                if(dim(sampleLevelAll)[2]< temp) sampleLevelAll<- cbind(sampleLevelAll, rep(0,lSN))
+                tempNamCol <- c(tempNamCol, NamIndex)
+                if(data.class(badQC.MAplots[[i]]) == "list")  sampleLevelAll[badQC.MAplots[[i]][[NamIndex]],temp] <- 1 
+                else sampleLevelAll[badQC.MAplots[[i]],temp] <- 1 
+         }
+         
+                    
+      }
+     colnames(sampleLevelAll) <- c("sampleNames", tempNamCol)
+     #second and third level Quality will be splited for a better analysis
+     return(sampleLevelAll) 
+     
+ }
+ 
+ 

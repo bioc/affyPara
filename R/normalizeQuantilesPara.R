@@ -3,14 +3,12 @@
 # Parallelization of the normalize.AffyBatch.quantiles function
 #
 # History
-# 01.03.2008 : ... old stuff removed ...
-# 19.12.2007 : Version 0.12 - error in checks removed
-# 28.12.2007 : Version 0.13 - error in TMP affyBatch removed
-# 02.01.2008 : Version 0.14 - error for small number of files removed
+# 18.12.2008 : ... old stuff removed ...
 # 22.02.2008 : Version 0.15 - modularization
 # 26.02.2008 : Version 0.16 - error with ties fixed (affy 1.14 -> affy 1.16.2)
 # 27.03.2008 : Version 0.17 - object.type as input removed
 # 16.05.2008 : Version 0.18 - one node bug fix and code cleaning (tmp affyBatch removed)
+# 18.12.2008 : Version 0.19 - cluster object gets default parameter: .affyParaInternalEnv$cl
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -20,11 +18,10 @@
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
-normalizeAffyBatchQuantilesPara <- function(cluster,
-	object,
+normalizeAffyBatchQuantilesPara <- function(object,
 	phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
 	type=c("separate","pmonly","mmonly","together"), 
-	verbose=FALSE) 
+	cluster, verbose=FALSE) 
 {	
     ########
     # Checks
@@ -32,6 +29,10 @@ normalizeAffyBatchQuantilesPara <- function(cluster,
 	#Check for affy amd snow
 	require(affy)
 	require(snow)
+	
+	#Get cluster object form default environment
+	if(missing(cluster))
+		cluster <- .affyParaInternalEnv$cl
 	
 	#Check cluster and generate number.parts
 	checkCluster(cluster)

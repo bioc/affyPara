@@ -10,18 +10,23 @@
 # 23.10.2008 : Version 0.18 - Improvements in directory creation
 # 24.10.2008 : Version 0.19 - Improvements for multiprocessor machines
 # 27.10.2008 : Version 0.20 - Output improved to work at multiprocessor machines and clusters
+# 18.12.2008 : Version 0.21 - cluster object gets default parameter: .affyParaInternalEnv$cl
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
-distributeFiles <- function(cluster, 
-		files, to=tempdir(),
+distributeFiles <- function( files, to=tempdir(),
 		protocol=c("R","RCP","SCP"), hierarchicallyDist=FALSE,
 		master=TRUE, delExistTo=FALSE,
-		full.names=TRUE, verbose=FALSE)
+		full.names=TRUE, 
+		cluster, verbose=FALSE)
 {
 	#Check for snow
 	require(snow)
+	
+	#Get cluster object form default environment
+	if(missing(cluster))
+		cluster <- .affyParaInternalEnv$cl
 	
 	#Check cluster
 	checkCluster(cluster)

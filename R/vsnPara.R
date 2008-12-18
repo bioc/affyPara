@@ -6,7 +6,7 @@
 # History
 # 28.10.2008 : Version 0.1 - file vsnPara and vsnParaFunctions created
 # 06.11.2008 : Version 0.2 - vsn reference implemented
-#
+# 18.12.2008 : Version 0.3 - cluster object gets default parameter: .affyParaInternalEnv$cl
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -19,11 +19,11 @@
 #######################################################
 # vsn2 parallelized
 #######################################################
-vsn2Para <- function(cluster,
-		object,
+vsn2Para <- function(object,
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
 		reference, subsample,
-		..., verbose=TRUE) 
+		..., 
+		cluster, verbose=TRUE) 
 {	
 	########
 	# Checks
@@ -31,6 +31,10 @@ vsn2Para <- function(cluster,
 	#Check for affy amd snow
 	require(affy)
 	require(snow)
+	
+	#Get cluster object form default environment
+	if(missing(cluster))
+		cluster <- .affyParaInternalEnv$cl
 	
 	#Check cluster and generate number.parts
 	checkCluster(cluster)
@@ -127,10 +131,14 @@ vsn2Para <- function(cluster,
 ##############################################################################
 # justvsn parallelized
 ##############################################################################
-justvsnPara <- function(cluster,
-		object,
-		..., verbose=TRUE) 
+justvsnPara <- function(object,
+		..., 
+		cluster, verbose=TRUE) 
 {
+	#Get cluster object form default environment
+	if(missing(cluster))
+		cluster <- .affyParaInternalEnv$cl
+	
 	##############################
 	# do vsn normalization
 	##############################
@@ -155,17 +163,22 @@ justvsnPara <- function(cluster,
 ##############################################################################
 # vsnrma parallelized
 ##############################################################################
-vsnrmaPara <- function(cluster,		
-		object,
+vsnrmaPara <- function(object,
 		pmcorrect.method="pmonly", pmcorrect.param=list(),
 		summary.method="medianpolish", summary.param=list(),
 		ids=NULL,
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-		..., verbose=TRUE) 
+		..., 
+		cluster, verbose=TRUE) 
 {
 	########
 	# Checks
 	########
+	
+	#Get cluster object form default environment
+	if(missing(cluster))
+		cluster <- .affyParaInternalEnv$cl
+		
 	#Check cluster and generate number.parts
 	checkCluster(cluster)
 	number.parts <- length(cluster)
