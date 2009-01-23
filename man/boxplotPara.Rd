@@ -69,20 +69,21 @@ boxplotPara returns a list with elements from the boxplot.stats function ('stats
 \examples{
 \dontrun{
 library(affyPara)
+if (require(affydata)) {
+  data(Dilution)
 
-data(Dilution)
+  makeCluster(3)
 
-makeCluster(3)
+  ##boxplot of Dulution data (affybatch) 
+  box1 <- boxplotPara(Dilution)
 
-##boxplot of Dulution data (affybatch) 
-box1 <- boxplotPara(Dilution)
+  ## boxplots to a pdf file
+  pdf(file="boxplot.pdf", title="AffyBatch Boxplot")
+  box2 <- boxplotPara(Dilution)
+  dev.off()
 
-## boxplots to a pdf file
-pdf(file="boxplot.pdf", title="AffyBatch Boxplot")
-box2 <- boxplotPara(Dilution)
-dev.off()
-
-stopCluster()
+  stopCluster()
+}
 }
 }
 

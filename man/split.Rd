@@ -21,9 +21,11 @@ splitMatrix(matrix, number.part)
   \item{number.part}{ Number of parts to split the object }
 }
 \details{
-\item{\code{splitAffyBatch}}{Splits an \link[affy:AffyBatch-class]{AffyBatch} into a list of AffyBatches. }
-\item{\code{splitFileVector}}{Splits a \code{character} vector of file names into a list of \code{character} vectors with file names. }
-\item{\code{splitMatrix}}{Splits a \code{matrix} by columns into a \code{list} of matrices.}
+\describe{
+  \item{\code{splitAffyBatch}}{Splits an \link[affy:AffyBatch-class]{AffyBatch} into a list of AffyBatches. }
+  \item{\code{splitFileVector}}{Splits a \code{character} vector of file names into a list of \code{character} vectors with file names. }
+  \item{\code{splitMatrix}}{Splits a \code{matrix} by columns into a \code{list} of matrices.}
+}
 
 These functions use the functions \link[snow:snow-internal]{splitIndices} and \link[snow:snow-internal]{splitCols} from the \code{SNOW} package.
 }
@@ -35,10 +37,11 @@ A \code{list} of the split objects.
 
 \examples{
 library(affyPara)
+if (require(affydata)) {
+  data(Dilution)
 
-data(Dilution)
-
-spAffyB <- splitAffyBatch(Dilution, 2)
+  spAffyB <- splitAffyBatch(Dilution, 2)
+}
 }
 
 \keyword{programming}

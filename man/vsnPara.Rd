@@ -79,14 +79,15 @@ An \link[affy:AffyBatch-class]{AffyBatch} of normalized objects.
 \examples{
 \dontrun{
 library(affyPara)
+if (require(affydata)) {
+  data(Dilution)
 
-data(Dilution)
+  makeCluster(3)
 
-makeCluster(3)
+  AB1 <- justvsnPara(Dilution, verbose=verbose )
 
-AB1 <- justvsnPara(Dilution, verbose=verbose )
-
-stopCluster()
+  stopCluster()
+}
 }
 }
 

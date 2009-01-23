@@ -26,7 +26,7 @@ preproPara(object,
   \item{normalize.method}{ The name of the normalization method to use. }
   \item{normalize.param}{ A list of parameters to be passed to the normalization method (if wanted). }
 
-  \item{pmcorrect.method}{ The name of the PM adjustement method. }
+  \item{pmcorrect.method}{ The name of the PM adjustment method. }
   \item{pmcorrect.param}{ A list of parameters for \code{pmcorrect.method} (if needed/wanted). }
   \item{summary.method}{ The method used for the computation of expression values }
   \item{summary.param}{ A list of parameters to be passed to the \code{summary.method} (if wanted). }
@@ -54,9 +54,11 @@ The \code{makeXXXcluster} functions from the package SNOW can be used to create 
 to use it for the preprocessing functions.
 
 Available methods:
-\item{\code{bgcorrect.method}:}{see \code{bgcorrect.methods()}}
-\item{\code{normalize.method}:}{'quantil', 'constant', 'invariantset','loess'}
-\item{\code{summary.method}:}{see \code{generateExprSet.methods()}}
+\describe{
+  \item{\code{bgcorrect.method}:}{see \code{bgcorrect.methods()}}
+  \item{\code{normalize.method}:}{'quantil', 'constant', 'invariantset','loess'}
+  \item{\code{summary.method}:}{see \code{generateExprSet.methods()}}
+}
 }
 
 \value{
@@ -68,19 +70,20 @@ An object of class \link[Biobase]{ExpressionSet}.
 \examples{
 \dontrun{
 library(affyPara)
+if (require(affydata)) {
+  data(Dilution)
 
-data(Dilution)
+  makeCluster(3)
 
-makeCluster(3)
-
-esset <- preproPara(Dilution,
+  esset <- preproPara(Dilution,
     bgcorrect = TRUE, bgcorrect.method = "rma2",
     normalize = TRUE, normalize.method = "quantil",
     pmcorrect.method = "pmonly",
     summary.method = "avgdiff",
     verbose = TRUE)
     
-stopCluster()
+  stopCluster()
+}
 }
 }
 

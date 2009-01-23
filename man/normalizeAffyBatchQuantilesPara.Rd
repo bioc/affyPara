@@ -43,7 +43,9 @@ The \code{makeXXXcluster} functions from the package SNOW can be used to create 
 to use it for the preprocessing functions.
 
 \code{normalizeQuantilesPara} is a internal function which will be executed at all slaves.
-\item{\code{normalizeQuantilesPara}}{Function for quantil normalization.}
+\describe{
+  \item{\code{normalizeQuantilesPara}}{Function for quantile normalization.}
+}
 }
 
 \value{
@@ -55,14 +57,15 @@ An \link[affy:AffyBatch-class]{AffyBatch} of normalized objects.
 \examples{
 \dontrun{
 library(affyPara)
+if (require(affydata)) {
+  data(Dilution)
 
-data(Dilution)
+  makeCluster(3)
 
-makeCluster(3)
+  AffyBatch <- normalizeAffyBatchQuantilesPara(Dilution, verbose=TRUE)
 
-AffyBatch <- normalizeAffyBatchQuantilesPara(Dilution, verbose=TRUE)
-
-stopCluster()
+  stopCluster()
+}
 }
 }
 

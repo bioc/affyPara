@@ -47,6 +47,7 @@ to several nodes solves the main memory problems caused by the AffyBatch and acc
 
 <<echo=F, results=hide>>=
 library(affyPara)
+library(affydata)
 sI <- sessionInfo()
 @
 
@@ -87,9 +88,11 @@ the literature or the webpage http://www.cs.uiowa.edu/\textasciitilde luke/R/clu
 The first thing you need to do is load the package.
 \begin{Sinput}
 R> library(affyPara)
+R> library(affydata)
 \end{Sinput}
 <<echo=F,results=hide>>=
 library(affyPara)
+library(affydata)
 @
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

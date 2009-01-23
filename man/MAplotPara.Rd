@@ -88,20 +88,21 @@ MAplotPara return a list with four elements: \code{values_MAP}, \code{loess_y}, 
 \examples{
 \dontrun{
 library(affyPara)
+if (require(affydata)) {
+  data(Dilution)
 
-data(Dilution)
+  makeCluster(3)
 
-makeCluster(3)
+  ##MA of Dilution data (affybatch)
+  ma1 <- MAplotPara(Dilution)
 
-##MA of Dilution data (affybatch)
-ma1 <- MAplotPara(Dilution)
+  ## MAplot to a pdf file
+  pdf(file="maplot.pdf", title="AffyBatch MAplot")
+  ma2 <- MAplotPara(Dilution)
+  dev.off()
 
-## MAplot to a pdf file
-pdf(file="maplot.pdf", title="AffyBatch MAplot")
-ma2 <- MAplotPara(Dilution)
-dev.off()
-
-stopCluster()
+  stopCluster()
+}
 }
 }
 

@@ -21,8 +21,10 @@ combineMatrices(matrix.list, verbose=FALSE)
 }
 \details{
 Functions to merge or combine a \code{list} of split objects.
-\item{\code{mergeAffyBatches}}{Merges a \code{list} of AffyBatches to one AffyBatch.}
-\item{\code{combineMatrices}}{Combines a \code{list} of matrices by columns to one matrix.}
+\describe{
+  \item{\code{mergeAffyBatches}}{Merges a \code{list} of AffyBatches to one AffyBatch.}
+  \item{\code{combineMatrices}}{Combines a \code{list} of matrices by columns to one matrix.}
+}
 }
 
 \value{
@@ -34,22 +36,23 @@ Functions to merge or combine a \code{list} of split objects.
 
 \examples{
 library(affyPara)
+if (require(affydata)) {
+  data(Dilution)
 
-data(Dilution)
+  #split AffyBatch
+  abatch.list<- splitAffyBatch(Dilution, 2)
 
-#split AffyBatch
-abatch.list<- splitAffyBatch(Dilution, 2)
+  #Merge AffyBatch
+  AffyBatch <- mergeAffyBatches(abatch.list)
 
-#Merge AffyBatch
-AffyBatch <- mergeAffyBatches(abatch.list)
+  # Create matrices
+  a <- matrix(1:25, nrow=5)
+  b <- matrix(101:125, nrow=5)
+  matrix.list <- list(a,b)
 
-# Create matrices
-a <- matrix(1:25, nrow=5)
-b <- matrix(101:125, nrow=5)
-matrix.list <- list(a,b)
-
-# Combine matrices
-combineMatrices(matrix.list)
+  # Combine matrices
+  combineMatrices(matrix.list)
+}
 }
 
 \keyword{programming}

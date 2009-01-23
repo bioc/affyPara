@@ -44,15 +44,16 @@ to use it for the preprocessing functions.
 \examples{
 \dontrun{
 library(affyPara)
+if (require(affydata)) {
+  data(Dilution)
 
-data(Dilution)
+  makeCluster(3)
 
-makeCluster(3)
+  ##bgc will be the bg corrected version of Dilution 
+  bgc <- bgCorrectPara(Dilution, method="rma", verbose=TRUE)
 
-##bgc will be the bg corrected version of Dilution 
-bgc <- bgCorrectPara(Dilution, method="rma", verbose=TRUE)
-
-stopCluster()
+  stopCluster()
+}
 }
 }
 

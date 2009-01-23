@@ -54,17 +54,18 @@ An object of class \link[Biobase]{ExpressionSet}.
 \examples{
 \dontrun{
 library(affyPara)
+if (require(affydata)) {
+  data(Dilution)
 
-data(Dilution)
+  makeCluster(3)
 
-makeCluster(3)
-
-esset <- computeExprSetPara(Dilution,
+  esset <- computeExprSetPara(Dilution,
     pmcorrect.method = "pmonly",
     summary.method = "avgdiff",
     verbose = TRUE)
 
-stopCluster()
+  stopCluster()
+}
 }
 }
 

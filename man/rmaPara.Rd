@@ -50,14 +50,15 @@ An object of class \link[Biobase]{ExpressionSet}.
 \examples{
 \dontrun{
 library(affyPara)
+if (require(affydata)) {
+  data(Dilution)
 
-data(Dilution)
+  makeCluster(3)
 
-makeCluster(3)
+  esset <- rmaPara(Dilution)
 
-esset <- rmaPara(Dilution)
-    
-stopCluster()
+  stopCluster()
+}
 }
 }
 
