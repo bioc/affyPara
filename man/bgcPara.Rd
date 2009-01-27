@@ -38,15 +38,16 @@ For using this function a computer cluster using the \code{snow} package has to 
 \examples{
 \dontrun{
 library(affyPara)
+if (require(affydata)) {
+  data(Dilution)
 
-data(Dilution)
+  c1 <- makeCluster(3)
 
-c1 <- makeCluster(3)
+  ##bgc will be the bg corrected version of Dilution 
+  bgc <- bgCorrectPara(c1, Dilution, method="rma", verbose=TRUE)
 
-##bgc will be the bg corrected version of Dilution 
-bgc <- bgCorrectPara(c1, Dilution, method="rma", verbose=TRUE)
-
-stopCluster(c1)
+  stopCluster(c1)
+}
 }
 }
 

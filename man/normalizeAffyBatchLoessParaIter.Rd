@@ -54,14 +54,15 @@ An \link[affy:AffyBatch-class]{AffyBatch} of normalized objects.
 \examples{
 \dontrun{
 library(affyPara)
+if (require(affydata)) {
+  data(Dilution)
 
-data(Dilution)
+  c1 <- makeCluster(3)
 
-c1 <- makeCluster(3)
+  AffyBatch <- normalizeAffyBatchLoessIterPara(c1, percentPerm=0.75, Dilution, verbose=TRUE)
 
-AffyBatch <- normalizeAffyBatchLoessIterPara(c1, percentPerm=0.75, Dilution, verbose=TRUE)
-
-stopCluster(c1)
+  stopCluster(c1)
+}
 }
 }
 

@@ -35,10 +35,11 @@ A \code{list} of the split objects.
 
 \examples{
 library(affyPara)
+if (require(affydata)) {
+  data(Dilution)
 
-data(Dilution)
-
-spAffyB <- splitAffyBatch(Dilution, 2)
+  spAffyB <- splitAffyBatch(Dilution, 2)
+}
 }
 
 \keyword{programming}
