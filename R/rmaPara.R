@@ -7,8 +7,9 @@
 # 27.03.2008 : Version 0.2 - object.type as input removed
 # 17.12.2008 : Version 0.3 - cluster object gets default parameter
 # 18.12.2008 : Version 0.4 - cluster object gets default parameter: .affyParaInternalEnv$cl
+# 20.03.2009 : Version 0.5 - Bug Fix in proproPara call
 #
-# Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2009 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 rmaPara <- function(object, ids = NULL,
@@ -19,13 +20,12 @@ rmaPara <- function(object, ids = NULL,
 	if(missing(cluster))
 		cluster <- .affyParaInternalEnv$cl
 	
-	preproPara(cluster,
-				object,
+	preproPara(object,
 				bgcorrect=TRUE, bgcorrect.method="rma",
 				normalize=TRUE, normalize.method="quantiles", normalize.param=list(type="pmonly"), 
 				pmcorrect.method="pmonly", 
 				summary.method="medianpolish",
 				ids = ids,
 				phenoData = phenoData, cdfname = cdfname,
-				verbose=verbose)
+				cluster, verbose=verbose)
 }
