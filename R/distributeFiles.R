@@ -61,7 +61,7 @@ distributeFiles <- function( files, to=tempdir(),
 		if (verbose>0) cat("Create Directories ")
 			t1 <- proc.time()
 			#at master: only if not tempdir
-			if(to != tempdir()){
+			if(to != tempdir() && master==TRUE){
 				error <- system(paste("mkdir ",to,sep=""))
 				if ( error != 0) warning("Directory ",to," already exists at master.")
 			}
