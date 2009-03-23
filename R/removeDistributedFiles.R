@@ -15,7 +15,7 @@
 ###############################################################################
 
 removeDistributedFiles <- function(path=tempdir(),
-		cluster, verbose=getOption("verbose"))
+		cluster, master=TRUE, verbose=getOption("verbose"))
 {
 	#Check for snow
 	require(snow)
@@ -33,12 +33,14 @@ removeDistributedFiles <- function(path=tempdir(),
 		if(verbose) cat("No data removement: you use a multiprocessor machine!\n")
 	} else{	
 	    
-	    #Remove Files at Master, but nor directroy
-		if (verbose) cat("Remove files on Master ")
-			check<-unlink(paste(path,"*",sep="/"), recursive=TRUE)
-			if (check == 1)
+	    #Remove Files at Master, but not directroy
+		if(master){
+			if (verbose) cat("Remove files on Master ")
 				check<-unlink(paste(path,"*",sep="/"), recursive=TRUE)
-		if (verbose) cat("... DONE\n")
+				if (check == 1)
+					check<-unlink(paste(path,"*",sep="/"), recursive=TRUE)
+			if (verbose) cat("... DONE\n")
+		}
 	
 		#Remove files and directories at slaves
 		if (verbose) cat("Remove files on Slaves ")
@@ -47,7 +49,9 @@ removeDistributedFiles <- function(path=tempdir(),
 			
 		#Check if cleanup was successfull
 		if (verbose) cat("Check: ")
-			masterCheck <- length(list.files(path))
+			if(master)
+				masterCheck <- length(list.files(path))
+			else masterCheck <- 0
 		 	slaveCheck <- sum( unlist(clusterCall(cluster, function(x) length(list.files(x)), path) ) )
 			if ( slaveCheck == 0 && masterCheck == 0) {
 				output <- TRUE

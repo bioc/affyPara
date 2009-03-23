@@ -7,12 +7,13 @@ This function removes distributed files from a special path at the disk at all s
 }
 
 \usage{
-removeDistributedFiles(path=tempdir(), cluster, verbose = getOption("verbose"))
+removeDistributedFiles(path=tempdir(), cluster, master=TRUE, verbose = getOption("verbose"))
 }
 \arguments{
   \item{path}{ A \code{character} that defines which path (inclusive files) should be removed at every slave. Default: tempdir() }
   \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the SNOW package. 
   		For default \code{.affyParaInternalEnv$cl} will be used. }
+  \item{master}{ A logical value. If \code{TRUE} the files will be removed from the master. default: TRUE}
   \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages. default: getOption("verbose") } 
 }
 \details{
