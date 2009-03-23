@@ -21,7 +21,7 @@ MAplotPara(object,
                        plot =TRUE,
                        cutoff =0.5,# add parameter to generic function ma.plot
                        level=1,
-                       cluster, verbose=FALSE,
+                       cluster, verbose = getOption("verbose"),
                        ... )
                        
 }
@@ -55,7 +55,7 @@ MAplotPara(object,
   }
     \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the SNOW package. 
   		For default \code{.affyParaInternalEnv$cl}  will be used. }
-  	\item{verbose}{ A logical value. If \code{TRUE} it writes out some messages. default: TRUE }
+  	\item{verbose}{ A logical value. If \code{TRUE} it writes out some messages. default: getOption("verbose") }
 }
 
 \details{

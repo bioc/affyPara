@@ -4,6 +4,7 @@
 #
 # History
 # 04.12.2008 : Version 0.1 - create Function
+# 23.03.2009 : Version 0.2 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
 #
 # Copyright (C) 2008 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
@@ -22,7 +23,7 @@ MAplotSer <- function(object,
                        plot =TRUE,
                        cutoff =0.5,# add parameter to generic function ma.plot
                        level=1,
-                       verbose =FALSE,
+                       verbose=getOption("verbose"),
                        ...                       
                        )
 {
@@ -31,7 +32,7 @@ MAplotSer <- function(object,
   #object saved as global for the parallel Functions 
   assign("AffyBatch", object, envir= .GlobalEnv)	
 	#Check object type
-	object.type <- getObjectType(object) 
+	object.type <- .getObjectType(object) 
 
 	if (object.type == "AffyBatch"){
 		 samples.names <- sampleNames(object)
@@ -132,11 +133,11 @@ MAplotSer <- function(object,
    calQC<- matrix(c(calQCSampleName,calQCS,calQCL, calQCsigma, calQCVarsigma), nrow=length(calQCSampleName), ncol=5)
    colnames(calQC) <- c("sampleNames","S","Osc_Loess","sigma", "Var_sigma")
   #Samples classified as "bad" after the S value (outliers) 
-  checkBadQC.s<- getBoxplot(calQCS, verbose,plot)
+  checkBadQC.s<- getBoxplot(calQCS,plot)
   #Samples classified as "bad" after the loess.smooth line 
-  checkBadQC.loess<- getBadQCLoessSigma(calQCL, verbose)
+  checkBadQC.loess<- getBadQCLoessSigma(calQCL)
   #Samples classified as "bad" after the sigma value
-  checkBadQC.sigma <- getBadQCLoessSigma(calQCVarsigma, verbose)
+  checkBadQC.sigma <- getBadQCLoessSigma(calQCVarsigma)
   
   #to give out the index/Name of the arrays in affybatch, which are classified as "bad" quality. The samples will be classified
   # in three levels: 
@@ -144,7 +145,7 @@ MAplotSer <- function(object,
   # 2 - badQC.sloess badQC.sSigma / badQC.loessSigma :  samples which are classified as "bad" only in two of three checkBAdCQ group (S- Loess, S-sigma, Loess-sigma)
   # 3 - badQC.loess/ badQC.S / badQC.sigma(samples which are classified as "bad" only in checkBadQC.loess 
   
-  badQC.MAplots <- getLevelsBQ(checkBadQC.s, checkBadQC.loess, checkBadQC.sigma, verbose )
+  badQC.MAplots <- getLevelsBQ(checkBadQC.s, checkBadQC.loess, checkBadQC.sigma)
   
   
   if(verbose >1 ) save(badQC.MAplots, file="qualityProbleMASer.Rdata")

@@ -9,7 +9,7 @@ Parallelized scaling normalization of arrays.
 normalizeAffyBatchConstantPara(object,
       refindex = 1, FUN = mean, na.rm = TRUE,
       phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-      cluster, verbose = FALSE)  
+      cluster, verbose = getOption("verbose"))  
 }
 
 \arguments{
@@ -27,7 +27,7 @@ normalizeAffyBatchConstantPara(object,
   		the usual cdf package based on Affymetrix' mappings will be used. }
   \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the SNOW package. 
   		For default \code{.affyParaInternalEnv$cl}  will be used. }
-  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages.} 
+  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages. default: getOption("verbose") } 
   
 }
 

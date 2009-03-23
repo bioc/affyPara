@@ -11,6 +11,7 @@
 # 27.03.2008 : Version 0.8 - object.type as input removed
 # 16.05.2008 : Version 0.9 - one node bug fix
 # 18.12.2008 : Version 0.10 - cluster object gets default parameter: .affyParaInternalEnv$cl
+# 23.03.2009 : Version 0.11 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -25,7 +26,7 @@ normalizeAffyBatchInvariantsetPara <- function(object,
 		baseline.type=c("mean","median","pseudo-mean","pseudo-median"),
 		type=c("separate","pmonly","mmonly","together"),
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-		cluster, verbose=FALSE) 
+		cluster, verbose=getOption("verbose")) 
 {
     #########
     # Checks
@@ -47,10 +48,10 @@ normalizeAffyBatchInvariantsetPara <- function(object,
 	baseline.type <- match.arg(baseline.type)
 
 	#Check object type
-	object.type <- getObjectType(object) 
+	object.type <- .getObjectType(object) 
 	
 	#Check size of partitions
-	parts <- checkPartSize(object, number.parts)
+	parts <- .checkPartSize(object, number.parts)
 	number.parts <- parts$number.parts
 	object.length <- parts$object.length
 
@@ -81,7 +82,7 @@ normalizeAffyBatchInvariantsetPara <- function(object,
 	##################################
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 		t0 <- proc.time();
-		check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type)
+		check <- clusterApply(cluster, object.list, .initAffyBatchSF, object.type)
 		t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
 	
@@ -91,7 +92,7 @@ normalizeAffyBatchInvariantsetPara <- function(object,
 	if (verbose) cat("Create TMP AffyBatch ")
 	if( object.type == "CELfileVec" || object.type == "partCELfileList" ){
 		t0 <- proc.time();
-		headdetails <- clusterApply(cluster, object.list, ReadHeaderSF)[[1]]
+		headdetails <- clusterApply(cluster, object.list, .ReadHeaderSF)[[1]]
 		dim.intensity <- headdetails[[2]]
 		ref.cdfName <- headdetails[[1]]
 		if( dim(phenoData)[1] == 0 ){
@@ -116,14 +117,14 @@ normalizeAffyBatchInvariantsetPara <- function(object,
 	##############################
 	# Normalization
 	##############################
-	normalizeInvariantsetPara(cluster, AffyBatch, samples.names, prd.td=prd.td, baseline.type=baseline.type, type=type, verbose=verbose)
+	normalizeInvariantsetPara(cluster, AffyBatch, samples.names, prd.td=prd.td, baseline.type=baseline.type, type=type)
 	
 	##############################
 	#Combine / Rebuild affyBatches
 	##############################
 	if (verbose) cat("Rebuild AffyBatch ")
 		t0 <- proc.time();
-		AffyBatch.list.norm <- clusterCall(cluster,getAffyBatchSF)
+		AffyBatch.list.norm <- clusterCall(cluster, .getAffyBatchSF)
 		AffyBatch <- mergeAffyBatches(AffyBatch.list.norm)
 		t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
@@ -140,7 +141,7 @@ normalizeInvariantsetPara <- function(cluster,
 		prd.td=c(0.003,0.007), 
 		baseline.type=c("mean","median","pseudo-mean","pseudo-median"),
 		type=c("separate","pmonly","mmonly","together"),
-		verbose=TRUE)
+		verbose=getOption("verbose"))
 {
 	########################################
 	#Parallel computation of means of arrays
@@ -180,10 +181,10 @@ normalizeInvariantsetPara <- function(cluster,
 		rows <- unlist(pmindex(AffyBatch))
 	
 	if (baseline.type == "mean" || baseline.type == "median") {
-		baseline.chip.list <- clusterCall(cluster, getIntensitySF, rows, refindexname)
+		baseline.chip.list <- clusterCall(cluster, .getIntensitySF, rows, refindexname)
 		baseline.chip <- unlist( baseline.chip.list[!unlist(lapply(lapply(baseline.chip.list,is.na),any))] )
 	} else if (baseline.type == "pseudo-mean" ) {
-		xpart <- clusterCall(cluster, getCompIntensitySF, rows)
+		xpart <- clusterCall(cluster, .getCompIntensitySF, rows)
 		#Remove NAs
 		listxpart <- unlist(xpart)
 		if (any(is.na(listxpart))){
@@ -192,7 +193,7 @@ normalizeInvariantsetPara <- function(cluster,
 		}
 		baseline.chip <- rowMeans(matrix(listxpart,ncol=length(AffyBatch)))
 	} else if (baseline.type == "pseudo-median" ) {
-		xpart <- clusterCall(cluster, getCompIntensitySF, rows)
+		xpart <- clusterCall(cluster, .getCompIntensitySF, rows)
 		#Remove NAs
 		listxpart <- unlist(xpart)
 		if (any(is.na(listxpart))){
@@ -244,10 +245,10 @@ normalizeInvariantsetPara <- function(cluster,
 		t0 <- proc.time();
 		rows <- unlist(mmindex(AffyBatch))	
 		if (baseline.type == "mean" || baseline.type == "median") {
-			baseline.chip.list <- clusterCall(cluster, getIntensitySF, rows, refindexname)
+			baseline.chip.list <- clusterCall(cluster, .getIntensitySF, rows, refindexname)
 			baseline.chip <- unlist( baseline.chip.list[!unlist(lapply(lapply(baseline.chip.list,is.na),any))] )
 		} else if (baseline.type == "pseudo-mean" ) {
-			xpart <- clusterCall(cluster, getCompIntensitySF, rows)
+			xpart <- clusterCall(cluster, .getCompIntensitySF, rows)
 			#Remove NAs
 			listxpart <- unlist(xpart)
 			if (any(is.na(listxpart))){
@@ -256,7 +257,7 @@ normalizeInvariantsetPara <- function(cluster,
 			}
 			baseline.chip <- rowMeans(matrix(listxpart,ncol=length(AffyBatch)))
 		} else if (baseline.type == "pseudo-median" ) {
-			xpart <- clusterCall(cluster, getCompIntensitySF, rows)
+			xpart <- clusterCall(cluster, .getCompIntensitySF, rows)
 			#Remove NAs
 			listxpart <- unlist(xpart)
 			if (any(is.na(listxpart))){

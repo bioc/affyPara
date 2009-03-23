@@ -12,11 +12,11 @@ vsn2Para(object,
 	phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
 	reference, subsample,
 	..., 
-	cluster, verbose=TRUE) 
+	cluster, verbose = getOption("verbose")) 
 
 justvsnPara(object,
 		...,
-		cluster, verbose=TRUE) 
+		cluster, verbose = getOption("verbose")) 
 	
 vsnrmaPara(object,
 	pmcorrect.method="pmonly", pmcorrect.param=list(),
@@ -24,7 +24,7 @@ vsnrmaPara(object,
 	ids=NULL,
 	phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
 	..., 
-	cluster, verbose=TRUE)  
+	cluster, verbose = getOption("verbose"))  
 }
 
 \arguments{
@@ -50,7 +50,7 @@ vsnrmaPara(object,
   \item{\dots}{Further arguments that get passed and are similar to \code{vsn2}.}
   \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the SNOW package. 
   		For default \code{.affyParaInternalEnv$cl} will be used. }
-  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages.} 
+  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages. default: getOption("verbose") } 
  
   \item{pmcorrect.method}{ The name of the PM adjustement method. }
   \item{pmcorrect.param}{ A list of parameters for \code{pmcorrect.method} (if needed/wanted). }

@@ -11,7 +11,7 @@ computeExprSetPara(object,
     pmcorrect.method, summary.method,
     summary.param = list(), pmcorrect.param = list(),
     phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-    cluster, verbose = TRUE)
+    cluster, verbose = getOption("verbose"))
 
 }
 \arguments{

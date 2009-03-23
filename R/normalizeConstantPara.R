@@ -10,6 +10,7 @@
 # 27.03.2008 : Version 0.8 - object.type as input removed
 # 16.05.2008 : Version 0.9 - one node bug fix
 # 18.12.2008 : Version 0.10 - cluster object gets default parameter: .affyParaInternalEnv$cl
+# 23.03.2009 : Version 0.11 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -22,7 +23,7 @@
 normalizeAffyBatchConstantPara <- function(object,
 		refindex=1, FUN=mean, na.rm=TRUE, 
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-		cluster, verbose=FALSE) 
+		cluster, verbose=getOption("verbose")) 
 {
     #########
     # Checks
@@ -40,10 +41,10 @@ normalizeAffyBatchConstantPara <- function(object,
 	number.parts <- length(cluster)
 	
 	#Check object type
-	object.type <- getObjectType(object) 
+	object.type <- .getObjectType(object) 
 	
 	#Check size of partitions
-	parts <- checkPartSize(object, number.parts)
+	parts <- .checkPartSize(object, number.parts)
 	number.parts <- parts$number.parts
 	object.length <- parts$object.length
 	
@@ -78,21 +79,21 @@ normalizeAffyBatchConstantPara <- function(object,
 	##################################
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 		t0 <- proc.time();
-		check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type) 
+		check <- clusterApply(cluster, object.list, .initAffyBatchSF, object.type) 
 		t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
 	
 	############################
 	# Do constant normalization
 	############################
-	normalizeConstantPara(cluster, samples.names, refindex=refindex, na.rm=na.rm, FUN=FUN, verbose=verbose)
+	normalizeConstantPara(cluster, samples.names, refindex=refindex, na.rm=na.rm, FUN=FUN)
 		
 	##############################
 	#Combine / Rebuild affyBatches
 	##############################
 	if (verbose) cat("Rebuild AffyBatch ")
 		t0 <- proc.time();
-		AffyBatch.list.norm <- clusterCall(cluster, getAffyBatchSF)
+		AffyBatch.list.norm <- clusterCall(cluster, .getAffyBatchSF)
 		AffyBatch <- mergeAffyBatches(AffyBatch.list.norm)
 		t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
@@ -107,7 +108,7 @@ normalizeAffyBatchConstantPara <- function(object,
 normalizeConstantPara <- function(cluster,
 		samples.names, refindex=1, 
 		na.rm=TRUE, FUN=mean, 
-		verbose=verbose)
+		verbose=getOption("verbose"))
 {
 	####################################	
 	#Create refconstant und refindexname

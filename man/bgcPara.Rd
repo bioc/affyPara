@@ -8,7 +8,7 @@ Parallelized functions for background correction of probe intensities.
 \usage{
 bgCorrectPara(object,
 	phenoData = new("AnnotatedDataFrame"), method,
-	cluster, verbose = FALSE)
+	cluster, verbose = getOption("verbose"))
 }
 
 \arguments{

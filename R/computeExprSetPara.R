@@ -9,6 +9,7 @@
 # 23.10.2008 : Version 0.12 - awfull bug in checks removed
 # 28.10.2008 : Version 0.13 - doSummarizationPara imporved
 # 18.12.2008 : Version 0.14 - cluster object gets default parameter: .affyParaInternalEnv$cl
+# 23.03.2009 : Version 0.15 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -18,7 +19,7 @@ computeExprSetPara <- function(object,
 		pmcorrect.method, summary.method,
 		summary.param=list(), pmcorrect.param=list(),
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-		cluster, verbose=TRUE) 
+		cluster, verbose=getOption("verbose")) 
 {
 	#########
 	# Checks
@@ -36,10 +37,10 @@ computeExprSetPara <- function(object,
 	number.parts <- length(cluster)
 	
 	#Check object type
-	object.type <- getObjectType(object) 
+	object.type <- .getObjectType(object) 
 	
 	#Check size of partitions
-	parts <- checkPartSize(object, number.parts)
+	parts <- .checkPartSize(object, number.parts)
 	number.parts <- parts$number.parts
 	object.length <- parts$object.length
 	
@@ -83,7 +84,7 @@ computeExprSetPara <- function(object,
 	#################################
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 	t0 <- proc.time();
-	check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type)
+	check <- clusterApply(cluster, object.list, .initAffyBatchSF, object.type)
 	t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
 	
@@ -91,7 +92,7 @@ computeExprSetPara <- function(object,
 	if (verbose) cat("Create TMP AffyBatch ")
 	t0 <- proc.time();
 	if( object.type == "CELfileVec" || object.type == "partCELfileList" ){
-		headdetails <- clusterApply(cluster, object.list, ReadHeaderSF)[[1]]
+		headdetails <- clusterApply(cluster, object.list, .ReadHeaderSF)[[1]]
 		dim.intensity <- headdetails[[2]]
 		ref.cdfName <- headdetails[[1]]
 		if( dim(phenoData)[1] == 0 ){
@@ -120,7 +121,7 @@ computeExprSetPara <- function(object,
 	if ( regexpr("_orig", summary.method) == -1 ){
 		eset_list <- clusterApply(cluster, object.list, calculateExprSetSF, 
 				ids=ids, pmcorrect.method=pmcorrect.method, summary.method=summary.method,
-				summary.param=summary.param, pmcorrect.param=pmcorrect.param, verbose=verbose)
+				summary.param=summary.param, pmcorrect.param=pmcorrect.param)
 	
 		#Generat Exprs-Matrix
 		eset_mat <- exprs(eset_list[[1]])[ sort(rownames(exprs(eset_list[[1]]))) ,]
@@ -150,7 +151,7 @@ computeExprSetPara <- function(object,
 		summary.method <- substr(summary.method,1,regexpr("_orig", summary.method)-1)
 		eset <- doSummarizationPara(cluster, object.length, AffyBatch, 
 				samples.names, ids=ids, pmcorrect.method=pmcorrect.method, summary.method=summary.method,
-				summary.param=summary.param, pmcorrect.param=pmcorrect.param, verbose=verbose)		
+				summary.param=summary.param, pmcorrect.param=pmcorrect.param)		
 	}
 	
 	t1=proc.time();
@@ -168,8 +169,7 @@ computeExprSetPara <- function(object,
 calculateExprSetSF <- function( cluster, object.list,
 		samples.names, ids=NULL,
 		pmcorrect.method, summary.method,
-		summary.param=list(), pmcorrect.param=list(),
-		verbose=verbose )
+		summary.param=list(), pmcorrect.param=list())
 {
 	if ( exists("AffyBatch", envir = .GlobalEnv) ) {
 		require(affy)
@@ -191,7 +191,7 @@ doSummarizationPara <- function(cluster,
 		samples.names, ids=NULL,
 		pmcorrect.method, summary.method,
 		summary.param=list(), pmcorrect.param=list(),
-		verbose=verbose)
+		verbose=getOption("verbose"))
 {
 	#################################
 	#Get Parameters for Summarization
@@ -258,10 +258,10 @@ doSummarizationPara <- function(cluster,
 			else
 				l.mm <- integer()
 			
-			zw <- clusterCall(cluster, getCompIntensityMatrixSF, rows=l.pm)
+			zw <- clusterCall(cluster, .getCompIntensityMatrixSF, rows=l.pm)
 			zw <- zw[!is.na(zw)]
 			c.pps@pm <- do.call(cbind, zw)
-			zw <- clusterCall(cluster, getCompIntensityMatrixSF, rows=l.mm)
+			zw <- clusterCall(cluster, .getCompIntensityMatrixSF, rows=l.mm)
 			zw <- zw[!is.na(zw)]
 			c.pps@mm <- do.call(cbind, zw)
 			

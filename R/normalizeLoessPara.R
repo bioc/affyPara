@@ -9,13 +9,14 @@
 # 28.05.2008 : Version 0.4 - working for all types
 # 23.06.2008 : Version 0.5 - memory improvement, matrices fs and newdata removed
 # 18.12.2008 : Version 0.6 - cluster object gets default parameter: .affyParaInternalEnv$cl
+# 23.03.2009 : Version 0.7 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
 # Using the right combination "size of AffyBatch on slaves" - "number of slaves" the parallelized
 # version is more than ten times faster as the serial version.
 #
-# Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2009 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 normalizeAffyBatchLoessPara <- function(object,
@@ -24,7 +25,7 @@ normalizeAffyBatchLoessPara <- function(object,
 	subset = NULL,
 	epsilon = 10^-2, maxit = 1, log.it = TRUE, 
 	span = 2/3, family.loess ="symmetric",
-	cluster, verbose=FALSE) 
+	cluster, verbose=getOption("verbose")) 
 {	
     ########
     # Checks
@@ -45,10 +46,10 @@ normalizeAffyBatchLoessPara <- function(object,
 	type <- match.arg(type)
 	
 	#Check object type
-	object.type <- getObjectType(object) 
+	object.type <- .getObjectType(object) 
 	
 	#Check size of partitions
-	parts <- checkPartSize(object, number.parts)
+	parts <- .checkPartSize(object, number.parts)
 	number.parts <- parts$number.parts
 	object.length <- parts$object.length
 	
@@ -85,7 +86,7 @@ normalizeAffyBatchLoessPara <- function(object,
 	##################################
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 		t0 <- proc.time();
-		check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type) 
+		check <- clusterApply(cluster, object.list, .initAffyBatchSF, object.type) 
 		t1 <- proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
 	
@@ -119,7 +120,7 @@ normalizeAffyBatchLoessPara <- function(object,
 	##############################
 	if (verbose) cat("Rebuild AffyBatch ")
 	t0 <- proc.time();
-		AffyBatch.list.norm <- clusterCall(cluster, getAffyBatchSF)
+		AffyBatch.list.norm <- clusterCall(cluster, .getAffyBatchSF)
 		AffyBatch <- mergeAffyBatches(AffyBatch.list.norm)
 	t1 <- proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
@@ -138,7 +139,7 @@ normalizeLoessPara <- function(cluster,
 		epsilon, maxit, 
 		span, family.loess,
 		log.it, object.length,
-		verbose=FALSE)
+		verbose=getOption("verbose"))
 {
 	if(verbose) cat("\tGenerate matrices at slaves","\n")
 	#Generate matrices for loess normalization at slaves
@@ -177,7 +178,7 @@ normalizeLoessPara <- function(cluster,
 				toNorm <- names(which(sampleMatComp[j,]==0))
 				if (length(toNorm)!=0){
 					if(verbose) cat("\t\tfor array: ",j,"\n")
-					arrayInt <- clusterCall(cluster, getArraySF, j)	
+					arrayInt <- clusterCall(cluster, .getArrayLoessSF, j)	
 					arrayInt<- unlist(arrayInt[lapply(arrayInt, length)>0])
 					aux.list <- clusterCall(cluster, normalizeLoessParaSFbetNodes, arrayInt, j, toNorm, subset, span, family.loess, object.length)
 					aux<-aux.list[[1]]
@@ -310,7 +311,7 @@ normalizeLoessParaSFnodes <- function(subset,
 ###
 # Get Intensity Array for loess normalization between nodes
 ###
-getArraySF <- function(sampleName)
+.getArrayLoessSF <- function(sampleName)
 {
 	if ( exists("mat", envir = .GlobalEnv) ) {
 		

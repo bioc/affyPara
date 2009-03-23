@@ -10,7 +10,8 @@
 # 01.12.2008 : Version 0.5 - function getBoxplot improvd for the parameter plot=FALSE
 # 04.12.2008 : Version 0.6 - fix small bugs for the function getMatrixBQLevels  when number of Samples are smaller than number of slaves
 # 04.12.2008 : Version 0.7 - set.seed for verbose > 3 added in getValuesChips 
-# 11.12.2008 : Version 0.8 - improve MAplot graphics - number of plots per page is limited to 8. 
+# 11.12.2008 : Version 0.8 - improve MAplot graphics - number of plots per page is limited to 8.
+# 23.03.2009 : Version 0.9 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
 # Copyright (C) 2008 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
 ###############################################################################
@@ -69,7 +70,7 @@ getValuesChips <- function(meanchip,
                                subset, 
                                span, 
                                family.loess, 
-                               verbose)
+                               verbose=getOption("verbose"))
 {                            
    M<- NULL
    affyBatch <- NULL
@@ -230,7 +231,7 @@ getValuesChips <- function(meanchip,
 #       
 #########################################################
 getBoxplot<- function(sValues, 
-                      verbose,plot)
+                      verbose=getOption("verbose"),plot)
 {
  S.badQC<-NULL
  #calculate the statistical values
@@ -262,7 +263,7 @@ getBoxplot<- function(sValues,
 # var.sigma (TRUE/FALSE)
 #########################################################
 getBadQCLoessSigma <- function(lSValues, 
-                          verbose)
+                          verbose=getOption("verbose"))
 {
     lS.badQC<- which(lSValues == 1) 
     return(lS.badQC)
@@ -279,7 +280,7 @@ getBadQCLoessSigma <- function(lSValues,
 #########################################################
 
 
-getLevelsBQ<- function(checkBadQC.s, checkBadQC.loess, checkBadQC.sigma, verbose ){
+getLevelsBQ<- function(checkBadQC.s, checkBadQC.loess, checkBadQC.sigma, verbose=getOption("verbose") ){
 
  #Samples of the second level but the first level isn�t considered yet:
   badQC.sLoess <- sort(intersect(checkBadQC.s, checkBadQC.loess))
@@ -341,7 +342,7 @@ drawMAplot <- function(object,
                        pchs,
                        show.statistics,
                        family.loess,
-                       verbose,
+                       verbose=getOption("verbose"),
                        ...)
 {
       

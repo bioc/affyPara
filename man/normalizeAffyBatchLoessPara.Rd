@@ -11,7 +11,7 @@ normalizeAffyBatchLoessPara(object,
 	subset = NULL,
 	epsilon = 10^-2, maxit = 1, log.it = TRUE, 
 	span = 2/3, family.loess ="symmetric",
-	cluster, verbose=FALSE) 
+	cluster, verbose = getOption("verbose")) 
 
 }
 
@@ -32,7 +32,7 @@ normalizeAffyBatchLoessPara(object,
   \item{family.loess}{parameter to be passed the function loess. "gaussian" or "symmetric" are acceptable values for this parameter.}
   \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the SNOW package. 
   		For default \code{.affyParaInternalEnv$cl}  will be used. }
-  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages.} 
+  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages. default: getOption("verbose") } 
 }
 \details{
 Parallelized loess normalization of arrays.

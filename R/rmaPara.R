@@ -8,13 +8,14 @@
 # 17.12.2008 : Version 0.3 - cluster object gets default parameter
 # 18.12.2008 : Version 0.4 - cluster object gets default parameter: .affyParaInternalEnv$cl
 # 20.03.2009 : Version 0.5 - Bug Fix in proproPara call
+# 23.03.2009 : Version 0.6 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
 # Copyright (C) 2009 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 rmaPara <- function(object, ids = NULL,
 				phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-				cluster, verbose=FALSE)
+				cluster, verbose=getOption("verbose"))
 {
 	#Get cluster object form default environment
 	if(missing(cluster))
@@ -27,5 +28,5 @@ rmaPara <- function(object, ids = NULL,
 				summary.method="medianpolish",
 				ids = ids,
 				phenoData = phenoData, cdfname = cdfname,
-				cluster, verbose=verbose)
+				cluster)
 }

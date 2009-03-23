@@ -9,9 +9,9 @@ Parallelized normalization of arrays based upon quantiles.
 normalizeAffyBatchQuantilesPara(object,
     phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
     type = c("separate", "pmonly", "mmonly", "together"), 
-    cluster, verbose = FALSE)
+    cluster, verbose = getOption("verbose"))
 
-normalizeQuantilesPara(cluster, type, object.length, verbose=FALSE)
+normalizeQuantilesPara(cluster, type, object.length, verbose = getOption("verbose"))
 }
 
 \arguments{
@@ -25,7 +25,7 @@ normalizeQuantilesPara(cluster, type, object.length, verbose=FALSE)
   \item{type}{A string specifying how the normalization should be applied.}
   \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the SNOW package. 
   		For default \code{.affyParaInternalEnv$cl}  will be used. }
-  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages.} 
+  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages. default: getOption("verbose") } 
   \item{object.length}{ Number of samples, which should be normalized. }
 }
 \details{

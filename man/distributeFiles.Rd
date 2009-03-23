@@ -11,7 +11,7 @@ distributeFiles(files, to = tempdir(),
 	protocol = c("R", "RCP", "SCP"), hierarchicallyDist = FALSE, 
 	master=TRUE, delExistTo=FALSE,
 	full.names=TRUE,
-	cluster, verbose = FALSE)
+	cluster, verbose = getOption("verbose"))
 }
 
 \arguments{
@@ -26,7 +26,7 @@ distributeFiles(files, to = tempdir(),
   		If \code{FALSE}, only the file names are returned . }
   \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the SNOW package. 
   		For default \code{.affyParaInternalEnv$cl}  will be used. }
-  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages.} 
+  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages. default: getOption("verbose") } 
 }
 \details{
 This function distributes files from the master node to the disk of the slaves in the computer cluster. First the vector of files get partitioned by the number of slaves. Then the parts will be copied to the \code{to} directory at the slaves. If \code{hierarchicallyDist} is \code{TRUE}, all slaves change the files among each other and in the end at every slave all files are located. (But this is not necessary for distributed computing with the \code{affyPara} package.

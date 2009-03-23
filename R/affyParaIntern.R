@@ -3,15 +3,12 @@
 # generall support SLAVE - functions for affyPara
 #
 # History
-# 27.10.2008 : ... old stuff removed ...
-# 15.09.2008 : Version 0.18 - output von initAffyBatchSF set to dimAB
-# 13.10.2008 : Version 0.19 - initAffyBatchSF rm.all added
-# 14.10.2008 : Version 0.20 - setIntMatSF added
-# 21.10.2008 : Version 0.21 - rowMeansPara and rowVPara added
+# 23.03.2009 : ... old stuff removed ...
 # 27.10.2008 : Version 0.22 - rowMeansPara and rowVPara improved
 # 27.10.2008 : Version 0.23 - removeNA added
 # 06.11.2008 : Version 0.24 - initAffyBatchSF rm.all changed to rm.list
-# 07.11.2008 : Version 0.24 - initAffyBatchSF rm.list, default parameter changed
+# 07.11.2008 : Version 0.25 - initAffyBatchSF rm.list, default parameter changed
+# 23.03.2009 : Version 0.26 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 # 
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -19,7 +16,8 @@
 ###
 # Permutation of Arrays (over Nodes)
 ###
-permArrays <- function(cluster, sample.names, verbose=TRUE)
+.permArrays <- function(cluster, sample.names, 
+		verbose=getOption("verbose"))
 {
 	t0 <- proc.time();
 	# Permutation
@@ -28,14 +26,14 @@ permArrays <- function(cluster, sample.names, verbose=TRUE)
 	for (i in perm){
 		if (verbose) cat("Move array: ", i, "\n")
 		#get array from slaves
-		array <- clusterCall(cluster, getArraySF, i)
+		array <- clusterCall(cluster, .getArraySF, i)
 		array <- array[[which(!is.na(array))]]
 		# move array to new positon
 		alter_name_neue_pos <- sample.names[which(perm==i)]
-		check <- clusterCall(cluster, setArraySF, array, i, alter_name_neue_pos)
+		check <- clusterCall(cluster, .setArraySF, array, i, alter_name_neue_pos)
 	}
 	#move new matrix to affyBatch at slave
-	check <- clusterCall(cluster, resetABSF)
+	check <- clusterCall(cluster, .resetABSF)
 	cat("New sample list: ", unlist(check)[!is.na(unlist(check))], "\n")
 
 	t1 <- proc.time();
@@ -46,7 +44,7 @@ permArrays <- function(cluster, sample.names, verbose=TRUE)
 #####
 # save intensities of array for special sample-Name at slaves
 #####
-setArraySF <- function(colNEU, col_name_Neu, alter_name_neue_pos)
+.setArraySF <- function(colNEU, col_name_Neu, alter_name_neue_pos)
 {
 	
 	if (exists("AffyBatch", envir = .GlobalEnv)) {
@@ -84,7 +82,7 @@ setArraySF <- function(colNEU, col_name_Neu, alter_name_neue_pos)
 #####
 # get intensities of array for special sample name from slaves
 #####
-getArraySF <- function(sample_name)
+.getArraySF <- function(sample_name)
 {
 	if (exists("AffyBatch", envir = .GlobalEnv)) {
 		require(affy)
@@ -103,7 +101,7 @@ getArraySF <- function(sample_name)
 ####
 # Rewrite tmp matrix to affyBatch
 ####
-resetABSF <- function()
+.resetABSF <- function()
 {
 	if (exists("AffyBatch", envir = .GlobalEnv) &&
 			exists("mat", envir = .GlobalEnv) && 
@@ -133,7 +131,9 @@ resetABSF <- function()
 ###
 # Permutation of Matrix by column (over Nodes)
 ###
-permMatrix <- function(cluster, matName="mat", sample.names, sample.names.perm, verbose=TRUE)
+.permMatrix <- function(cluster, 
+		matName="mat", sample.names,
+		sample.names.perm, verbose=getOption("verbose"))
 {
 	t0 <- proc.time();
 
@@ -141,14 +141,14 @@ permMatrix <- function(cluster, matName="mat", sample.names, sample.names.perm, 
 		alter_name_neue_pos <- sample.names[which(sample.names.perm==i)]
 		if (verbose) cat("\t\tMove column: ", alter_name_neue_pos, " -> ",i,"\n")
 		#get column from slaves
-		col <- clusterCall(cluster, getColSF, matName, i)
+		col <- clusterCall(cluster, .getColSF, matName, i)
 		col <- col[[which(!is.na(col))]]
 		# move column to new positon
-		check <- clusterCall(cluster, setColSF, matName, col, i, alter_name_neue_pos)
+		check <- clusterCall(cluster, .setColSF, matName, col, i, alter_name_neue_pos)
 	}
 
 	#write new matrix over old matrix at slave
-	col.names <- clusterCall(cluster, resetMatSF, matName)
+	col.names <- clusterCall(cluster, .resetMatSF, matName)
 
 	t1 <- proc.time();
 	if (verbose) cat("\t\t",round(t1[3]-t0[3],3),"sec DONE\n")		
@@ -158,7 +158,7 @@ permMatrix <- function(cluster, matName="mat", sample.names, sample.names.perm, 
 #####
 # get col-intensities of matix for special name from slaves
 #####
-getColSF <- function(matName="mat", col_name)
+.getColSF <- function(matName="mat", col_name)
 {
 	if (exists(matName, envir = .GlobalEnv)) {
 		#load mat
@@ -176,7 +176,7 @@ getColSF <- function(matName="mat", col_name)
 #####
 # save col-intensities of matrix for special col-Name at slaves
 #####
-setColSF <- function(matName = "mat", colNEU, col_name_Neu, alter_name_neue_pos)
+.setColSF <- function(matName = "mat", colNEU, col_name_Neu, alter_name_neue_pos)
 {
 	if (exists(matName, envir = .GlobalEnv)) {
 		#load mat
@@ -211,7 +211,7 @@ setColSF <- function(matName = "mat", colNEU, col_name_Neu, alter_name_neue_pos)
 ####
 # Rewrite tmp matrix
 ####
-resetMatSF <- function(matName="mat")
+.resetMatSF <- function(matName="mat")
 {
 	if ( exists(matName, envir = .GlobalEnv) &&
 		 exists("matZw", envir = .GlobalEnv) && 
@@ -240,7 +240,7 @@ resetMatSF <- function(matName="mat")
 ###
 # Initializing AffyBatch at Slaves
 ###
-initAffyBatchSF <- function(object, object.type, rm.list=FALSE)
+.initAffyBatchSF <- function(object, object.type, rm.list=FALSE)
 {
 	require(affy)
 	#remove old AffyBatches
@@ -268,7 +268,7 @@ initAffyBatchSF <- function(object, object.type, rm.list=FALSE)
 ###
 # set Intensity Matrix at Slaves
 ###
-setIntMatSF <- function(rm.AB=TRUE, drop=FALSE)
+.setIntMatSF <- function(rm.AB=TRUE, drop=FALSE)
 {
 	require(affy)
 	if (exists("AffyBatch", envir = .GlobalEnv)){
@@ -289,7 +289,7 @@ setIntMatSF <- function(rm.AB=TRUE, drop=FALSE)
 ###
 # Get AffyBatches from Slaves
 ###
-getAffyBatchSF <- function()
+.getAffyBatchSF <- function()
 {
 	if (exists("AffyBatch", envir = .GlobalEnv)) {
 		require(affy)
@@ -302,7 +302,7 @@ getAffyBatchSF <- function()
 ###
 # Excecution of a function for AffyBatch from slaves
 ###
-getFUNAffyBatchSF <- function(FUN)
+.getFUNAffyBatchSF <- function(FUN)
 {
 	if (exists("AffyBatch", envir = .GlobalEnv)) {
 		require(affy)
@@ -316,7 +316,7 @@ getFUNAffyBatchSF <- function(FUN)
 ###
 # Get special values from intensity matrix from slaves
 ###
-getIntensitySF <- function(rows, refindexname)
+.getIntensitySF <- function(rows, refindexname)
 {
 	if (exists("AffyBatch", envir = .GlobalEnv)) {
 		require(affy)
@@ -333,7 +333,7 @@ getIntensitySF <- function(rows, refindexname)
 ###
 #  Get special rows from intensity matrix from slaves
 ###
-getCompIntensitySF <- function(rows)
+.getCompIntensitySF <- function(rows)
 {
 	if (exists("AffyBatch", envir = .GlobalEnv)) {
 		require(affy)
@@ -347,7 +347,7 @@ getCompIntensitySF <- function(rows)
 ###
 # Get complete intensity matrix from all slaves
 ###
-getCompIntensityMatrixSF <- function(rows, drop=FALSE)
+.getCompIntensityMatrixSF <- function(rows, drop=FALSE)
 {
 	if (exists("AffyBatch", envir = .GlobalEnv)) {
 		require(affy)
@@ -362,7 +362,7 @@ getCompIntensityMatrixSF <- function(rows, drop=FALSE)
 ###
 # Write data into a file at slaves
 ###
-writeLinesSF <- function(data, fileName)
+.writeLinesSF <- function(data, fileName)
 {
 	newFile <- file(fileName, "w")
 	writeLines(data,newFile)
@@ -372,7 +372,7 @@ writeLinesSF <- function(data, fileName)
 ###
 # Get HeaderDetails from slaves
 ###
-ReadHeaderSF <- function(object)
+.ReadHeaderSF <- function(object)
 {
 	if( length(object) != 0 )
 		return( .Call("ReadHeader", as.character(object[[1]]), PACKAGE = "affyio") )
@@ -384,7 +384,7 @@ ReadHeaderSF <- function(object)
 ###
 # getObjectType gets type from object
 ###
-getObjectType <- function(object)
+.getObjectType <- function(object)
 {
 	if ( class(object) == "AffyBatch" )
 		object.type <- "AffyBatch"
@@ -401,7 +401,7 @@ getObjectType <- function(object)
 ###
 # checkPartSize checks object for length
 ###
-checkPartSize <- function(object, number.parts)
+.checkPartSize <- function(object, number.parts)
 {
 	if ( class(object) == "list" && is.vector(object) ){
 		object.length <- length(object)
@@ -422,10 +422,10 @@ checkPartSize <- function(object, number.parts)
 ###
 # rowSumsPara
 ###
-rowMeansPara <- function(cluster, name, nr, slot=NULL)
+.rowMeansPara <- function(cluster, name, nr, slot=NULL)
 {
-	rowSums_list <- clusterCall(cluster, rowMeansParaSF, name, slot)
-	rowSums_list <- removeNA(rowSums_list)
+	rowSums_list <- clusterCall(cluster, .rowMeansParaSF, name, slot)
+	rowSums_list <- .removeNA(rowSums_list)
 	sum <- rep(0, length(rowSums_list[[1]]) )
 	for(i in 1:length(rowSums_list))
 		sum <- sum + rowSums_list[[i]]
@@ -434,7 +434,7 @@ rowMeansPara <- function(cluster, name, nr, slot=NULL)
 	return(sum/nr)	
 }
 
-rowMeansParaSF <- function(name, slot)
+.rowMeansParaSF <- function(name, slot)
 {
 	if (exists(name, envir = .GlobalEnv)) {
 		mat <- get(name, envir = .GlobalEnv)	
@@ -450,10 +450,10 @@ rowMeansParaSF <- function(name, slot)
 ###
 # rowVPara
 ###
-rowVPara <- function(cluster, name, mean, slot=NULL)
+.rowVPara <- function(cluster, name, mean, slot=NULL)
 {
-	rvar_list <- clusterCall(cluster, rowVParaSF, name, slot, mean)
-	rvar_list <- removeNA(rvar_list)
+	rvar_list <- clusterCall(cluster, .rowVParaSF, name, slot, mean)
+	rvar_list <- .removeNA(rvar_list)
 	rvar <- 0
 	n <- 0
 	for(i in 1:length(rvar_list)){
@@ -463,7 +463,7 @@ rowVPara <- function(cluster, name, mean, slot=NULL)
 	return( rvar/(n-1) )
 }
 
-rowVParaSF <- function(name, slot, mean)
+.rowVParaSF <- function(name, slot, mean)
 {
 	if (exists(name, envir = .GlobalEnv)) {
 		mat <- get(name, envir = .GlobalEnv)	
@@ -479,7 +479,7 @@ rowVParaSF <- function(name, slot, mean)
 
 #######################################################
 # Function to remove NAs from lists
-removeNA <- function(x)
+.removeNA <- function(x)
 {
 	omit <- !unlist( lapply(x,function(xel){
 						if( is.na(xel) && length(xel)==1 ) return(TRUE)

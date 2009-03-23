@@ -11,6 +11,7 @@
 # 24.10.2008 : Version 0.19 - Improvements for multiprocessor machines
 # 27.10.2008 : Version 0.20 - Output improved to work at multiprocessor machines and clusters
 # 18.12.2008 : Version 0.21 - cluster object gets default parameter: .affyParaInternalEnv$cl
+# 23.03.2009 : Version 0.22 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -19,7 +20,7 @@ distributeFiles <- function( files, to=tempdir(),
 		protocol=c("R","RCP","SCP"), hierarchicallyDist=FALSE,
 		master=TRUE, delExistTo=FALSE,
 		full.names=TRUE, 
-		cluster, verbose=FALSE)
+		cluster, verbose=getOption("verbose"))
 {
 	#Check for snow
 	require(snow)
@@ -49,7 +50,7 @@ distributeFiles <- function( files, to=tempdir(),
 		if (delExistTo == TRUE){
 			if (verbose>0) cat("Remove Directories ")
 			t1 <- proc.time()
-			check <- removeDistributedFiles(cluster, path=to, verbose=FALSE)
+			check <- removeDistributedFiles(cluster, path=to)
 			t2 <- proc.time()
 			if (verbose>0) cat(round(t2[3]-t1[3],3),"sec DONE\n")
 		}
@@ -139,7 +140,7 @@ distributeFiles <- function( files, to=tempdir(),
 							if (verbose>0) cat(".")
 							data <- readLines(filesPart[[i]][j], n=-1)
 							filename <- basename(filesPart[[i]][j])
-							error <- clusterCall(cluster[i], writeLinesSF, data, paste(to,filename,sep="/"))
+							error <- clusterCall(cluster[i], .writeLinesSF, data, paste(to,filename,sep="/"))
 						}
 					}
 				}

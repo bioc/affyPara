@@ -12,6 +12,7 @@
 # 05.12.2008 : Version 0.7 - fix small bug when parameter plot=FALSE.
 # 11.12.2008 : Version 0.8 - fix small bug for large Affybatch object.
 # 18.12.2008 : Version 0.9 - cluster object gets default parameter: .affyParaInternalEnv$cl
+# 23.03.2009 : Version 0.10 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do BG-Correction is faster.
@@ -34,7 +35,7 @@ MAplotPara <- function(object,
                        plot =TRUE,
                        cutoff =0.5,# add parameter to generic function ma.plot
                        level=1,
-					   cluster, verbose=FALSE,
+					   cluster, verbose=getOption("verbose"),
                        ...                       
                        )
 {
@@ -51,10 +52,10 @@ MAplotPara <- function(object,
 	number.parts <- length(cluster)
 	
 	#Check object type
-	object.type <- getObjectType(object) 
+	object.type <- .getObjectType(object) 
 	
 	#Check size of partitions
-	parts <- checkPartSize(object, number.parts)
+	parts <- .checkPartSize(object, number.parts)
 	number.parts <- parts$number.parts
 	object.length <- parts$object.length
 	
@@ -88,7 +89,7 @@ MAplotPara <- function(object,
 	if (verbose) cat("Initialize AffyBatches at slaves \n")
 	t0 <- proc.time();
   #send the Cel files liste to the slaves
-	check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type)
+	check <- clusterApply(cluster, object.list, .initAffyBatchSF, object.type)
 	if (verbose) print (check)	  
 	t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
@@ -199,11 +200,11 @@ MAplotPara <- function(object,
    calQC<- matrix(c(calQCSampleName,calQCS,calQCL, calQCsigma, calQCVarsigma), nrow=length(calQCSampleName), ncol=5)
    colnames(calQC) <- c("sampleNames","S","osc_Loess","sigma", "var_sigma")
   #Samples classified as "bad" after the S value (outliers) 
-  checkBadQC.s<- getBoxplot(calQCS, verbose,plot)
+  checkBadQC.s<- getBoxplot(calQCS,plot)
   #Samples classified as "bad" after the loess.smooth line 
-  checkBadQC.loess<- getBadQCLoessSigma(calQCL, verbose)
+  checkBadQC.loess<- getBadQCLoessSigma(calQCL)
   #Samples classified as "bad" after the sigma value
-  checkBadQC.sigma <- getBadQCLoessSigma(calQCVarsigma, verbose)
+  checkBadQC.sigma <- getBadQCLoessSigma(calQCVarsigma)
   
   #to give out the index/Name of the arrays in affybatch, which are classified as "bad" quality. The samples will be classified
   # in three levels: 
@@ -211,7 +212,7 @@ MAplotPara <- function(object,
   # 2 - badQC.sloess badQC.sSigma / badQC.loessSigma :  samples which are classified as "bad" only in two of three checkBAdCQ group (S- Loess, S-sigma, Loess-sigma)
   # 3 - badQC.loess/ badQC.S / badQC.sigma(samples which are classified as "bad" only in checkBadQC.loess 
   
-  badQC.MAplots <- getLevelsBQ(checkBadQC.s, checkBadQC.loess, checkBadQC.sigma, verbose )
+  badQC.MAplots <- getLevelsBQ(checkBadQC.s, checkBadQC.loess, checkBadQC.sigma )
   
   
   if(verbose >1 ) save(badQC.MAplots, file="qualityProbleMA.Rdata")

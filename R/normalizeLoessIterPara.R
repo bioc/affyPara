@@ -11,13 +11,14 @@
 # 27.08.2008 : Version 0.6 - maxPerm removed and percentPerm introduced
 # 18.10.2008 : Version 0.7 - cluster - assign substituted by clusterExport
 # 18.12.2008 : Version 0.8 - cluster object gets default parameter: .affyParaInternalEnv$cl
+# 23.03.2009 : Version 0.9 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
 # Using the right combination "size of AffyBatch on slaves" - "number of slaves" the parallelized
 # version is more than ten times faster as the serial version.
 #
-# Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2009 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 normalizeAffyBatchLoessIterPara <- function(object,
@@ -27,7 +28,7 @@ normalizeAffyBatchLoessIterPara <- function(object,
 		subset = NULL,
 		epsilon = 10^-2, maxit = 1, log.it = TRUE, 
 		span = 2/3, family.loess ="symmetric",
-		cluster, verbose=FALSE) 
+		cluster, verbose=getOption("verbose")) 
 {	
 	########
 	# Checks
@@ -48,10 +49,10 @@ normalizeAffyBatchLoessIterPara <- function(object,
 	type <- match.arg(type)
 	
 	#Check object type
-	object.type <- getObjectType(object) 
+	object.type <- .getObjectType(object) 
 	
 	#Check size of partitions
-	parts <- checkPartSize(object, number.parts)
+	parts <- .checkPartSize(object, number.parts)
 	number.parts <- parts$number.parts
 	object.length <- parts$object.length
 	
@@ -88,7 +89,7 @@ normalizeAffyBatchLoessIterPara <- function(object,
 	##################################
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 	t0 <- proc.time();
-	check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type) 
+	check <- clusterApply(cluster, object.list, .initAffyBatchSF, object.type) 
 	t1 <- proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
 	
@@ -122,7 +123,7 @@ normalizeAffyBatchLoessIterPara <- function(object,
 	##############################
 	if (verbose) cat("Rebuild AffyBatch ")
 	t0 <- proc.time();
-	AffyBatch.list.norm <- clusterCall(cluster, getAffyBatchSF)
+	AffyBatch.list.norm <- clusterCall(cluster, .getAffyBatchSF)
 	AffyBatch <- mergeAffyBatches(AffyBatch.list.norm)
 	t1 <- proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
@@ -142,7 +143,7 @@ normalizeLoessIterPara <- function(cluster,
 		epsilon, maxit, 
 		span, family.loess,
 		log.it, object.length,
-		verbose=FALSE)
+		verbose=getOption("verbose"))
 {
 	if(verbose) cat("\tGenerate matrices at slaves","\n")
 	#Generate matrices for loess normalization at slaves
@@ -174,7 +175,7 @@ normalizeLoessIterPara <- function(cluster,
 		if(iterPerm > 1){
 			#Permutation of arrays
 			samples.names.perm <- sample(samples.names.akt)
-			samples.names.akt <- permMatrix(cluster, matName="mat", samples.names.akt, samples.names.perm, verbose = verbose)
+			samples.names.akt <- .permMatrix(cluster, matName="mat", samples.names.akt, samples.names.perm, verbose = verbose)
 			if ( all(samples.names.perm != samples.names.akt) ) stop("Error in Permutation")
 		}
 				
@@ -209,7 +210,7 @@ normalizeLoessIterPara <- function(cluster,
 	if (iterPerm > 1){
 		#RePermutieren
 		if(verbose) cat("\tRe-Permutation of Arrays\n")
-		permMatrix(cluster, matName="mat", samples.names.akt, samples.names, verbose = verbose)
+		.permMatrix(cluster, matName="mat", samples.names.akt, samples.names)
 	}
 	
 	#Reassign affyBatch at Slaves out of matrices form loess normalization

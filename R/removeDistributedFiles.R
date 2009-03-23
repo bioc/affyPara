@@ -9,12 +9,13 @@
 # 24.10.2008 : Version 0.12 - Improvements for multiprocessor machines
 # 27.10.2008 : Version 0.13 - Output improved to work at multiprocessor machines and clusters
 # 18.12.2008 : Version 0.14 - cluster object gets default parameter: .affyParaInternalEnv$cl
+# 23.03.2009 : Version 0.15 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
-# Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2009 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 removeDistributedFiles <- function(path=tempdir(),
-		cluster, verbose=FALSE)
+		cluster, verbose=getOption("verbose"))
 {
 	#Check for snow
 	require(snow)

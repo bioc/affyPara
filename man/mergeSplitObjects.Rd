@@ -9,7 +9,7 @@ Functions to merge or combine a \code{list} of split objects (AffyBatch, Matrix)
 
 \usage{
 mergeAffyBatches(abatch.list, description = NULL, notes = character(0))
-combineMatrices(matrix.list, verbose=FALSE)
+combineMatrices(matrix.list, verbose = getOption("verbose"))
 }
 
 \arguments{

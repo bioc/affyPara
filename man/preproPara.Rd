@@ -10,7 +10,7 @@ preproPara(object,
     pmcorrect.method = NULL, pmcorrect.param = list(),
     summary.method = NULL, summary.param = list(),
     ids = NULL,phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-    cluster, verbose = FALSE)
+    cluster, verbose = getOption("verbose"))
 }
 
 \arguments{
@@ -37,7 +37,7 @@ preproPara(object,
   		the usual cdf package based on Affymetrix' mappings will be used. }
   \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the SNOW package. 
   		For default \code{.affyParaInternalEnv$cl} will be used. }
-  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages.} 
+  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages. default: getOption("verbose") } 
 }
 
 \details{

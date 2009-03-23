@@ -11,6 +11,7 @@
 # 14.12.2007 : Version 0.6 - Input from combineMatrices changed to matrices.list
 # 07.07.2008 : Version 0.7 - mergeAffyBatches improved for great Matrices
 # 27.08.2008 : Version 0.8 - mergeAffyBatches bugfix in annotations
+# 23.03.2009 : Version 0.9 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -81,7 +82,7 @@ mergeAffyBatches <- function (abatch.list,
         annotation = abatch.list[[1]]@annotation))
 }
 
-combineMatrices <- function(matrix.list, verbose=FALSE)
+combineMatrices <- function(matrix.list, verbose=getOption("verbose"))
 {
 	if (verbose) cat("Rebuild matrix ")
   	#Dimension of matrix

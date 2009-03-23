@@ -2,6 +2,9 @@
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
+affyPara 1.3.7 (build 23. March 2009)
+- Option verbose set to getOption("verbose") and added . to names of internal functions
+
 affyPara 1.3.5 (build 18. December 2008)
 - New functions makeCluster and stopCluster (overloading snow functions)
 -- cluster object will be saved as default parameter in .affyParaInternalEnv$cl

@@ -162,7 +162,7 @@ vsnColumnByColumnPara <- function(cluster,
 		v, verbose=TRUE) 
 {
 	rlv_list <- clusterCall(cluster, vsnColumnByColumnParaSF, v)
-	rlv_list <- removeNA(rlv_list)
+	rlv_list <- .removeNA(rlv_list)
 	rlv <- unlist(rlv_list, recursive=FALSE)
 
 	d <- dim( rlv[[1]] )
@@ -249,7 +249,7 @@ vsnLTSPara <- function(cluster,
 			hmean = v@reference@mu[!is.na(v@reference@mu)]
 		} else {
 			## without reference:
-			hmean <- rowMeansPara(cluster, "hy",ncol(v))
+			hmean <- .rowMeansPara(cluster, "hy",ncol(v))
 			## double check with what was computed in vsnML:
 			if(iter==1L) {
 				if(rsv@lbfgsb==0L) stopifnot(vsn:::isSmall(rsv@mu-hmean))
@@ -263,7 +263,7 @@ vsnLTSPara <- function(cluster,
 		}
 		
 		## row variances
-		rvar <- rowVPara(cluster, "hy", hmean)
+		rvar <- .rowVPara(cluster, "hy", hmean)
 		
 		## select those data points whose rvar is within the quantile; do this separately
 		## within each stratum, and also within strata defined by hmean
@@ -492,7 +492,7 @@ logikPara <- function(par,
 	# 1st sweep through the data: compute Y_ki, h(y_ki), A_ki, B_ki 
 	######
 	jac <- clusterCall(cluster, logikParaSF1, par)
-	jac <- removeNA(jac)
+	jac <- .removeNA(jac)
 	jac1 <- sum( unlist(jac)[seq(1,length(unlist(jac)),3)] )
 	jac2 <- sum( unlist(jac)[seq(2,length(unlist(jac)),3)] )
 	nt <- sum( unlist(jac)[seq(3,length(unlist(jac)),3)] )
@@ -501,11 +501,11 @@ logikPara <- function(par,
 	#######
 	# 2nd sweep through the data: compute r_ki                      
 	#######
-	px$mu <-rowMeansPara(cluster, "px", px$ncol, slot="asly")
+	px$mu <- .rowMeansPara(cluster, "px", px$ncol, slot="asly")
 		
 	#vectorized
 	ssq_list <- clusterCall(cluster, logikParaSF2, px$mu)
-	ssq_list <- removeNA(ssq_list)
+	ssq_list <- .removeNA(ssq_list)
 	ssq <- sum( unlist(ssq_list) )
 	sigsq <- ssq/nt
 	px$sigsq <- sigsq
@@ -587,7 +587,7 @@ grad_loglikPara <- function(par, px, cluster, verbose)
 	
 	#vectorized gradient calculation at nodes
 	gr_list <- clusterCall(cluster, grad_loglikParaSF, rfac, par)
-	gr_list <- removeNA(gr_list)
+	gr_list <- .removeNA(gr_list)
 	gr1 <- vector(length=0)
 	gr2 <- vector(length=0)
 	for(i in 1:length(gr_list)){

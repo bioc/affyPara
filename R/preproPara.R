@@ -9,6 +9,7 @@
 # 23.10.2008 : Version 0.19 - awfull bug in checks removed
 # 28.10.2008 : Version 0.20 - doSummarizationPara imporved
 # 18.12.2008 : Version 0.21 - cluster object gets default parameter: .affyParaInternalEnv$cl
+# 23.03.2009 : Version 0.22 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -19,7 +20,7 @@ preproPara <- function(object,
 		pmcorrect.method=NULL, pmcorrect.param=list(),
 		summary.method=NULL, summary.param=list(), ids=NULL,
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-		cluster, verbose=FALSE) 
+		cluster, verbose=getOption("verbose")) 
 {
 	#################
 	# Check Functions
@@ -59,10 +60,10 @@ preproPara <- function(object,
     	stop("Unknown Summarization-Method")
 
 	#Check object type
-	object.type <- getObjectType(object) 
+	object.type <- .getObjectType(object) 
 	
 	#Check size of partitions
-	parts <- checkPartSize(object, number.parts)
+	parts <- .checkPartSize(object, number.parts)
 	number.parts <- parts$number.parts
 	object.length <- parts$object.length
 	
@@ -101,7 +102,7 @@ preproPara <- function(object,
 	#################################
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 		t0 <- proc.time();
-		check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type) 
+		check <- clusterApply(cluster, object.list, .initAffyBatchSF, object.type) 
 		t1 <- proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
 	
@@ -109,7 +110,7 @@ preproPara <- function(object,
 	if (verbose) cat("Create TMP AffyBatch ")
 	t0 <- proc.time();
 	if( object.type == "CELfileVec" || object.type == "partCELfileList" ){
-		headdetails <- clusterApply(cluster, object.list, ReadHeaderSF)[[1]]
+		headdetails <- clusterApply(cluster, object.list, .ReadHeaderSF)[[1]]
 		dim.intensity <- headdetails[[2]]
 		ref.cdfName <- headdetails[[1]]
 		if( dim(phenoData)[1] == 0 ){
@@ -154,7 +155,7 @@ preproPara <- function(object,
 			############################
 			# Do quantile normalization
 			############################
-			normalizeQuantilesPara(cluster,	type, object.length, verbose=verbose)
+			normalizeQuantilesPara(cluster,	type, object.length)
 			t01 <- proc.time();
 		if (verbose) cat(round(t01[3]-t00[3],3),"sec DONE\n")
 		
@@ -174,7 +175,7 @@ preproPara <- function(object,
 			############################
 			# Do constant normalization
 			############################
-			normalizeConstantPara(cluster, samples.names, refindex=refindex, na.rm=na.rm, FUN=FUN, verbose=verbose)
+			normalizeConstantPara(cluster, samples.names, refindex=refindex, na.rm=na.rm, FUN=FUN)
 			t01 <- proc.time();
 		if (verbose) cat(round(t01[3]-t00[3],3),"sec DONE\n")
 		
@@ -254,7 +255,7 @@ preproPara <- function(object,
 	#################
 	eset <- doSummarizationPara(cluster, object.length, AffyBatch, 
 			samples.names, ids=ids, pmcorrect.method=pmcorrect.method, summary.method=summary.method,
-			summary.param=summary.param, pmcorrect.param=pmcorrect.param, verbose=verbose)
+			summary.param=summary.param, pmcorrect.param=pmcorrect.param)
 		
 	#Return Expression Set
 	return(eset)

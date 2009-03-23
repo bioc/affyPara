@@ -9,6 +9,7 @@
 # 27.03.2008 : Version 0.17 - object.type as input removed
 # 16.05.2008 : Version 0.18 - one node bug fix and code cleaning (tmp affyBatch removed)
 # 18.12.2008 : Version 0.19 - cluster object gets default parameter: .affyParaInternalEnv$cl
+# 23.03.2009 : Version 0.20 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -21,7 +22,7 @@
 normalizeAffyBatchQuantilesPara <- function(object,
 	phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
 	type=c("separate","pmonly","mmonly","together"), 
-	cluster, verbose=FALSE) 
+	cluster, verbose=getOption("verbose")) 
 {	
     ########
     # Checks
@@ -42,10 +43,10 @@ normalizeAffyBatchQuantilesPara <- function(object,
 	type <- match.arg(type)
 	
 	#Check object type
-	object.type <- getObjectType(object) 
+	object.type <- .getObjectType(object) 
 	
 	#Check size of partitions
-	parts <- checkPartSize(object, number.parts)
+	parts <- .checkPartSize(object, number.parts)
 	number.parts <- parts$number.parts
 	object.length <- parts$object.length
 	
@@ -77,7 +78,7 @@ normalizeAffyBatchQuantilesPara <- function(object,
 	##################################
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 		t0 <- proc.time();
-		check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type) 
+		check <- clusterApply(cluster, object.list, .initAffyBatchSF, object.type) 
 		t1 <- proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
 	
@@ -96,14 +97,14 @@ normalizeAffyBatchQuantilesPara <- function(object,
 	if(type == "separate"){
 		if (verbose) cat("PM and MM separate normalization\n")
 	}
-	normalizeQuantilesPara(cluster, type, object.length, verbose=verbose)
+	normalizeQuantilesPara(cluster, type, object.length)
 	
 	##############################
 	#Combine / Rebuild affyBatches
 	##############################
 	if (verbose) cat("Rebuild AffyBatch ")
 	t0 <- proc.time();
-		AffyBatch.list.norm <- clusterCall(cluster, getAffyBatchSF)
+		AffyBatch.list.norm <- clusterCall(cluster, .getAffyBatchSF)
 		AffyBatch <- mergeAffyBatches(AffyBatch.list.norm)
 	t1 <- proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
@@ -120,7 +121,7 @@ normalizeAffyBatchQuantilesPara <- function(object,
 ###
 normalizeQuantilesPara <- function(cluster,
 	type, object.length,
-	verbose=FALSE)
+	verbose=getOption("verbose"))
 {
 
 	#Seperation for type separate

@@ -11,7 +11,7 @@ boxplotPara(object,
 		iqrMethod=TRUE, percent=0.05,
 		typDef="mean", plot=TRUE,	 
 		plotAllBoxes=TRUE,
-		cluster, verbose=FALSE) 
+		cluster, verbose = getOption("verbose")) 
 }
 
 \arguments{
@@ -31,7 +31,7 @@ boxplotPara(object,
   		OR a (partitioned) list of \code{character} vectors with CEL file names.}
   \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the SNOW package. 
   		For default \code{.affyParaInternalEnv$cl}  will be used. }
-  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages. default: TRUE }
+  \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages. default: getOption("verbose") }
 }
 \details{
 \code{boxplotPara} is the parallelized function for box plots of probe intensities. 

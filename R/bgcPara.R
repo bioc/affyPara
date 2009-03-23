@@ -10,19 +10,20 @@
 # 23.10.2008 : Version 0.18 - awfull bug in checks remuved
 # 07.11.2008 : Version 0.19 - rm.list="ALL" added
 # 18.12.2008 : Version 0.20 - cluster object gets default parameter: .affyParaInternalEnv$cl
+# 23.03.2009 : Version 0.21 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do BG-Correction is faster.
 # Using the right combination "size of AffyBatch on slaves" - "number of slaves" the parallelized
 # version is more than ten times faster as the serial version. 
 #
-# Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2009 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 bgCorrectPara <- function(object,
 	phenoData = new("AnnotatedDataFrame"),
 	method, cluster,
-	verbose=FALSE)
+	verbose=getOption("verbose"))
 {
 	########
 	# Checks
@@ -44,10 +45,10 @@ bgCorrectPara <- function(object,
 		 stop(paste("Unknown method (cannot find function '", method,"')",sep=""))
 	 
 	#Check object type
-	object.type <- getObjectType(object) 
+	object.type <- .getObjectType(object) 
 			
 	#Check size of partitions
-	parts <- checkPartSize(object, number.parts)
+	parts <- .checkPartSize(object, number.parts)
 	number.parts <- parts$number.parts
 	object.length <- parts$object.length
 
@@ -76,7 +77,7 @@ bgCorrectPara <- function(object,
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 		t0 <- proc.time();
 		#and remove all variables from all slaves
-	    check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type, rm.list="ALL") 
+	    check <- clusterApply(cluster, object.list, .initAffyBatchSF, object.type, rm.list="ALL") 
 		t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
 	
@@ -94,7 +95,7 @@ bgCorrectPara <- function(object,
 	##############################
 	if (verbose) cat("Rebuild AffyBatch ")
 		t0 <- proc.time();
-		AffyBatch.list.bgc <- clusterCall(cluster, getAffyBatchSF)
+		AffyBatch.list.bgc <- clusterCall(cluster, .getAffyBatchSF)
 		AffyBatch <- mergeAffyBatches(AffyBatch.list.bgc)
 		t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))

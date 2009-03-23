@@ -12,6 +12,7 @@
 # 21.11.2008 : Version 0.6 - function getMatrixBQBoxLevels is added to convert the quality sample levels as matrix to facility the analysis. 
 # 26.11.2008 : Version 0.7 - function boxplotParaDrawn and getNumberPlots improved for nplot =1 and lastplot. Small bug fixed to plot=TRUE
 # 30.11.2008 : Version 0.8 - function boxplotParaDrawn improved for the parameter plotAllBoxes=FALSE and  nSamples
+# 23.03.2009 : Version 0.9 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
 #Copyright (C) 2008 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
 # 
@@ -44,7 +45,7 @@ boxplotParaSFgParBox <- function()
 # the function boxplot( plot=false)
 #########################################################################
 boxplotParaComStatsM <- function(matrix.list, 
-		verbose=TRUE)
+		verbose=getOption("verbose"))
 {
   if (verbose) cat("\n\tRebuild Statistic matrix\n")
   #create the summarized affyBatch.stat as null list with the name from boxplot.stats
@@ -96,7 +97,7 @@ boxplotParaComStatsM <- function(matrix.list,
 #
 #########################################################################
 boxplotParagMdMnDef <- function(statsObject, 
-		typSample, verbose=TRUE)
+		typSample, verbose=getOption("verbose"))
 {
 
  if( length(typSample) == 1){
@@ -194,7 +195,7 @@ boxplotParagMdMnDef <- function(statsObject,
 # parameter: objecte boxplot.stats.$stats
 ################################################################################
 boxplotParaCalAllDiff <- function(boxplotStats, 
-		defaultSstats, verbose=TRUE)
+		defaultSstats, verbose=getOption("verbose"))
 {
 
   defaultSname <- colnames(defaultSstats)
@@ -278,7 +279,7 @@ getDifferenceBox <- function(hl1,
 
 boxplotParagCrSamp <- function(differencen, 
 		limits, iqrL, 
-		verbose=TRUE)
+		verbose=getOption("verbose"))
 {
      n<- dim(differencen)[2]
      l<-1
@@ -313,7 +314,7 @@ boxplotParagCrSamp <- function(differencen,
 # when the critical samples are classified based on the median or mean default Sample (for the differences Method)
 ##########################################################################################################
 boxplotParacheckCritSamp <- function(index, 
-		iqrL, verbose=TRUE)
+		iqrL, verbose=getOption("verbose"))
 {
  n <- length(index)
  # when the critical samples are classified based on the median or mean (for the differences Method)
@@ -400,7 +401,7 @@ boxplotParacheckCritSamp <- function(index,
 ########################################################################################################
 boxplotParagLimits <- function(differencen, 
 		percent, plot, 
-		verbose=TRUE)
+		verbose=getOption("verbose"))
 {
 
   n<- length(differencen[1,])
@@ -464,7 +465,7 @@ drawHistDiff <- function(differencenS,
 boxplotParaDrawn <- function(boxpl.st,
 		defaultS, qualityProblem,
 		lim, nSample,
-		plotAllBoxes, verbose)
+		plotAllBoxes, verbose=getOption("verbose"))
 {
 
   if (verbose) cat("\n\tPlot will be generated\n")
@@ -778,7 +779,7 @@ getNumberPlots <- function(nbxp,
 #
 #############################################################################
 boxplotParagMedIQR <- function(IQRmedMatrix, 
-		plotDraw, verbose)
+		plotDraw, verbose=getOption("verbose"))
 {
  #calculate IQR
    iqrSam<- abs(IQRmedMatrix[,1] - IQRmedMatrix[,2])

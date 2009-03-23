@@ -13,13 +13,14 @@
 # 21.11.2008 : Version 0.7 - boxplot delivered results are improved to facility further analysis(matrix and list are combined,
 #                            more information and analysis are added) 
 # 18.12.2008 : Version 0.8 - cluster object gets default parameter: .affyParaInternalEnv$cl
+# 23.03.2009 : Version 0.9 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do BG-Correction is faster.
 # Using the right combination "size of AffyBatch on slaves" - "number of slaves" the parallelized
 # version is more than ten times faster as the serial version. 
 #
-# Copyright (C) 2008 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
+# Copyright (C) 2009 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
 ###############################################################################
 
 boxplotPara <- function(object,
@@ -29,7 +30,7 @@ boxplotPara <- function(object,
 		typDef= "mean",
  	  	plot=TRUE,	 
 		plotAllBoxes=TRUE,
-		cluster, verbose=FALSE) 
+		cluster, verbose=getOption("verbose")) 
 {
    
 	#Check for affy
@@ -66,10 +67,10 @@ boxplotPara <- function(object,
 	number.parts <- length(cluster)
 	
 	#Check object type
-	object.type <- getObjectType(object) 
+	object.type <- .getObjectType(object) 
 	
 	#Check size of partitions
-	parts <- checkPartSize(object, number.parts)
+	parts <- .checkPartSize(object, number.parts)
 	number.parts <- parts$number.parts
 	object.length <- parts$object.length
 	
@@ -102,7 +103,7 @@ boxplotPara <- function(object,
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 	t0 <- proc.time();
  	#send the Cel files liste to the slaves# and remove data from slaves
-	check <- clusterApply(cluster, object.list, initAffyBatchSF, object.type)  
+	check <- clusterApply(cluster, object.list, .initAffyBatchSF, object.type)  
 	if (verbose > 1) print(check)	  
 	t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
@@ -125,7 +126,7 @@ boxplotPara <- function(object,
 	if (verbose) cat("Box-Parameter merge ")
     t0 <- proc.time()
   	# function to summarize the boxplot-stats values from slaves 
-  	boxpl.st <- boxplotParaComStatsM(box.list, verbose)
+  	boxpl.st <- boxplotParaComStatsM(box.list)
     t1 <- proc.time()
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
 	
@@ -172,15 +173,15 @@ boxplotPara <- function(object,
     medIQRAllM <- matrix(c(boxpl.st$stats[2,], boxpl.st$stats[4,], boxpl.st$stats[3,]), ncol=3, nrow=length(boxpl.st$n)) 
     colnames(medIQRAllM) <- c("HL", "HU", "median")
     #calculate the median and HL , HU values to be considered as limit between "normal" samples and bad quality samples
-    limitSamplesBxp <- boxplotParagMedIQR(medIQRAllM, plot, verbose)
+    limitSamplesBxp <- boxplotParagMedIQR(medIQRAllM, plot)
     if(verbose > 1) save( limitSamplesBxp, file="limitSamplesBxp.Rdata")
     #take only the median and IQR values of all samples
     diffMedIQRALLM <- matrix(c(abs(medIQRAllM[,1] - medIQRAllM[,2]), medIQRAllM[,3]), ncol=2, nrow=length(boxpl.st$n))
     colnames(diffMedIQRALLM) <- c("Diff_IQR", "median")
     #calculate the critical samples from the limits and all samples 
-    criticSamplesBxp <- boxplotParagCrSamp(diffMedIQRALLM, limitSamplesBxp, iqrMethod, verbose)
+    criticSamplesBxp <- boxplotParagCrSamp(diffMedIQRALLM, limitSamplesBxp, iqrMethod)
     #check the different obtained values and classified them in 3 classes(mdIQR, md, IQR) 
-    qualityProblemBxp <- boxplotParacheckCritSamp(criticSamplesBxp, iqrMethod, verbose)
+    qualityProblemBxp <- boxplotParacheckCritSamp(criticSamplesBxp, iqrMethod)
     if(verbose > 1) save(qualityProblemBxp, file="qualityProblemBxp.Rdata")
     t10 <- proc.time()
     if (verbose) cat(paste(round(t10[3] - t9[3],3)," sec DONE\n"))
@@ -216,17 +217,17 @@ boxplotPara <- function(object,
    if(verbose) cat("Calculate the Bad Quality Samples between the standart sample and the rest ")
    t5 <- proc.time()
    #calculate the differences between the Default calculated Sample(defaultS) and the rest of the samples   
-   differencen<- boxplotParaCalAllDiff(boxpl.st$stats, mstats, verbose)
+   differencen<- boxplotParaCalAllDiff(boxpl.st$stats, mstats)
    if(verbose) cat(differencen)
    # to save the difference values
    if(verbose > 1) save(differencen, file="differencen.Rdata")
    #calculate  the levels for a concretes percent which is gives from boxplotPara function as parameter
-   limits<- boxplotParagLimits(differencen, percent, plot, verbose)
+   limits<- boxplotParagLimits(differencen, percent, plot)
    if(verbose) cat(limits) 
    #calculate the critical samples from the limits       
-   criticSamples <- boxplotParagCrSamp(differencen, limits, iqrMethod, verbose)
+   criticSamples <- boxplotParagCrSamp(differencen, limits, iqrMethod)
    #check the different obtained values and classified them in 3 classes(mdIQR, md, IQR) 
-   qualityProblem <- boxplotParacheckCritSamp(criticSamples, iqrMethod, verbose)
+   qualityProblem <- boxplotParacheckCritSamp(criticSamples, iqrMethod)
     
    if(verbose > 1) save(qualityProblem, file="qualProblem.Rdata")
    t6 <- proc.time()
@@ -235,7 +236,7 @@ boxplotPara <- function(object,
    t7 <- proc.time()
    #drawn the boxplot
    if (plot) 
-   	try(boxplotParaDrawn(boxpl.st,defaultS, qualityProblem, limits, nSample, plotAllBoxes, verbose), TRUE)
+   	try(boxplotParaDrawn(boxpl.st,defaultS, qualityProblem, limits, nSample, plotAllBoxes), TRUE)
    t8 <- proc.time()
    if(verbose) cat(paste(round(t8[3] - t7[3],3), "sec DONE\n"))  
 	 if(verbose > 1)cat("Total Time necessary to calculate and drawn boxplotPara : ", round((t8[3] +t7[3] + t6[3] +t5[3]) - t1[3],3), " sec\n") 
