@@ -10,6 +10,7 @@
 # 28.10.2008 : Version 0.20 - doSummarizationPara imporved
 # 18.12.2008 : Version 0.21 - cluster object gets default parameter: .affyParaInternalEnv$cl
 # 23.03.2009 : Version 0.22 - Option verbose set to getOption("verbose") and added . to names of internatl functions
+# 24.03.2009 : Version 0.23 - Summarization optimized
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -56,7 +57,7 @@ preproPara <- function(object,
     }
    	if (is.null(summary.method))
     	stop("You have to choose a Summarization-Method")
-    if (any(generateExprSet.methods()==summary.method) == 0)
+    if (any( express.summary.stat.methods()==summary.method) == 0)
     	stop("Unknown Summarization-Method")
 
 	#Check object type
@@ -252,10 +253,14 @@ preproPara <- function(object,
 	
 	#################
 	#Do Summarization
-	#################
-	eset <- doSummarizationPara(cluster, object.length, AffyBatch, 
+	#################	
+	if (verbose) cat("Summarization ")
+	t0=proc.time();
+	eset <- .doSummarizationPara(cluster, object.length, AffyBatch, 
 			samples.names, ids=ids, pmcorrect.method=pmcorrect.method, summary.method=summary.method,
 			summary.param=summary.param, pmcorrect.param=pmcorrect.param)
+	t1=proc.time();
+	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
 		
 	#Return Expression Set
 	return(eset)

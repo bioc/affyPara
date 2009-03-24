@@ -10,6 +10,7 @@
 # 28.10.2008 : Version 0.13 - doSummarizationPara imporved
 # 18.12.2008 : Version 0.14 - cluster object gets default parameter: .affyParaInternalEnv$cl
 # 23.03.2009 : Version 0.15 - Option verbose set to getOption("verbose") and added . to names of internatl functions
+# 24.03.2009 : Version 0.16 - Summarization optimized
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -46,7 +47,6 @@ computeExprSetPara <- function(object,
 	
 	#Check Parameter
 	pmcorrect.method <- match.arg(pmcorrect.method, pmcorrect.methods())
-	upDate.express.summary.stat.methods(c(express.summary.stat.methods(), 'medianpolish_orig', 'liwong_orig', 'farms_orig', 'playerout_orig'))
 	summary.method <- match.arg(summary.method, express.summary.stat.methods())
 	if (summary.method == "medianpolish")
 		warning("Medianpolish only at nodes, not over complete AffyBatch!\nFor same results use 'medianpolish_orig' (slow)")
@@ -118,42 +118,9 @@ computeExprSetPara <- function(object,
 	#################
 	if (verbose) cat("Summarization ")
 	t0=proc.time();
-	if ( regexpr("_orig", summary.method) == -1 ){
-		eset_list <- clusterApply(cluster, object.list, calculateExprSetSF, 
-				ids=ids, pmcorrect.method=pmcorrect.method, summary.method=summary.method,
-				summary.param=summary.param, pmcorrect.param=pmcorrect.param)
-	
-		#Generat Exprs-Matrix
-		eset_mat <- exprs(eset_list[[1]])[ sort(rownames(exprs(eset_list[[1]]))) ,]
-		
-		if ( length(eset_list) > 1){
-			for( k in 2:length(eset_list)){
-				if( class(eset_list[[k]]) == "ExpressionSet" )
-					eset_mat <- cbind(eset_mat,exprs(eset_list[[k]])[ sort(rownames(exprs(eset_list[[k]]))) ,] )
-				eset_list[[k]]<-NA
-			}
-		}
-		if (is.null(ids)){
-			ids<-geneNames(AffyBatch)
-		}
-		dimnames(eset_mat) <- list(ids, samples.names)
-	
-		eset <- new("ExpressionSet",
-				phenoData=phenoData(AffyBatch),
-				## featureData picked up from exprs
-				experimentData=experimentData(AffyBatch),
-				exprs=eset_mat,
-				annotation=annotation(AffyBatch)
-		)
-		
-	#playerout_orig farms_orig medianpolish_orig liwong_orig
-	}else {
-		summary.method <- substr(summary.method,1,regexpr("_orig", summary.method)-1)
-		eset <- doSummarizationPara(cluster, object.length, AffyBatch, 
-				samples.names, ids=ids, pmcorrect.method=pmcorrect.method, summary.method=summary.method,
-				summary.param=summary.param, pmcorrect.param=pmcorrect.param)		
-	}
-	
+	eset <- .doSummarizationPara(cluster, object.length, AffyBatch, 
+			samples.names, ids=ids, pmcorrect.method=pmcorrect.method, summary.method=summary.method,
+			summary.param=summary.param, pmcorrect.param=pmcorrect.param)		
 	t1=proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
 	
@@ -163,11 +130,11 @@ computeExprSetPara <- function(object,
 	return(eset)
 }
 
+#####################################################################
 ###
 # Call computeExprSet at slaves
 ###
-calculateExprSetSF <- function( cluster, object.list,
-		samples.names, ids=NULL,
+.calculateExprSetSF <- function(ids=NULL,
 		pmcorrect.method, summary.method,
 		summary.param=list(), pmcorrect.param=list())
 {
@@ -186,121 +153,166 @@ calculateExprSetSF <- function( cluster, object.list,
 ###
 # Function for parallel summarization
 ###
-doSummarizationPara <- function(cluster, 
+.doSummarizationPara <- function(cluster, 
 		nsamples, AffyBatch, 
 		samples.names, ids=NULL,
 		pmcorrect.method, summary.method,
 		summary.param=list(), pmcorrect.param=list(),
 		verbose=getOption("verbose"))
 {
+	################################
+	#Summarization for parallel summarization methods:
 	#################################
-	#Get Parameters for Summarization
-	##################################
-	if (verbose) cat("Get Parameters ")
-	t0=proc.time();
-	## Anzahl von samples
-	#n <- sum(unlist(lapply(object.list,length)))
-	n <- nsamples
-	
-	## if 'ids' is NULL compute for all ids
-	if (is.null(ids)){
-		ids <-geneNames(AffyBatch)
-	}
-	
-	m <- length(ids)
-	
-	pps.warnings <- vector("list", length=m)
-	
-	## cheap trick to (try to) save time
-	c.pps <- new("ProbeSet", pm=matrix(), mm=matrix())
-	
-	## matrix to hold expression values
-	exp.mat <- matrix(NA, m, n)
-	se.mat <- matrix(NA, m, n)
-	
-	CDFINFO <- getCdfInfo(AffyBatch)
-	
-	t1=proc.time();
-	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
-	
-	############################
-	# Summarization
-	############################
-	t0=proc.time();
-	if (verbose) 
-		cat("Sumarization:",m, "ids to be processed ")
-	
-	## loop over the ids
-	mycall <- as.call(c(getMethod("express.summary.stat",
-							signature=c("ProbeSet","character", "character")),
-					list(c.pps, pmcorrect=pmcorrect.method, summary=summary.method,
-							summary.param=summary.param, pmcorrect.param=pmcorrect.param))
-	)
-	
-	
-	
-	for (i in seq(along=ids)) {
+	if ( length( grep( "_orig", summary.method) )!=1 ){
+
+		if (verbose) cat("\n\tSummarization at slaves\n")
+		# computeExpression Set at every node
+		eset_list <- clusterCall(cluster, .calculateExprSetSF, 
+				ids=ids, pmcorrect.method=pmcorrect.method, summary.method=summary.method,
+				summary.param=summary.param, pmcorrect.param=pmcorrect.param)
+		eset_list <- .removeNA(eset_list)
 		
-		if (verbose && i%%100==0) {
-			cat(".")
+		#Generat Exprs-Matrix
+		if (verbose) cat("\tBuild expression Matrix ")
+		eset_mat <- exprs(eset_list[[1]])[ sort(rownames(exprs(eset_list[[1]]))) ,]
+		if ( length(eset_list) > 1){
+			for( k in 2:length(eset_list)){
+				if (verbose) cat(".")
+				if( class(eset_list[[k]]) == "ExpressionSet" )
+					eset_mat <- cbind(eset_mat,exprs(eset_list[[k]])[ sort(rownames(exprs(eset_list[[k]]))) ,] )
+				eset_list[[k]]<-NA
+			}
+		}
+		if (is.null(ids)){
+			ids<-geneNames(AffyBatch)
+		}
+		dimnames(eset_mat) <- list(ids, samples.names)
+		
+		eset <- new("ExpressionSet",
+				phenoData=phenoData(AffyBatch),
+				## featureData picked up from exprs
+				experimentData=experimentData(AffyBatch),
+				exprs=eset_mat,
+				annotation=annotation(AffyBatch)
+		)
+	
+	################################
+	#Summarization for original summarization methods:
+	#summary.method == playerout_orig / farms_orig / medianpolish_orig / liwong_orig
+	#################################
+	}else {
+		#remove _orig string
+		summary.method <- substr(summary.method,1,regexpr("_orig", summary.method)-1)
+		#start parallel summarization (slow!)
+	
+		#################################
+		#Get Parameters for Summarization
+		##################################
+		if (verbose) cat("\t\nGet Parameters ")
+		t0=proc.time();
+		## Anzahl von samples
+		#n <- sum(unlist(lapply(object.list,length)))
+		n <- nsamples
+		
+		## if 'ids' is NULL compute for all ids
+		if (is.null(ids)){
+			ids <-geneNames(AffyBatch)
 		}
 		
-		id <- ids[i]
+		m <- length(ids)
 		
-		if (! exists(id, envir=CDFINFO)) {
-			pps.warnings[[i]] <- paste("Unknown id", id)
-		} else {
-			## locations for an id
-			loc <- get(id, envir=CDFINFO)
-			l.pm <- loc[, 1]
-			if (ncol(loc) == 2)
-				l.mm <- loc[ ,2]
-			else
-				l.mm <- integer()
+		pps.warnings <- vector("list", length=m)
+		
+		## cheap trick to (try to) save time
+		c.pps <- new("ProbeSet", pm=matrix(), mm=matrix())
+		
+		## matrix to hold expression values
+		exp.mat <- matrix(NA, m, n)
+		se.mat <- matrix(NA, m, n)
+		
+		CDFINFO <- getCdfInfo(AffyBatch)
+		
+		t1=proc.time();
+		if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
+		
+		############################
+		# Summarization
+		############################
+		t0=proc.time();
+		if (verbose) 
+			cat("\tSumarization:",m, "ids to be processed ")
+		
+		## loop over the ids
+		mycall <- as.call(c(getMethod("express.summary.stat",
+								signature=c("ProbeSet","character", "character")),
+						list(c.pps, pmcorrect=pmcorrect.method, summary=summary.method,
+								summary.param=summary.param, pmcorrect.param=pmcorrect.param))
+		)
+		
+		
+		
+		for (i in seq(along=ids)) {
 			
-			zw <- clusterCall(cluster, .getCompIntensityMatrixSF, rows=l.pm)
-			zw <- zw[!is.na(zw)]
-			c.pps@pm <- do.call(cbind, zw)
-			zw <- clusterCall(cluster, .getCompIntensityMatrixSF, rows=l.mm)
-			zw <- zw[!is.na(zw)]
-			c.pps@mm <- do.call(cbind, zw)
+			if (verbose && i%%100==0) {
+				cat(".")
+			}
 			
-			## generate expression values
-			## (wrapped in a sort of try/catch)
-			mycall[[2]] <- c.pps
-			ev <- try(eval(mycall), silent = TRUE)
-		}
-		if (! inherits(ev, "try-error")) {
-			exp.mat[i, ] <- ev$exprs
-			se.mat[i,] <- ev$se.exprs
-		} else {
-			pps.warnings[[i]] <- ev[1]
+			id <- ids[i]
+			
+			if (! exists(id, envir=CDFINFO)) {
+				pps.warnings[[i]] <- paste("Unknown id", id)
+			} else {
+				## locations for an id
+				loc <- get(id, envir=CDFINFO)
+				l.pm <- loc[, 1]
+				if (ncol(loc) == 2)
+					l.mm <- loc[ ,2]
+				else
+					l.mm <- integer()
+				
+				zw <- clusterCall(cluster, .getCompIntensityMatrixSF, rows=l.pm)
+				zw <- zw[!is.na(zw)]
+				c.pps@pm <- do.call(cbind, zw)
+				zw <- clusterCall(cluster, .getCompIntensityMatrixSF, rows=l.mm)
+				zw <- zw[!is.na(zw)]
+				c.pps@mm <- do.call(cbind, zw)
+				
+				## generate expression values
+				## (wrapped in a sort of try/catch)
+				mycall[[2]] <- c.pps
+				ev <- try(eval(mycall), silent = TRUE)
+			}
+			if (! inherits(ev, "try-error")) {
+				exp.mat[i, ] <- ev$exprs
+				se.mat[i,] <- ev$se.exprs
+			} else {
+				pps.warnings[[i]] <- ev[1]
+			}
+			
 		}
 		
+		t1=proc.time();
+		if (verbose) cat(" ",round(t1[3]-t0[3],3),"sec DONE\n")
+		
+		######################
+		#Build ExpressionSet
+		######################
+		if (verbose) cat("\tBuild ExpressionSet ")
+		t0=proc.time();
+		dimnames(exp.mat) <- list(ids, samples.names)
+		dimnames(se.mat) <- list(ids, samples.names)
+		eset <- new("ExpressionSet",
+				phenoData=phenoData(AffyBatch),
+				## featureData picked up from exprs
+				experimentData=experimentData(AffyBatch),
+				exprs=exp.mat,
+				se.exprs=se.mat,
+				annotation=annotation(AffyBatch)
+		)
+		attr(eset, "pps.warnings") <- pps.warnings
+		t1=proc.time();
+		if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
 	}
-	
-	t1=proc.time();
-	if (verbose) cat(" ",round(t1[3]-t0[3],3),"sec DONE\n")
-	
-	######################
-	#Build ExpressionSet
-	######################
-	if (verbose) cat("Build ExpressionSet ")
-	t0=proc.time();
-	dimnames(exp.mat) <- list(ids, samples.names)
-	dimnames(se.mat) <- list(ids, samples.names)
-	eset <- new("ExpressionSet",
-			phenoData=phenoData(AffyBatch),
-			## featureData picked up from exprs
-			experimentData=experimentData(AffyBatch),
-			exprs=exp.mat,
-			se.exprs=se.mat,
-			annotation=annotation(AffyBatch)
-	)
-	attr(eset, "pps.warnings") <- pps.warnings
-	t1=proc.time();
-	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))
 	
 	return(eset)
-	
 }

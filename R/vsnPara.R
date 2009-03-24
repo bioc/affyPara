@@ -8,6 +8,7 @@
 # 06.11.2008 : Version 0.2 - vsn reference implemented
 # 18.12.2008 : Version 0.3 - cluster object gets default parameter: .affyParaInternalEnv$cl
 # 23.03.2009 : Version 0.4 - Option verbose set to getOption("verbose") and added . to names of internatl functions
+# 24.03.2009 : Version 0.5 - Summarization optimized
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -256,7 +257,7 @@ vsnrmaPara <- function(object,
 	#################
 	#Do Summarization
 	#################
-	eset <- doSummarizationPara(cluster, object.length, AffyBatch, 
+	eset <- .doSummarizationPara(cluster, object.length, AffyBatch, 
 			samples.names, ids=ids, pmcorrect.method=pmcorrect.method, summary.method=summary.method,
 			summary.param=summary.param, pmcorrect.param=pmcorrect.param)
 	

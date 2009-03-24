@@ -2,6 +2,9 @@
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
+affyPara 1.3.8 (build 25. March 2009)
+- Summarization optimized
+
 affyPara 1.3.7 (build 23. March 2009)
 - Option verbose set to getOption("verbose") and added . to names of internal functions
 
