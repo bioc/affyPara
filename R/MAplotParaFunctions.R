@@ -230,8 +230,8 @@ getValuesChips <- function(meanchip,
 # function to get the "bad" Quality Chips from the S values 
 #       
 #########################################################
-getBoxplot<- function(sValues, 
-                      verbose=getOption("verbose"),plot)
+getBoxplot <- function(sValues, 
+                      verbose=getOption("verbose"), plot=FALSE)
 {
  S.badQC<-NULL
  #calculate the statistical values

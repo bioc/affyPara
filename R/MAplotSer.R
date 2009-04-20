@@ -20,7 +20,7 @@ MAplotSer <- function(object,
                        show.statistics=TRUE,
                        family.loess ="gaussian", 
                        pch=".",
-                       plot =TRUE,
+                       plot = TRUE,
                        cutoff =0.5,# add parameter to generic function ma.plot
                        level=1,
                        verbose=getOption("verbose"),
@@ -133,7 +133,7 @@ MAplotSer <- function(object,
    calQC<- matrix(c(calQCSampleName,calQCS,calQCL, calQCsigma, calQCVarsigma), nrow=length(calQCSampleName), ncol=5)
    colnames(calQC) <- c("sampleNames","S","Osc_Loess","sigma", "Var_sigma")
   #Samples classified as "bad" after the S value (outliers) 
-  checkBadQC.s<- getBoxplot(calQCS,plot)
+  checkBadQC.s<- getBoxplot(calQCS, plot)
   #Samples classified as "bad" after the loess.smooth line 
   checkBadQC.loess<- getBadQCLoessSigma(calQCL)
   #Samples classified as "bad" after the sigma value
