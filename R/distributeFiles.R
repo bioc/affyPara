@@ -3,17 +3,14 @@
 # Function for (hierarchical) distribution of data from the master node to every slave.
 #
 # History
-# 27.10.2008 : ... old stuff removed ...
-# 02.07.2008 : Version 0.15 - delExistTo added
-# 11.09.2008 : Version 0.16 - file.name removed -> basename
-# 10.10.2008 : Version 0.17 - to set to tempdir()
-# 23.10.2008 : Version 0.18 - Improvements in directory creation
+# 29.04.2009 : ... old stuff removed ...
 # 24.10.2008 : Version 0.19 - Improvements for multiprocessor machines
 # 27.10.2008 : Version 0.20 - Output improved to work at multiprocessor machines and clusters
 # 18.12.2008 : Version 0.21 - cluster object gets default parameter: .affyParaInternalEnv$cl
 # 23.03.2009 : Version 0.22 - Option verbose set to getOption("verbose") and added . to names of internatl functions
+# 29.04.2009 : Version 0.23 - error for multiprocessor machines fixed
 #
-# Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2009 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 distributeFiles <- function( files, to=tempdir(),
@@ -34,7 +31,8 @@ distributeFiles <- function( files, to=tempdir(),
 	
 	#check for multiprocessor machine -> no distribution!
 	nodenames <-unlist(clusterEvalQ(cluster, Sys.info()["nodename"]))
-	if( all(nodenames == nodenames[1]) ){
+	master <- Sys.info()["nodename"]
+	if( all(master== nodenames) ){
 		if(verbose) cat("No data distribution: you use a multiprocessor machine!\n")
 		if(full.names==TRUE)
 			return( list(to=dirname(files)[1], CELfiles=paste(dirname(files)[1],basename(files),sep="/") ))
