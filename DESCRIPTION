@@ -1,7 +1,7 @@
 Package: affyPara
-Version: 1.5.0
+Version: 1.5.1
 Title: Parallelized preprocessing methods for Affymetrix Oligonucleotide Arrays
-Date: 2009-04-20
+Date: 2009-04-29
 Author: Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>, Esmeralda Vicedo <e.vicedo@gmx.net>, Ulrich Mansmann <mansmann@ibe.med.uni-muenchen.de>
 Maintainer: Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 Depends: R (>= 2.5.0), methods, affy (>= 1.20.0), snow (>= 0.2-3), vsn (>= 3.6.0)
