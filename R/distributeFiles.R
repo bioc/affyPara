@@ -32,10 +32,10 @@ distributeFiles <- function( files, to=tempdir(),
 	#check for multiprocessor machine -> no distribution!
 	nodenames <-unlist(clusterEvalQ(cluster, Sys.info()["nodename"]))
 	master <- Sys.info()["nodename"]
-	if( all(master== nodenames) ){
+	if( all(master==nodenames) ){
 		if(verbose) cat("No data distribution: you use a multiprocessor machine!\n")
 		if(full.names==TRUE)
-			return( list(to=dirname(files)[1], CELfiles=paste(dirname(files)[1],basename(files),sep="/") ))
+			return( list(to=dirname(files)[1], CELfiles=files ))
 		else
 			return( list(to=dirname(files)[1], CELfiles=basename(files)) )
 	} else{	
@@ -181,7 +181,7 @@ distributeFiles <- function( files, to=tempdir(),
 		#Output
 		#######
 		if (hierarchicallyDist==TRUE){
-			filesPart <- clusterCall(cluster, list.files,to,full.names=TRUE)
+			filesPart <- clusterCall(cluster, list.files, to, full.names=TRUE)
 		}		
 		if(full.names==TRUE)
 			filesSlaves <-lapply(filesPart, function(x,to){

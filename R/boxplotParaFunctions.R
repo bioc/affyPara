@@ -13,6 +13,7 @@
 # 26.11.2008 : Version 0.7 - function boxplotParaDrawn and getNumberPlots improved for nplot =1 and lastplot. Small bug fixed to plot=TRUE
 # 30.11.2008 : Version 0.8 - function boxplotParaDrawn improved for the parameter plotAllBoxes=FALSE and  nSamples
 # 23.03.2009 : Version 0.9 - Option verbose set to getOption("verbose") and added . to names of internatl functions
+# 24.04.2009 : Version 1.0 - bagplot graphical representation is added to facility the boxplots interpretations for iqrMethod 
 #
 #Copyright (C) 2008 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
 # 
@@ -719,7 +720,7 @@ drawnBxp <- function(bxp.plot,
 		typ, colTyp ){
 
  #boxplot for all samples
- bxp(bxp.plot, boxfill=cols, main=main_txt, lwd=0.5, medcol="white", varwidth=TRUE, xlab="Probe Arrays from the E-GEOD-7123 Data", ylab="Unprocesed log scale probe intensities", las=2)
+ bxp(bxp.plot, boxfill=cols, main=main_txt, lwd=0.5, medcol="white", varwidth=TRUE, xlab="Probe Arrays from the Dataset" , ylab="Unprocesed log scale probe intensities", las=2)
  #boxplot for the defaultSample
  bxp(defaultS, add=TRUE, at=0.8, boxfill="blue", axes=FALSE, show.names=FALSE)
  #limit lines from the defaultSample
@@ -810,6 +811,24 @@ boxplotParagMedIQR <- function(IQRmedMatrix,
     abline(h= iqrCriticl, lty=2, lwd=1, col="red")
     abline(h= iqrCriticu, lty=2, lwd=1, col="red")
     #End of the bxp, reset to previous settings
+    par(op)
+    op<-par(mfrow=c(1,1))
+      # bagplot from median of all Samples (IQRmedMatrix[,3]) and iqr (iqrSam)
+      iqrMed.bagplot <- bagplot(IQRmedMatrix[,3], iqrSam, ylab="IQRs", xlab="Medians", verbose=getOption("verbose"))
+      title("bagplot median - IQR all Samples")
+      nOut<-  dim(iqrMed.bagplot$pxy.outlier)[1]
+      if( !is.null(nOut) ){
+         
+         for( i in 1: nOut){
+            y<- iqrMed.bagplot$pxy.outlier[i,2]
+            x<- iqrMed.bagplot$pxy.outlier[i,1]
+            index<- which(iqrSam == y &  IQRmedMatrix[,3] ==x )
+            print(paste("I :", i, "Sample:", index))
+            if(x> 6) text(x,y, paste(index, "Array"),pos=3)
+            else text(x,y, paste("Array",index ),pos=1) 
+            
+        }
+      }
     par(op)
     }
     #return a matrix with the limits to calculate the Quality Problem Samples
@@ -906,14 +925,19 @@ boxplotParaCheckPercent <- function(perc)
 boxplotParaChecknSamples <- function(nS, 
 		lnAffyB)
 {
-
-  if(!is.numeric(nS) | nS < 1 | nS >200){ 
-     chn<- FALSE            
+  print(paste("1", nS, lnAffyB))
+  if(!is.numeric(nS)  | nS >lnAffyB){ 
+     chn<- FALSE 
+     print(paste("2", nS, lnAffyB))           
   }else if ((nS > 0) &  (nS/trunc(nS)> 1)){  
-     chn<- FALSE    
+     chn<- FALSE 
+      print(paste("3", nS, lnAffyB))         
   }else{
+     print(paste("4", nS, lnAffyB))         
     chn <-TRUE
-  }  
+  }
+  
+  print(paste("5", nS, lnAffyB))           
  }
  
  

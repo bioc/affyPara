@@ -14,6 +14,7 @@
 #                            more information and analysis are added) 
 # 18.12.2008 : Version 0.8 - cluster object gets default parameter: .affyParaInternalEnv$cl
 # 23.03.2009 : Version 0.9 - Option verbose set to getOption("verbose") and added . to names of internatl functions
+# 24.04.2009 : Version 1.0 - bagplot graphical representation is added to facility the boxplots interpretations for iqrMethod 
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do BG-Correction is faster.
@@ -36,7 +37,7 @@ boxplotPara <- function(object,
 	#Check for affy
 	require(affy)
 	require(snow)
-	
+	if(plot) require(aplpack)
 	#Get cluster object form default environment
 	if(missing(cluster))
 		cluster <- .affyParaInternalEnv$cl
@@ -60,7 +61,7 @@ boxplotPara <- function(object,
       }
     }  
   }        
-  if(!boxplotParaChecknSamples(nSample, lobject)) stop("Please check the Parameter nSample. It should be a number < 200 and < total samples: ", lobject)
+  #if(!boxplotParaChecknSamples(nSample, lobject)) stop("Please check the Parameter nSample. It should be a number < 200 and < total samples: ", lobject)
  
   #Check cluster and generate number.parts
 	checkCluster(cluster)
@@ -186,11 +187,11 @@ boxplotPara <- function(object,
     t10 <- proc.time()
     if (verbose) cat(paste(round(t10[3] - t9[3],3)," sec DONE\n"))
   	t11 <- proc.time()
-   	#if plot parametere== TRUE , drawn the boxplot 
-	  if (plot) { 	
-    	if(verbose) cat("Draw the boxplots with Bad Quality Samples ")     
+   	#if plot parametere== TRUE , drawn the boxplot and bagplot
+	  if (plot) {
+      if(verbose) cat("Draw the boxplots with Bad Quality Samples ")     
     	try(boxplotParaDrawn(boxpl.st, defaultS, qualityProblemBxp, limitSamplesBxp, nSample, plotAllBoxes, verbose), TRUE)
-		}
+ 		}
 	  t12 <- proc.time()
 	  if (verbose) cat(paste(round(t12[3] - t11[3],3),"sec DONE\n"))
 	  if(verbose>1) cat("Total Time necessary to calculate and draw boxplotPara :", round((t12[3] +t11[3] +t10[3] +t9[3])- t1[3],3), "sec\n")  

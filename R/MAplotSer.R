@@ -170,9 +170,7 @@ MAplotSer <- function(object,
         badQCu<- unique(badQC)      
         drawMAplot(object, badQCu, meanchip,type, log, subset, span, pch=pch, ref.title,show.statistics, family.loess, verbose, ...)
       }else{
-         
-          print(paste("MAplots aren't built. Reason: 'bad ' quality samples at the level: ",level, " aren't found \n" ))
-      
+		  warning("MAplots aren't built. Reason: 'bad ' quality samples at the level: ",level, " aren't found \n" )
       }
     
    t7 <- proc.time();
