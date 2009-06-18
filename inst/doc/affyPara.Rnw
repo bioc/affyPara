@@ -1,6 +1,6 @@
 %\VignetteIndexEntry{Parallelized affy functions for preprocessing}
 %\VignetteKeywords{Preprocessing, Affymetrix}
-%\VignetteDepends{affy, snow}
+%\VignetteDepends{affy, snow, affydata}
 %\VignettePackage{affyPara}
 
 \newcommand{\Robject}[1]{{\texttt{#1}}}
@@ -19,7 +19,11 @@ pdfsubject={affyPara},%
 pdfkeywords={Bioconductor},%
 plainpages,pdftex]{hyperref}
 
-\SweaveOpts{keep.source=TRUE,eps=FALSE,include=FALSE,width=4,height=4.5}
+ %nice urls
+\usepackage{url}
+\usepackage{natbib}
+
+%\SweaveOpts{keep.source=TRUE,eps=FALSE,include=FALSE,width=4,height=4.5}
 
 \author{Markus Schmidberger
 	\footnote{Division of Biometrics and Bioinformatics, IBE, University of Munich, 81377 Munich, Germany}
@@ -36,14 +40,17 @@ plainpages,pdftex]{hyperref}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Abstract}
-The \Rpackage{affyPara} package is part of the Bioconductor\footnote{\url{http://www.bioconductor.org/}} \cite{Gentleman2004} project.
-The \Rpackage{affyPara} package extends the \Rpackage{affy} package. The \Rpackage{affy} package is meant to be an 
-extensible, interactive environment for data analysis and exploration of Affymetrix oligonucleotide array probe level data.
-For more details see the \Rpackage{affy} vignettes or \cite{Irizarry2002}.
+The \Rpackage{affyPara} package is part of the Bioconductor\footnote{\url{http://www.bioconductor.org/}} 
+\cite{Gentleman2004} project. The package extends the \Rpackage{affy} package. The \Rpackage{affy} package 
+is meant to be an extensible, interactive environment for data analysis and exploration of Affymetrix 
+oligonucleotide array probe level data. For more details see the \Rpackage{affy} vignettes or 
+\citet{Irizarry2002}.
 
-The \Rpackage{affyPara} package contains parallelized preprocessing methods for high-density oligonucleotide microarray data. Partition of data could be done
-on arrays and therefore parallelization of algorithms gets intuitive possible. The partition of data and distribution 
-to several nodes solves the main memory problems caused by the AffyBatch and accelerates the methods \cite{Schmidberger2008}.
+The \Rpackage{affyPara} package contains parallelized preprocessing methods for high-density 
+oligonucleotide microarray data. Partition of data could be done on arrays and therefore 
+parallelization of algorithms gets intuitive possible. The partition of data and distribution 
+to several nodes solves the main memory problems -- caused by the \Robject{AffyBatch} object -- 
+and accelerates the methods \cite{Schmidberger2008}.
 
 <<echo=F, results=hide>>=
 library(affyPara)
@@ -52,12 +59,13 @@ sI <- sessionInfo()
 @
 
 This document was created using R version \Sexpr{paste(R.version$major,".",R.version$minor,sep="")}
-and versions \Sexpr{package.version("affy")} and \Sexpr{package.version("snow")} of the packages \Rpackage{affy} and \Rpackage{snow} respectively.
+and versions \Sexpr{package.version("affy")} and \Sexpr{package.version("snow")} of the 
+packages \Rpackage{affy} and \Rpackage{snow} respectively.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Changes to previous Versions} 
-For major changes see NEWS file in the source code or use the function \Rfunction{readNEWS}.
+For major changes see NEWS file in the source code or use the function \Rfunction{readNEWS()}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -66,13 +74,18 @@ The functions in the \Rpackage{affyPara} package have the same functionality the
 \Rpackage{affy} package. For details see the \Rpackage{affy} vignettes. The \Rpackage{affyPara} package 
 contains parallelized preprocessing methods for high-density oligonucleotide microarray data.
 
-The package is designed for large numbers of microarray data and solves the main memory problems caused
-by the \Robject{AffyBatch} at only one workstation or processor. It is very difficult to define a concrete limit for
+The package is designed for large numbers of microarray data and solves 
+the main memory problems caused
+by the \Robject{AffyBatch} object at only one workstation or processor. It is very difficult to define a concrete limit for
 a large number of data, because this strongly depends on the computer system (architecture, main memory, 
 operating system). A computer cluster and the \Rpackage{affyPara} package  should be used when working 
-with more than 200 microarrays. The partition of data and distribution to several nodes solves the main memory
+with more than 150 microarrays. The partition of data and distribution to several nodes solves the main memory
 problems (at one workstation) and accelerates the methods. Parallelization of existing preprocessing methods
 produces, in view of machine accuracy, the same results as serialized methods. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Description}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Requirements}
@@ -81,19 +94,22 @@ package several subfunctions for preprocessing will be used. The \Rpackage{snow}
 used as interface to a communication mechanism for parallel computing. In the \Rpackage{snow} package three low level interfaces have been
 implemented, one using PVM via the \Rpackage{rpvm} package by Li and Rossini, one using MPI via the \Rpackage{Rmpi} \cite{Rmpi}
 package by Hao Yu, and one using raw sockets that may be useful if PVM and MPI are not available. For more details see
-the literature or the webpage http://www.cs.uiowa.edu/\textasciitilde luke/R/cluster/cluster.html.
+the literature or the webpage \url{http://www.cs.uiowa.edu/~luke/R/cluster/cluster.html}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Loading of package}
-The first thing you need to do is load the package.
-\begin{Sinput}
-R> library(affyPara)
-R> library(affydata)
-\end{Sinput}
-<<echo=F,results=hide>>=
+\subsection{Loading the package}
+First of all you have to load the package.
+<<echo=T, eval=T,results=hide>>=
 library(affyPara)
-library(affydata)
 @
+For demonstration we use the small AffyBatch object \Robject{Dilution} from the \Rpackage{affydata} 
+package:
+<<echo=T, eval=T>>=
+library(affydata)
+data(Dilution)
+Dilution
+@
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Starting and stopping cluster}
@@ -101,39 +117,49 @@ After loading the library the computer cluster has to be started. Starting a wor
 a cluster that depends explicitly on the underlying communication mechanism. A cluster is started by 
 calling the \Rfunction{makeCluster} function, but the details of the call depending on the type of cluster. PVM and MPI 
 clusters may also need some preliminary preparations to start the systems. For some examples see the webpage 
-http://www.cs.uiowa.edu/\textasciitilde luke/R/cluster/cluster.html.
+\url{http://www.cs.uiowa.edu/~luke/R/cluster/cluster.html}.
 
 To start a cluster you should use
-\begin{Sinput}
-R> c1 <- makeCluster(10)
-\end{Sinput}
-with a parameter (10) for the number of spawend slaves.
+<<echo=T, eval=T>>=
+cl <- makeCluster(4, type='SOCK')
+@
+with a parameter (4) for the number of spawend slaves and a parameter (type) for the used 
+communication mechanism.
 
 To stop a cluster you should use
-\begin{Sinput}
-R> stopCluster(c1)
-\end{Sinput}
+<<echo=T, eval=T>>=
+stopCluster(cl)
+@
+<<echo=F, eval=T>>=
+cl <- makeCluster(2, type='SOCK')
+@
 
-Socket clusters should stop automatically, when the process that created them terminates; however, it is still
-a good idea to call \Rfunction{stopCluster}.
+The \Rpackage{affyPara} package masks (overwrites) the functions \Rfunction{makeCluster()} and 
+\Rfunction{stopCluster()} from the \Rpackage{snow} package. The new functions save the cluster 
+object (cl) in the namespace environment. Therefore you do not have to deal with the 'cl' object 
+in the \Rpackage{affyPara} functions. But it is still possible!
 
-For more details see the \Rpackage{snow} package, the R package for your communication mechanism (\Rpackage{Rmpi},
-\Rpackage{Rpvm}) and the implementation of your communication mechanism. 
+Socket clusters should stop automatically, when the process that created them terminates; 
+however, it is still a good idea to call \Rfunction{stopCluster()}.
+
+For more details see the \Rpackage{snow} package, the R package for your communication 
+mechanism (\Rpackage{Rmpi},\Rpackage{Rpvm}), and the implementation of your 
+communication mechanism. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Inputdata: CEL Files or AffyBatch}
 Before doing any kind of proprocessing the probe level data (CEL files) have to be handled. As suggested in
-the \Rpackage{affy} package an object of class \Rfunction{AffyBatch} can be created:
+the \Rpackage{affy} package an object of class \Robject{AffyBatch} can be created:
 \begin{itemize}
 \item Create a directory
 \item Move all the relevant CEL files to that directory
 \item Make sure your working directory contains the CEL files (\Rfunction{getwd()}, \Rfunction{setwd()}). 
 \item Then read in the data:
-\begin{Sinput}
-R> Dilution <- ReadAffy()
-\end{Sinput}
+<<echo=T, eval=F>>=
+AffyBatch <- ReadAffy()
+@
 \end{itemize}
-This \Rfunction{AffyBatch} can be used to do preprocessing (with functions from the \Rpackage{affyPara} and
+This \Robject{AffyBatch} object can be used to do preprocessing (with functions from the \Rpackage{affyPara} and
 \Rpackage{affy} package) on the data. Depending on the size of the dataset and on the memory available at the
 computer system, you might experience errors like 'Cannot allocate vector ...'. 
 
@@ -153,26 +179,27 @@ In the \Rpackage{affyPara} package the same BGC methods as in the \Rpackage{affy
 background correction methods that are built into the package the variable \Rfunction{bgcorrect.method}
 can be used:
 <<>>=
-bgcorrect.methods
+bgcorrect.methods()
 @
 
 \subsubsection{Use Background Correction Para}
-The function \Rfunction{bgCorrectPara} needs a cluster object (c1), an input data object (Dilution)
+The function \Rfunction{bgCorrectPara} needs a cluster object (cl), an input data object (Dilution)
 and the background correction method (method="rma") as input parameters.
-\begin{Sinput}
-R> affyBatchGBC <- bgCorrectPara(c1, Dilution,
-					method="rma")
-\end{Sinput}
+<<affyBatchBGC, echo=T, eval=T>>=
+affyBatchBGC <- bgCorrectPara(Dilution,
+				method="rma", verbose=TRUE)
+@
 
 If you do not want to use an \Rfunction{AffyBatch} as input data, you can directly give the CEL files and a vector of the
-CEL files location respectively to the function \Rfunction{bgCorrectPara}:
-\begin{Sinput}
-R> files <- list.celfiles(full.names=TRUE)
-R> affyBatchGBC <- bgCorrectPara(c1, files, 
-					method="rma")
-\end{Sinput}
+CEL files location respectively to the function \Rfunction{bgCorrectPara()}:
+<<affyBatchBGCfiles, echo=T, eval=F>>=
+files <- list.celfiles(full.names=TRUE)
+affyBatchGBC <- bgCorrectPara(files, 
+				method="rma", cluster=cl)
+@
 For this method all CEL files have to be available from a shared memory system. If you want to distribute the CEL files
-to the slaves, see chapter \ref{chap:distri}.
+to the slaves, see chapter \ref{chap:distri}. Additionally this example demonstrates how to use an 
+extra cluster object (cl).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Normalization}
@@ -186,20 +213,21 @@ The parallelized normalization functions need a cluster object, an input data ob
 parameters as input paramters.
 
 \subsubsection{Use Quantile Normalization Para}
-The function \Rfunction{normalizeAffyBatchQuantilesPara} needs a cluster object (c1), an input data object (Dilution)
+The function \Rfunction{normalizeAffyBatchQuantilesPara()} needs a cluster object (cl), an 
+input data object (Dilution)
 and quantil normalization parameters as input parameters (type = "pmonly").
-\begin{Sinput}
-R> affyBatchNORM <- normalizeAffyBatchQuantilesPara(c1,
-		Dilution, type = "pmonly")
-\end{Sinput}
+<<affyBatchNORM, echo=T, eval=T>>=
+affyBatchNORM <- normalizeAffyBatchQuantilesPara(
+		Dilution, type = "pmonly", verbose=TRUE)
+@
 
 If you do not want to use an \Rfunction{AffyBatch} as input data, you can directly give the CEL files and a vector of the
 CEL files location respectively to the function \Rfunction{normalizeAffyBatchQuantilesPara}:
-\begin{Sinput}
-R> files <- list.celfiles(full.names=TRUE)
-R> affyBatchNORM <- normalizeAffyBatchQuantilesPara(c1,
+<<affyBatchGBCfiles, echo=T, eval=F>>=
+files <- list.celfiles(full.names=TRUE)
+affyBatchNORM <- normalizeAffyBatchQuantilesPara(
 		files, type = "pmonly")
-\end{Sinput}
+@
 For this method all CEL files have to be available from a shared memory system. If you want to distribute the CEL files
 to the slaves, see chapter \ref{chap:distri}.
 
@@ -215,29 +243,29 @@ The parallelized summarization functions need a cluster object, an input data ob
 parameters as input paramters. To see the summarization methods and PM correct methods that are built into the package the variable 
 \Rfunction{express.summary.stat.methods} and \Rfunction{pmcorrect.methods} can be used:
 <<>>=
-express.summary.stat.methods
-pmcorrect.methods
+express.summary.stat.methods()
+pmcorrect.methods()
 @
 
 \subsubsection{Use Summarization Para}
 The function \Rfunction{computeExprSetPara} needs a cluster object (c1), an input data object (Dilution)
 and the summarization parameters as input parameters (pmcorrect.method = "pmonly", summary.method = "avgdiff").
-\begin{Sinput}
-R> esset <- computeExprSetPara(c1,
+<<computeExprSetPara, echo=T, eval=F>>=
+esset <- computeExprSetPara(
 	Dilution,
 	pmcorrect.method = "pmonly",
 	summary.method = "avgdiff")
-\end{Sinput}
+@
 
 If you do not want to use an \Rfunction{AffyBatch} as input data, you can directly give the CEL files and a vector of the
 CEL files location respectively to the function \Rfunction{computeExprSetPara}:
-\begin{Sinput}
-R> files <- list.celfiles(full.names=TRUE)
-R> esset <- normalizeAffyBatchQuantilesPara(c1,
+<<computeExprSetParafiles, echo=T, eval=F>>=
+files <- list.celfiles(full.names=TRUE)
+esset <- normalizeAffyBatchQuantilesPara(
 	files, 
 	pmcorrect.method = "pmonly",
 	summary.method = "avgdiff")
-\end{Sinput}
+@
 For this method all CEL files have to be available from a shared memory system. If you want to distribute the CEL files
 to the slaves, see chapter \ref{chap:distri}.
 
@@ -254,107 +282,118 @@ the \Rpackage{affyPara} package.
 
 The function \Rfunction{preproPara} needs a cluster object (c1), an input data object (Dilution)
 and the parameters for BGC, normalization and summarization as input parameters.
-\begin{Sinput}
-R> esset <- preproPara(c1,
+<<preproPara, echo=T, eval=F>>=
+esset <- preproPara(
 	Dilution, 
 	bgcorrect = TRUE, bgcorrect.method = "rma2",
 	normalize = TRUE, normalize.method = "quantil",
 	pmcorrect.method = "pmonly",
 	summary.method = "avgdiff")
-\end{Sinput}
+@
 The function works very similar to the \Rfunction{expresso} function from the \Rpackage{affy} package. It is not very reasonable
 to have an \Rfunction{AffyBatch} as input data object for this function. Because therefore you have to create a complete \Rfunction{AffyBatch} (very memory intensive).
 
 It is much better to use a vector of CEL files as input data object. And at no point a complete \Rfunction{AffyBatch} needs
 to be built:
-\begin{Sinput}
-R> files <- list.celfiles(full.names=TRUE)
-R> esset <- preproPara(c1,
+<<preproParafiles, echo=T, eval=F>>=
+files <- list.celfiles(full.names=TRUE)
+esset <- preproPara(
 	files, 
 	bgcorrect = TRUE, bgcorrect.method = "rma2",
 	normalize = TRUE, normalize.method = "quantil",
 	pmcorrect.method = "pmonly",
 	summary.method = "avgdiff")
-\end{Sinput}
+@
 For this method all CEL files have to be available from a shared memory system. If you want to distribute the CEL files
 to the slaves, see chapter \ref{chap:distri}.
 
 \subsubsection{Use RMA Para}
 RMA is a famous \cite{Irizarry2003a} complete preprocessing method. This function converts an \Rfunction{AffyBatch}
 into an \Rfunction{ExpressionSet} using the robust multi-array average (RMA) expression measure. There exists a function
-\Rfunction{justRMA} in the \Rpackage{affy} package, which reads CEL files and computes an expression measure without using an \Rfunction{AffyBatch}.  
+\Rfunction{justRMA()} in the \Rpackage{affy} package, which reads CEL files and computes an expression measure without using an \Rfunction{AffyBatch}.  
 
-The parallelized version of \Rfunction{rma} is called \Rfunction{rmaPara} and is a 'simple' wrapper function for the
-function \Rfunction{preproPara}.
+The parallelized version of \Rfunction{rma()} is called \Rfunction{rmaPara()} and is a 'simple' wrapper function for the
+function \Rfunction{preproPara()}.
 
-\begin{Sinput}
-R> esset <- rmaPara(c1,Dilution)
-\end{Sinput}
-It is not very reasonable to have an \Rfunction{AffyBatch} as input data object for this function.
-Because therefore you have to create a complete \Rfunction{AffyBatch} (very memory intensive).
+<<rmaPara, echo=T, eval=F>>=
+esset <- rmaPara(Dilution)
+@
+It is not very reasonable to have an \Robject{AffyBatch} as input data object for this function.
+Because therefore you have to create a complete \Robject{AffyBatch} (very memory intensive).
 
-It is much better to use a vector of CEL files as input data object. And at no point a complete \Rfunction{AffyBatch} needs
+It is much better to use a vector of CEL files as input data object. And at no point a complete \Robject{AffyBatch} needs
 to be built:
-\begin{Sinput}
-R> files <- list.celfiles(full.names=TRUE)
-R> esset <- rmaPara(c1, files)
-\end{Sinput}
+<<rmaParaFiles, echo=T, eval=F>>=
+files <- list.celfiles(full.names=TRUE)
+esset <- rmaPara(files)
+@
 For this method all CEL files have to be available from a shared memory system. If you want to distribute the CEL files
 to the slaves, see chapter \ref{chap:distri}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Quality Control and Assessment}
+Quality control and assessment get for a huge number of microarrays data very difficult. It takes 
+a lot of computation time and it requires a lot of main memory. In addition most methods for quality 
+control are graphical tools and using more than 200 arrays no more information can be readout of 
+the figures.
+
+Therefore some optimized functions for quality control were implemented in parallel:
+<<qc, echo=T, eval=F, eps=FALSE, fig=TRUE, hide=TRUE>>=
+boxplotPara(Dilution)
+MAplotPara(Dilution)
+@
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Distributing data}\label{chap:distri}
 At a workstation cluster the CEL files could be available by a shared memory system. At a workstation
 cluster, this is often done by a samba device. But this could be the bottle neck for communication traffic. 
-For distributed memory systems, the function \Rfunction{distributeFiles} for (hierarchically) distributing 
+For distributed memory systems, the function \Rfunction{distributeFiles()} for (hierarchically) distributing 
 files from the master to a special directory (e.g. '/tmp/') at all slaves was designed. R or the faster network 
 protocols SCP or RCP can be used for the process of distributing.
 
-\begin{Sinput}
-R> path <- "tmp/CELfiles" # path at local computer system (master)
-R> files <- list.files(path,full.names=TRUE)
-R> distList <- distributeFiles(c1, CELfiles, protocol="RCP")
-R> eset <- rmaPara(c1, distList$CELfiles)
-\end{Sinput}
+<<distributeFiles, echo=T, eval=F>>=
+path <- "tmp/CELfiles" # path at local computer system (master)
+files <- list.files(path,full.names=TRUE)
+distList <- distributeFiles(CELfiles, protocol="RCP")
+eset <- rmaPara(distList$CELfiles)
+@
 With the paramteter \Rfunction{hierarchicallyDist} hierarchically distribution could be used. If 
 \Rfunction{hierarchicallyDist = TRUE} data will be hierarchically distributed to all slaves. If 
 \Rfunction{hierarchicallyDist = FALSE} at every slave only a part of data is available. This function 
 and the corresponding input data object (\Robject{distList\$CELfiles}) could be used 
-for every parallelized preprocessing method in the \Rfunction{affyPara} package.
+for every parallelized preprocessing method in the \Rpackage{affyPara} package.
 
 There is also a function to remove distributed files:
-\begin{Sinput}
-R> removeDistributedFiles(c1, "/usr1/tmp/CELfiles")
-\end{Sinput}
+<<removeDistributedFiles, echo=T, eval=F>>=
+removeDistributedFiles("/usr1/tmp/CELfiles")
+@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Test if results are equal to serialized methods}\label{chap:compare}
 In view of machine accuracy, the parallelized functions produce same results as serialized methods. To compare results
-from different functions you can use the functions \Rfunction{identical} or \Rfunction{all.equal} from the \Rpackage{base} package.
-\begin{Sinput}
-R> affybatch1 <- bg.correct(Dilution,
+from different functions you can use the functions \Rfunction{identical()} or \Rfunction{all.equal()} from the \Rpackage{base} package.
+<<identical_bgc, echo=T, eval=T>>=
+affybatch1 <- bg.correct(Dilution,
 		method="rma") 
-R> affybatch2 <- bgCorrectPara(c1, Dilution,
+ affybatch2 <- bgCorrectPara(Dilution,
 		method="rma")
-R> identical(exprs(affybatch1),exprs(affybatch2))
-[1] TRUE
-R> all.equal(exprs(affybatch1),exprs(affybatch2))
-[1] TRUE
-\end{Sinput}
+identical(exprs(affybatch1),exprs(affybatch2))
+all.equal(exprs(affybatch1),exprs(affybatch2))
+@
 Attention: If you directly compare the \Robject{AffyBatches} or \Robject{ExpressionSets} there are some warnings or not similar results. This 
 is being caused by different values of the 'Title' and 'notes' slots in experimentData. Using the function \Rfunction{exprs}
 to get the expression data shows equal results in view of machine accuracy.
 
 Attention for loess normalization: In loess normalization a random sub sample will be created. For generating the same results the random generator
-has to be reset for evry run: 
-\begin{Sinput}
-R> set.seed(1234)
-R> affybatch1 <- normalize.AffyBatch.loess(c1, Dilution)
-R> set.seed(1234)
-R> affybatch2 <- normalizeAffyBatchLoessPara(Dilution) 
-R> identical(exprs(affybatch1),exprs(affybatch2))
-[1] TRUE
-\end{Sinput}
+has to be reset for every run: 
+<<identical_loess, echo=T, eval=F>>=
+set.seed(1234)
+affybatch1 <- normalize.AffyBatch.loess(Dilution)
+set.seed(1234)
+affybatch2 <- normalizeAffyBatchLoessPara(Dilution, verbose=TRUE) 
+identical(exprs(affybatch1),exprs(affybatch2))
+@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -370,7 +409,7 @@ the parallelized preprocessing methods for 50, 100 and 200 CEL files. An average
 be achieved.
 \begin{figure}[ht]
 	\centering
-	\includegraphics[width=12.5cm]{speedup.pdf}
+	\includegraphics[width=12.5cm]{fig/affyPara_speedup.pdf}
 	\caption{Speedup for the parallelized preprocessing methods for 200, 100 and 50 microarrays.}
 	\label{fig:speedup}
 \end{figure}
@@ -384,8 +423,12 @@ all parallelized function get a flat. This means, by using more processors no mo
 The cluster at the Department for Medical Information, Biometrics and Epidemiology (IBE, University
 of Munich) consists of 32 personal computers with 8 GB main memory and two dual core Intel Xeon DP 5150 processors.
 Using this cluster, about 16.000 (32 nodes $\cdot$ approximately 500 CEL files) microarrays of the type HGU-133A can be
-preprocessed using the function \Rfunction{preproPara}. By expanding the cluster, the number of microarrays can be increased to
+preprocessed using the function \Rfunction{preproPara()}. By expanding the cluster, the number of microarrays can be increased to
 any given number.
+
+<<echo=F, eval=T>>=
+stopCluster()
+@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
