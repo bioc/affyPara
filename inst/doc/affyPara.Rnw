@@ -22,9 +22,9 @@ plainpages,pdftex]{hyperref}
 \SweaveOpts{keep.source=TRUE,eps=FALSE,include=FALSE,width=4,height=4.5}
 
 \author{Markus Schmidberger
+	\footnote{Division of Biometrics and Bioinformatics, IBE, University of Munich, 81377 Munich, Germany}
 	\footnote{Package maintainer, Email: \texttt{schmidb@ibe.med.uni-muenchen.de}}
-	\footnote{Chair of Biometrics and Bioinformatics, IBE, University of Munich, 81377 Munich, Germany}
-	\and Ulrich Mansmann
+	\and Ulrich Mansmann$^*$
 }
 
 \title{Description of the \Rpackage{affyPara} package: Parallelized preprocessing methods for Affymetrix Oligonucleotide Arrays}
