@@ -2,6 +2,9 @@
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
+affyPara 1.5.4 (build 23. June 2009)
+- vignette update
+
 affyPara 1.5.3 (build 30. Mai 2009)
 - additional tool to boxplotPara added: bagplot
 - and qaSummary added
