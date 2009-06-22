@@ -1,6 +1,6 @@
 %\VignetteIndexEntry{Simulation Study for VSN Add-On Normalization and Subsample Size}
 %\VignetteKeywords{Preprocessing, VSN, Affymetrix}
-%\VignetteDepends{affy, vsn, ArrayExpress}
+%\VignetteDepends{affy, vsn, affyPara}
 %\VignettePackage{affyPara}
 
 \newcommand{\Robject}[1]{{\texttt{#1}}}
@@ -55,7 +55,7 @@ demonstrated with two public available data sets.
 \section{Data}
 For this simulation study two public available data sets from the ArrayExpress database 
 (\url{http://www.ebi.ac.uk/microarray-as/ae}) were used.
-\begin{itemize}
+\begin{description}
 	\item[E-GEOD-11121:] Transcription profiling of human breast cancer cohort reveals 
 	the humoral immune system has a key prognostic impact in node-negative breast cancer.\\ 
 	Data: 200 HG-U133A microarray chips.\\
@@ -71,7 +71,7 @@ For this simulation study two public available data sets from the ArrayExpress d
 	adjuvant tamoxifen therapy. Sieuwerts Zhang, Casey McGreevy, Paradiso Cufer, 
 	Span Harbeck, Crowe Hicks, Budd Tubbs, Sweep Lyons, Schittulli Schmitt, Talantov 
 	Golouh, Foekens Wang. Breast Cancer Res Treat -- (2008)
-\end{itemize}
+\end{description}
 
 To get the raw data (CEL files) of the experiments the \Rpackage{ArrayExpress} package 
 can be used or the files can be downloaded directly from the ArrayExpress web interface.
