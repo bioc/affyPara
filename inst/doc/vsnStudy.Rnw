@@ -26,7 +26,7 @@ plainpages,pdftex]{hyperref}
 \author{Markus Schmidberger
 	\footnote{Division of Biometrics and Bioinformatics, IBE, University of Munich, 81377 Munich, Germany}
 	\footnote{Email: \texttt{schmidb@ibe.med.uni-muenchen.de}}
-	\and Ulrich Mansmann$^*$
+	\and Wolgang Hartmann \and Ulrich Mansmann$^*$
 }
 
 \title{Simulation Study for \Rpackage{vsn} Add-On Normalization and Subsample Size}
@@ -39,20 +39,28 @@ plainpages,pdftex]{hyperref}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 Variance Stabilization Normalization (VSN) is a model-based method to preprocess microarray 
-intensity data. \cite{Huber2002, Huber2007}
+intensity data \cite{Huber2002, Huber2007}. The method uses a robust variant of the 
+maximum-likelihood estimator for the stochastic model of microarray data described in the 
+references. The model incorporates data calibration (normalization), a model for the dependence 
+of the variance on the mean intensity, and a variance stabilizing data transformation. 
+The method is available in the Bioconductor package \Rpackage{vsn} and is implemented for 
+normalising microarray intensities, both between colors within array, and between arrays.
 
+This simulation study analyzes the influence of different numbers of subsamples and of 
+add-on normalization to the normalized intensities. Biased preprocessing results will be 
+demonstrated with two public available data sets.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Data}
-For this simulation study two public available datasets from the ArrayExpress database 
+For this simulation study two public available data sets from the ArrayExpress database 
 (\url{http://www.ebi.ac.uk/microarray-as/ae}) were used.
 \begin{itemize}
 	\item[E-GEOD-11121:] Transcription profiling of human breast cancer cohort reveals 
 	the humoral immune system has a key prognostic impact in node-negative breast cancer.\\ 
-	Date: 200 HG-U133A microarray chips.\\
+	Data: 200 HG-U133A microarray chips.\\
 	Citation: The humoral immune system has a key prognostic impact in node-negative 
-	breast cance. Marcus Schmidt, Daniel B\"ohm, Christian von T\"orne, Eric Steiner, 
+	breast cancer. Marcus Schmidt, Daniel B\"ohm, Christian von T\"orne, Eric Steiner, 
 	Alexander Puhl, Henryk Pilch, Hans-Anton Lehr, Jan G Hengstler, Heinz K\"olbl, 
 	Mathias Gehrmann. Cancer Res 68(13):5405-13 (2008)
 	\item[E-GEOD-12093:] Transcription profiling of human breast cancer samples that were 
@@ -60,18 +68,21 @@ For this simulation study two public available datasets from the ArrayExpress da
 	that benefit from adjuvant tamoxifen therapy.\\
 	Data: 136 HG-U133A microarray chips.\\
 	Citation: The 76-gene signature defines high-risk patients that benefit from 
-	adjuvant tamoxifen therap. Sieuwerts Zhang, Casey McGreevy, Paradiso Cufer, 
+	adjuvant tamoxifen therapy. Sieuwerts Zhang, Casey McGreevy, Paradiso Cufer, 
 	Span Harbeck, Crowe Hicks, Budd Tubbs, Sweep Lyons, Schittulli Schmitt, Talantov 
 	Golouh, Foekens Wang. Breast Cancer Res Treat -- (2008)
 \end{itemize}
 
-To get the raw data for example the \Rpackage{ArrayExpress} package can be used.
+To get the raw data (CEL files) of the experiments the \Rpackage{ArrayExpress} package 
+can be used or the files can be downloaded directly from the ArrayExpress web interface.
 <<eval=FALSE>>=
 library(ArrayExpress)
 getAE(c('E-GEOD-11121','E-GEOD-12093'), extract=FALSE)
 @
 
-For quality control the \Rpackage{arrayQualityMetrics} package was used.
+For quality control the \Rpackage{arrayQualityMetrics} package was used. This package uses 
+six different methods for quality control and creates a qualtiy report with a summary table 
+into a HTML output file .
 <<eval=FALSE>>=
 library(arrayQualityMetrics)
 celDir <- 'PATH'
@@ -80,10 +91,11 @@ ab <- read.affybatch(celf)
 arrayQualityMetrics(ab, outdir='QA')
 @
 Arrays with more than two potential problems (three stars or more in the summary table from 
-the \Rpackage{ArrayExpress} report) were excluded from the study. In the dataset 'E-GEOD-11121' 
+the \Rpackage{arrayQualityMetrics} report) were excluded from the study. In the dataset 'E-GEOD-11121' 
 nine arrays and in 'E-GEOD-12093' eight arrays were removed (see Table~\ref{removed_arrays}).
-\begin{small}
 \begin{table}[htp]
+	\begin{small}
+	\centering
 	\begin{tabular}{ll}
 	E-GEOD-11121-raw-cel-1679201568.cel & E-GEOD-12093-raw-cel-1681274912.cel\\
 	E-GEOD-11121-raw-cel-1679200783.cel & E-GEOD-12093-raw-cel-1681275553.cel\\
@@ -95,19 +107,28 @@ nine arrays and in 'E-GEOD-12093' eight arrays were removed (see Table~\ref{remo
 	E-GEOD-11121-raw-cel-1679197959.cel & E-GEOD-12093-raw-cel-1681277423.cel\\
 	E-GEOD-11121-raw-cel-1679197894.cel & \\
 	\end{tabular}
-	\caption{List of removed arrays due to quality problems.}
+	\caption{List of removed arrays due to quality problems identified with the 
+	\Rpackage{arrayQualityMetrics} package.}
 	\label{removed_arrays}
+	\end{small}
 \end{table}
-\end{small}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Simulation for Number of Subsamples}
+\section{Number of Subsamples}
 As default for \Robject{AffyBatch} objects the \Rfunction{vsn2()} function uses 30.000 
-subsamples (rows=genes) for the calculation of the Maximum 
-Likelihood parameters. Main reason is the long computation time for more than 30.000 
-subsamples. Figure~\ref{subsamples} plots the offset and slope parameters for 25 arrays and different 
-numbers of subsamples. 
+subsamples (rows=probes) for the calculation of the model parameters using the maximum-likelihood 
+estimator. However on current chip types there are more than 500.000 probes and therefore in default less 
+than 5\% will be used for the estimation of the model. Long computation times and the main memory 
+requirements are the main reasons for the sample size reduction.
+<<echo=T, eval=F>>=
+library(vsn)
+fit <- vsn2(ab, subsample=100000)
+x <- predict(fit, newdata=ab)
+@
+
+Figure~\ref{subsamples} plots the values of the offset and slope parameters for 25 and 50 arrays and 
+different numbers of subsamples. 
 \begin{figure}
 \centering
 \subfigure[E-GEOD-11121]{
@@ -116,12 +137,18 @@ numbers of subsamples.
 	\subfigure[E-GEOD-12093]{
 		\includegraphics[height=6.5cm]{fig/E-GEOD-12093/vsnSubsamples_50.pdf}
 	}
-	\caption{Vsn coefficients for different numbers of subsamples.}
+	\caption{Values of the vsn coefficients for different numbers of subsamples.}
 	\label{subsamples}	
 \end{figure}
-Depending on the number of subsamples the parameters are changing very strong. 
+The dashed red line is the default subsample with 30.000 rows and the dotted 
+pink line indicates the parameters using all probes. Depending on the number of 
+subsamples the parameters are changing very strong. The default subsample is a good 
+approximation for several other subsamples, but there are strong outliers too. This 
+indicates that in a bad case the model parameters will be estimated on an unsuitable 
+subsample.
+
 Figure~\ref{subsamplesBoxes} shows the boxplots of the intensities for every array. Blue boxes 
-are calculated with 30.000 subsamples and red boxes with 500.000 subsamples. 
+are calculated with 30.000 subsamples (default) and red boxes with 420.000 subsamples. 
 \begin{figure}
 	\centering
 	\subfigure[E-GEOD-11121]{
@@ -133,20 +160,32 @@ are calculated with 30.000 subsamples and red boxes with 500.000 subsamples.
 	\caption{Boxplots of intensities after vsn normalization with two different numbers of subsamples.}
 	\label{subsamplesBoxes}	
 \end{figure}
-There is a big difference in the intensity values, too. 
+The boxplots reflect a good variance stabilization for all arrays. But due to the differences 
+in the estimated parameters (see Figure~\ref{subsamples}) there are strong differences in the 
+location of the means and in the outliers.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Simulation for Add-On Normalization}
+\section{Add-On Normalization}
 Add-On normalization allows to normalize a new microarray with respect to a normalization 
-performed for a set off arrays. The vsn package offers this technique which is needed to 
-apply gene expression profiles for classification or prognosis to a new patient. A misuse of 
-this technique to normalize many of hundreds of patients to a base set of a few hundreds of 
-patients results in a biased preprocessing result. 
+performed for a set off arrays. The \Rpackage{vsn} package offers this technique which is needed to 
+apply gene expression profiles for classification or prognosis to a new patient. 
 
-In the simulation study 50 arrays were normalized with vsn. After this two times 25 arrays were 
-added to normalization using the vsn Add-On normalization. Additionally the same 100 arrays were 
-normalized with vsn together (using the same subsample) and than compared to the Add-On normalization. 
+In the simulation study 20 arrays were normalized with \Rfunction{vsn2()}. After this two times 
+20 arrays were added using the vsn add-on normalization. Additionally the same 60 arrays were 
+normalized with vsn together (using the same subsample) and than compared to the results of the 
+add-on normalization. 
+
+<<echo=T, eval=F>>=
+set.seed(1234)
+fit_ref <- vsn2(ab[,1:20])
+fit_add1 <- vsn2(ab[,21:40], reference=fit_ref)
+fit_add2 <- vsn2(ab[,41:60], reference=fit_ref)
+set.seed(1234)
+fit_comp <- vsn2(ab)
+@
+
 \begin{figure}
 	\centering
 	\subfigure[E-GEOD-11121]{
@@ -155,13 +194,16 @@ normalized with vsn together (using the same subsample) and than compared to the
 	\subfigure[E-GEOD-12093]{
 		\includegraphics[height=6.5cm]{fig/E-GEOD-12093/vsnAddon_20-40-60.pdf}
 	}
-	\caption{Vsn coefficients compared for complete vsn normalization and Add-On normalization 
-	with 10 reference arrays and two times 10 arrays add-on.}
+	\caption{Values of the vsn coefficients compared for complete vsn normalization and add-on normalization 
+	with 20 reference arrays and two times 20 arrays add-on.}
 	\label{addon}	
 \end{figure}
-Figure~\ref{addon} shows the influence of the Add-On normalization to the model parameters and 
-Figure~\ref{addonBoxes} to the boxplots of the intensity values. In both cases there is a 
-strong influence of the Add-On normalization.
+Figure~\ref{addon} shows the influence of the add-on normalization to the model parameters. 
+Blue lines are the parameters for the complete vsn normalization and red lines for the reference 
+and add-on normalization. For both data sets there are strong differences between the 
+parameters, but they have the same structure.
+
+Figure~\ref{addonBoxes} plots the boxplots of the intensity values. 
 \begin{figure}
 	\centering
 	\subfigure[E-GEOD-11121]{
@@ -174,11 +216,25 @@ strong influence of the Add-On normalization.
 		and vsn Add-On normalization.}
 	\label{addonBoxes}	
 \end{figure}
+The boxplots reflect a good variance stabilization for all arrays. But due to the differences 
+in the estimated parameters (see Figure~\ref{addon}) there are strong differences in the 
+location of the means and in the outliers.
+
+There is no influence from the number of add-on batches, because for every add-on array the 
+same reference data (parameters) will be used. The more add-on data used the bigger the 
+difference between add-on (+ reference) and complete vsn noramlization gets.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusion}
-Using more than 30.000 subsamples increases the computation time but increases the accuracy 
-of the statistical model too. Add-On normalization results in a biased preprocessing result. 
+Same results can be found using more arrays and other data sets. The results are not shown due to 
+overflow in the graphics using more than 150 arrays.
+
+Using more than 30.000 subsamples increases the computation time but in theorey increases the accuracy 
+of the statistical model too. A misuse of the add-on technique to normalize many patients to a base set 
+of a few patients results in a biased preprocessing result. The number of add-on arrays should be not 
+bigger than the number of reference arrays.  
+
 Therefore the power of parallel computing or the \Rpackage{affyPara} \cite{Schmidberger2008} 
 is required to use vsn normalization with more than 30.000 subsamples and to 
 normalize all microarray data together.
