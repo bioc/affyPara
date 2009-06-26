@@ -9,6 +9,7 @@
 # 18.12.2008 : Version 0.3 - cluster object gets default parameter: .affyParaInternalEnv$cl
 # 23.03.2009 : Version 0.4 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 # 24.03.2009 : Version 0.5 - Summarization optimized
+# 26.06.2009 : Version 0.6 - error in justvsnPara removed
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -144,7 +145,7 @@ justvsnPara <- function(object,
 	##############################
 	# do vsn normalization
 	##############################
-	fit <- vsn2Para(cluster, object, ...) 
+	fit <- vsn2Para(object, cluster=cluster, ...) 
 		
 	##############################
 	#Combine / Rebuild affyBatches
