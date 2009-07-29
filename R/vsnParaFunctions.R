@@ -11,6 +11,7 @@
 # 27.10.2008 : Version 0.6 - rowMeansPara and rowVPara improved
 # 28.10.2008 : Version 0.7 - file vsnPara and vsnParaFunctions created
 # 06.11.2008 : Version 0.8 - vsn reference implemented
+# 29.07.2009 : Version 0.9 - fix in vsnMatrixPara for pstartHeuristic
 #
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
@@ -31,6 +32,7 @@ vsnMatrixPara <- function(cluster,
 		subsample    = 0L,
 		verbose      = interactive(),
 		returnData   = TRUE,
+		calib        = 'affine',
 		pstart,
 		minDataPointsPerStratum = 42L,
 		optimpar   = list(),
@@ -40,7 +42,7 @@ vsnMatrixPara <- function(cluster,
 	nc <- dimAB[2]
 	
 	if(missing(pstart))
-		pstart = vsn:::pstartHeuristic(matrix(ncol=nc), list(all=seq_len(nr)))
+		pstart = vsn:::pstartHeuristic(matrix(ncol=nc), list(all=seq_len(nr)), calib)
 	
 	if(missing(reference)) {
 		if(nc<=1L)
@@ -525,7 +527,6 @@ logikPara <- function(par,
 		cat(" | sigsq:", sigsq)
 		cat(" | ssq/nt", ssq/nt)
 	}
-	cat("\n\tll:",ll)
 	
 	px <<- px
 	return(ll)	
