@@ -2,6 +2,10 @@
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
+affyPara 1.5.5 (build 10. August 2009)
+- fix in computation time output for normalize.quantil
+- some very simple improvements
+
 affyPara 1.5.4 (build 23. June 2009)
 - vignette update
 

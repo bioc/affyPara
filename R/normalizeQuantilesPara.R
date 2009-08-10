@@ -10,13 +10,14 @@
 # 16.05.2008 : Version 0.18 - one node bug fix and code cleaning (tmp affyBatch removed)
 # 18.12.2008 : Version 0.19 - cluster object gets default parameter: .affyParaInternalEnv$cl
 # 23.03.2009 : Version 0.20 - Option verbose set to getOption("verbose") and added . to names of internatl functions
+# 10.08.2009 : Version 0.21 - fix in computation time output
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
 # Using the right combination "size of AffyBatch on slaves" - "number of slaves" the parallelized
 # version is more than ten times faster as the serial version.
 #
-# Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2009 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 normalizeAffyBatchQuantilesPara <- function(object,
@@ -86,18 +87,21 @@ normalizeAffyBatchQuantilesPara <- function(object,
 	#Normalization depending on types
 	#################################
 	if (type == "pmonly"){
-		if (verbose) cat("PM normalization\n")
+		if (verbose) cat("PM normalization ")
 	}
 	if(type == "mmonly"){
-		if (verbose) cat("MM normalization\n")
+		if (verbose) cat("MM normalization ")
 	}
 	if (type == "together"){
-		if (verbose) cat("PM and MM normalization\n")
+		if (verbose) cat("PM and MM normalization ")
 	}
 	if(type == "separate"){
-		if (verbose) cat("PM and MM separate normalization\n")
+		if (verbose) cat("PM and MM separate normalization ")
 	}
-	normalizeQuantilesPara(cluster, type, object.length)
+		t0 <- proc.time();
+		normalizeQuantilesPara(cluster, type, object.length)
+		t1 <- proc.time();
+	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
 	
 	##############################
 	#Combine / Rebuild affyBatches
