@@ -22,7 +22,7 @@ normalizeAffyBatchLoessIterPara(object,
  
   \item{percentPerm}{Percent of permutations to do.}
  
-  \item{phenoData}{ An \link[Biobase]{AnnotatedDataFrame} object. }
+  \item{phenoData}{ An \link[Biobase:AnnotatedDataFrame]{AnnotatedDataFrame} object. }
   \item{cdfname}{ Used to specify the name of an alternative cdf package. If set to \code{NULL}, 
   		the usual cdf package based on Affymetrix' mappings will be used. }
   \item{type}{A string specifying how the normalization should be applied.}

@@ -15,7 +15,7 @@ bgCorrectPara(object,
   \item{object}{ An object of class \link[affy:AffyBatch-class]{AffyBatch} OR 
   		a \code{character} vector with the names of CEL files 
   		OR a (partitioned) list of \code{character} vectors with CEL file names.}
-  \item{phenoData}{ An \link[Biobase]{AnnotatedDataFrame} object }
+  \item{phenoData}{ An \link[Biobase:AnnotatedDataFrame]{AnnotatedDataFrame} object }
   \item{method}{ A \code{character} that defines what background correction method will be used. 
   		Available methods are given by \code{bg.correct.methods}. 
   		The name of the method to apply must be double-quoted. }

@@ -25,7 +25,7 @@ computeExprSetPara(object,
   \item{summary.param}{ A list of parameters to be passed to the \code{summary.method} (if wanted). }
   \item{ids}{ List of \code{ids} for summarization. }
 
-  \item{phenoData}{ An \link[Biobase]{AnnotatedDataFrame} object. }
+  \item{phenoData}{ An \link[Biobase:AnnotatedDataFrame]{AnnotatedDataFrame} object. }
   \item{cdfname}{ Used to specify the name of an alternative cdf package. 
   		If set to \code{NULL}, the usual cdf package based on Affymetrix' mappings will be used. }
   \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the SNOW package. 
