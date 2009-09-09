@@ -20,7 +20,7 @@ normalizeAffyBatchInvariantsetPara(object,
   \item{prd.td}{ A cutoff parameter for normalization. }
   \item{baseline.type}{ Specify how to determine the baseline array (mean, median). }
   \item{type}{ A string specifying how the normalization should be applied. }
-  \item{phenoData}{ A \link[Biobase:AnnotatedDataFrame]{AnnotatedDataFrame} object. }
+  \item{phenoData}{ A \link[Biobase:class.AnnotatedDataFrame]{AnnotatedDataFrame} object. }
   \item{cdfname}{ Used to specify the name of an alternative cdf package. 
   		If set to \code{NULL}, the usual cdf package based on Affymetrix' mappings will be used. }
   \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the SNOW package. 

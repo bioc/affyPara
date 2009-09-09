@@ -15,7 +15,7 @@ read.affybatchPara(object,
 \arguments{
    \item{object}{ An object of a \code{character} vector with the names of CEL files 
    		OR a (partitioned) list of \code{character} vectors with CEL file names.}
-   \item{phenoData}{ An \link[Biobase:AnnotatedDataFrame]{AnnotatedDataFrame} object. }
+   \item{phenoData}{ An \link[Biobase:class.AnnotatedDataFrame]{AnnotatedDataFrame} object. }
    \item{description}{a 'MIAME' object.}
    \item{notes}{notes.}
 

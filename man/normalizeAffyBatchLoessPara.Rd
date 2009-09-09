@@ -20,7 +20,7 @@ normalizeAffyBatchLoessPara(object,
   		OR a \code{character} vector with the names of CEL files 
   		OR a (partitioned) list of \code{character} vectors with CEL file names.}
  
-  \item{phenoData}{ An \link[Biobase:AnnotatedDataFrame]{AnnotatedDataFrame} object. }
+  \item{phenoData}{ An \link[Biobase:class.AnnotatedDataFrame]{AnnotatedDataFrame} object. }
   \item{cdfname}{ Used to specify the name of an alternative cdf package. If set to \code{NULL}, 
   		the usual cdf package based on Affymetrix' mappings will be used. }
   \item{type}{A string specifying how the normalization should be applied.}
