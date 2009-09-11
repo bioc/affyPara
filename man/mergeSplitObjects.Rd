@@ -14,7 +14,7 @@ combineMatrices(matrix.list, verbose = getOption("verbose"))
 
 \arguments{
   \item{abatch.list}{ A \code{list} of objects of class \link[affy:AffyBatch-class]{AffyBatch}. }
-  \item{description}{ A \link[Biobase]{MIAME} object. }
+  \item{description}{ A \link[Biobase:class.MIAME]{MIAME} object. }
   \item{notes}{ A \code{character} vector of explanatory text. }
   \item{matrix.list}{A \code{list} of objects of class \link[base]{matrix}. }
   \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages. }

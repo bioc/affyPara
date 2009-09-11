@@ -25,7 +25,7 @@ bgCorrectPara(object,
 }
 \details{
 \code{bgCorrectPara} is the parallelized function for background correction of probe intensities. 
-For serial function an more details see \link[affy]{bg.correct}.
+For serial function an more details see \link[affy:bgc]{bg.correct}.
 
 For using this function a computer cluster using the SNOW package has to be started. 
 Starting the cluster with the command \code{makeCluster} generates an cluster object in the affyPara environment (.affyParaInternalEnv) and 

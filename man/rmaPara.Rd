@@ -43,7 +43,7 @@ This is a wrapper function for \code{preproPara}.
 }
 
 \value{
-An object of class \link[Biobase]{ExpressionSet}.
+An object of class \link[Biobase:class.ExpressionSet]{ExpressionSet}.
 }
 
 \author{ Markus Schmidberger \email{schmidb@ibe.med.uni-muenchen.de}, Ulrich Mansmann \email{mansmann@ibe.med.uni-muenchen.de} }

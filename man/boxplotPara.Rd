@@ -36,7 +36,7 @@ boxplotPara(object,
 \details{
 \code{boxplotPara} is the parallelized function for box plots of probe intensities. 
 It is a function to check and control the Data quality of the samples using the boxplot methode. 
-For serial function an more details see \link[graphics]{boxplot}. This function is optimized for huge numbers of microarray data.
+For serial function an more details see \link[affy:AffyBatch-class]{boxplot}. This function is optimized for huge numbers of microarray data.
 
 For using this function a computer cluster using the SNOW package has to be started. 
 Starting the cluster with the command \code{makeCluster} generates an cluster object in the affyPara environment (.affyParaInternalEnv) and 
