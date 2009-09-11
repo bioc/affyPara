@@ -76,7 +76,7 @@ if (require(affydata)) {
   makeCluster(3)
 
   esset <- preproPara(Dilution,
-    bgcorrect = TRUE, bgcorrect.method = "rma2",
+    bgcorrect = TRUE, bgcorrect.method = "rma",
     normalize = TRUE, normalize.method = "quantil",
     pmcorrect.method = "pmonly",
     summary.method = "avgdiff",

@@ -333,7 +333,7 @@ and the parameters for BGC, normalization and summarization as input parameters.
 <<preproPara, echo=T, eval=F>>=
 esset <- preproPara(
 	Dilution, 
-	bgcorrect = TRUE, bgcorrect.method = "rma2",
+	bgcorrect = TRUE, bgcorrect.method = "rma",
 	normalize = TRUE, normalize.method = "quantil",
 	pmcorrect.method = "pmonly",
 	summary.method = "avgdiff")
@@ -348,7 +348,7 @@ to use a vector of CEL files as input data object. And at no point a complete
 files <- list.celfiles(full.names=TRUE)
 esset <- preproPara(
 	files, 
-	bgcorrect = TRUE, bgcorrect.method = "rma2",
+	bgcorrect = TRUE, bgcorrect.method = "rma",
 	normalize = TRUE, normalize.method = "quantil",
 	pmcorrect.method = "pmonly",
 	summary.method = "avgdiff")
