@@ -41,9 +41,9 @@ preproPara <- function(object,
     #Check Methods
     if(bgcorrect){
     	if (is.null(bgcorrect.method))
-    		stop("You have to choose a BG-Method")
+    		stop("You have to choose a BGC-Method")
     	if (any(bgcorrect.method == bgcorrect.methods()) == 0)
-			stop(paste("Unknown BG-method (cannot find function '", bgcorrect.method,"')",sep=""))
+			stop(paste("Unknown BGC-method (cannot find function '", bgcorrect.method,"')",sep=""))
     } else {
     	bgcorrect.method="none"
     }
@@ -51,7 +51,7 @@ preproPara <- function(object,
     	if (is.null(normalize.method))
     		stop("You have to choose a Normalization-Method")
     	if (any(c("quantiles", "constant", "invariantset", "loess", "none")==normalize.method) == 0)
-    		stop("Unknown Normalize-Method")
+    		stop("Unknown Normalization-Method")
     } else {
     	normalize.method="none"
     }

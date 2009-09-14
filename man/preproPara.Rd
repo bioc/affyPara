@@ -77,7 +77,7 @@ if (require(affydata)) {
 
   esset <- preproPara(Dilution,
     bgcorrect = TRUE, bgcorrect.method = "rma",
-    normalize = TRUE, normalize.method = "quantil",
+    normalize = TRUE, normalize.method = "quantiles",
     pmcorrect.method = "pmonly",
     summary.method = "avgdiff",
     verbose = TRUE)

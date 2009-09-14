@@ -1,5 +1,5 @@
 Package: affyPara
-Version: 1.5.10
+Version: 1.5.11
 Title: Parallelized preprocessing methods for Affymetrix Oligonucleotide Arrays
 Date: 2009-09-14
 Author: Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>, Esmeralda Vicedo <e.vicedo@gmx.net>, Ulrich Mansmann <mansmann@ibe.med.uni-muenchen.de>
