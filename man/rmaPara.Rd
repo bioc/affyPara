@@ -1,7 +1,7 @@
 \name{rmaPara}
 \alias{rmaPara}
 \title{ Parallelized PMA preprocessing }
-\description{Parallelized preprocessing function, which converts an \link[affy:AffyBatch-class]{AffyBatch} into an  \link[Biobase]{ExpressionSet} using the robust multi-array average (RMA) expression measure.}
+\description{Parallelized preprocessing function, which converts an \link[affy:AffyBatch-class]{AffyBatch} into an  \link[Biobase:class.ExpressionSet]{ExpressionSet} using the robust multi-array average (RMA) expression measure.}
 
 \usage{
 rmaPara(object,

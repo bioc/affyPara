@@ -65,7 +65,7 @@ The parameter ref.fn=c("median","mean") is not allowed because it is not possibl
 
 \code{MAplotPara} is the parallelized function for MA plots of probe intensities. 
 It is a function to check and control the Data quality of the samples using the MA plot method. 
-For serial function an more details see \link[affy]{boxplot}. This function is optimized for huge numbers of microarray data.
+For serial function an more details see \link[affy:AffyBatch-class]{boxplot}. This function is optimized for huge numbers of microarray data.
 
 For using this function a computer cluster using the SNOW package has to be started. 
 Starting the cluster with the command \code{makeCluster} generates an cluster object in the affyPara environment (.affyParaInternalEnv) and 
