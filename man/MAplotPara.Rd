@@ -40,7 +40,7 @@ MAplotPara(object,
   	\item{ref.title}{character- gives a 'title' to label the plots by ma.plot function.}
   	\item{subset}{A set of indices to use when drawing the loess curve.}
   	\item{span}{span to be used for loess fit.}
-  	\item{family.loess}{\code{"guassian"} or \code{"symmetric"} as in \link[modreg]{loess}.}
+  	\item{family.loess}{\code{"guassian"} or \code{"symmetric"} as in \link[stats]{loess}.}
   	\item{show.statistics}{A logical value. TRUE as default. 
   			If true some summary statistics of the M values are drawn.}
   	\item{pch}{Graphical plotting 'character'. Default Value \code{"."} equivalently to \code{pch = 46} 
