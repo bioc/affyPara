@@ -11,6 +11,7 @@
 # 18.12.2008 : Version 0.21 - cluster object gets default parameter: .affyParaInternalEnv$cl
 # 23.03.2009 : Version 0.22 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 # 24.03.2009 : Version 0.23 - Summarization optimized
+# 05.03.2010 : Version 0.24 - summarization == none added
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -254,14 +255,17 @@ preproPara <- function(object,
 	#################
 	#Do Summarization
 	#################	
-	if (verbose) cat("Summarization ")
-	t0=proc.time();
-	eset <- .doSummarizationPara(cluster, object.length, AffyBatch, 
-			samples.names, ids=ids, pmcorrect.method=pmcorrect.method, summary.method=summary.method,
-			summary.param=summary.param, pmcorrect.param=pmcorrect.param)
-	t1=proc.time();
-	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
-		
+	if (summary.method != "none"){
+		if (verbose) cat("Summarization ")
+		t0=proc.time();
+		eset <- .doSummarizationPara(cluster, object.length, AffyBatch, 
+				samples.names, ids=ids, pmcorrect.method=pmcorrect.method, summary.method=summary.method,
+				summary.param=summary.param, pmcorrect.param=pmcorrect.param)
+		t1=proc.time();
+		if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
+	} else
+		eset <- NULL
+			
 	#Return Expression Set
 	return(eset)
 }

@@ -28,7 +28,7 @@ preproPara(object,
 
   \item{pmcorrect.method}{ The name of the PM adjustment method. }
   \item{pmcorrect.param}{ A list of parameters for \code{pmcorrect.method} (if needed/wanted). }
-  \item{summary.method}{ The method used for the computation of expression values }
+  \item{summary.method}{ The method used for the computation of expression values. }
   \item{summary.param}{ A list of parameters to be passed to the \code{summary.method} (if wanted). }
   \item{ids}{ List of \code{ids} for summarization }
 
@@ -57,7 +57,7 @@ Available methods:
 \describe{
   \item{\code{bgcorrect.method}:}{see \code{bgcorrect.methods()}}
   \item{\code{normalize.method}:}{'quantil', 'constant', 'invariantset','loess'}
-  \item{\code{summary.method}:}{see \code{generateExprSet.methods()}}
+  \item{\code{summary.method}:}{see \code{generateExprSet.methods()} and 'none'.}
 }
 }
 

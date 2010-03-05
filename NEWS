@@ -2,6 +2,9 @@
 #
 # Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
+affyPara 1.7.1 (build 05. March 2010)
+- preproPara, summarization == none enabled
+
 affyPara 1.5.11 (build 14. August 2009)
 - several documentation fixes (broken links)
 
