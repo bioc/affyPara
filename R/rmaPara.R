@@ -11,7 +11,7 @@
 # 23.03.2009 : Version 0.6 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 # 16.07.2009 : Version 0.7 - summary.method added to function parameters
 #
-# Copyright (C) 2009 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2009-2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 rmaPara <- function(object, ids = NULL,

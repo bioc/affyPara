@@ -11,7 +11,7 @@
 # 18.12.2008 : Version 0.14 - cluster object gets default parameter: .affyParaInternalEnv$cl
 # 23.03.2009 : Version 0.15 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
-# Copyright (C) 2009 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2009-2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 removeDistributedFiles <- function(path=tempdir(),
