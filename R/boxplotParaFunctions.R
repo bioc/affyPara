@@ -15,7 +15,7 @@
 # 23.03.2009 : Version 0.9 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 # 24.04.2009 : Version 1.0 - bagplot graphical representation is added to facility the boxplots interpretations for iqrMethod 
 #
-#Copyright (C) 2008 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
+#Copyright (C) 2008 - 2010 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
 # 
 ###############################################################################
 

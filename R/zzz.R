@@ -8,7 +8,7 @@
 # 17.12.2008 : Version 0.3 : affyParaInternalEnv added
 # 24.03.2009 : Version 0.4 - Summarization optimized and . added to internal functions
 #
-# Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2008 - 2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 .onLoad <- function (lib, pkg){

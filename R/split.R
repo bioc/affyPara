@@ -11,7 +11,7 @@
 #
 # We do not use clusterSplit, because there is no way to set the amount of parts.
 #
-# Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2008 - 2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 # for AffyBatch

@@ -12,8 +12,9 @@
 # 23.03.2009 : Version 0.22 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 # 24.03.2009 : Version 0.23 - Summarization optimized
 # 05.03.2010 : Version 0.24 - summarization == none added
+# 08.03.2010 : Version 0.25 - gsub warning (extend=T) fixed
 #
-# Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2008 - 2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 preproPara <- function(object,
@@ -58,7 +59,7 @@ preproPara <- function(object,
     }
    	if (is.null(summary.method))
     	stop("You have to choose a Summarization-Method")
-    if (any( express.summary.stat.methods()==summary.method) == 0)
+    if ((any( express.summary.stat.methods()==summary.method) || summary.method == "none") == 0)
     	stop("Unknown Summarization-Method")
 
 	#Check object type
@@ -79,12 +80,14 @@ preproPara <- function(object,
 			samples.names <- sampleNames(object)
 		} else if( object.type == "CELfileVec" ){
 			object.list <- splitFileVector(object, number.parts)
-			samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
+			#samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE) #M.S. 8.3.2010 no more required
+			samples.names <- gsub("^/?([^/]*/)*", "", unlist(object))
 		} else if( object.type == "partCELfileList" ){
 			object.list <- object
 			object <- unlist(object)
 			object.length <- length(object)
-			samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
+			#samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE) #M.S. 8.3.2010 no more required
+			samples.names <- gsub("^/?([^/]*/)*", "", unlist(object))
 		}		
 		if (normalize.method == "loess"){
 			# Check for minimum number of arrays at each node

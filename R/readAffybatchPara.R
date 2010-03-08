@@ -4,6 +4,7 @@
 #
 # History
 # 27.08.2009 : created - first idea
+# 08.03.2010 : Version 0.2 - gsub warning (extend=T) fixed
 #
 # Copyright (C) 2009 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -48,12 +49,14 @@ read.affybatchPara <- function(object,
 		stop("This function does not work for an AffyBath!")
 	} else if( object.type == "CELfileVec" ){
 		object.list <- splitFileVector(object, number.parts)
-		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
+		#samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE) #M.S. 8.3.2010 no more required
+		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object))
 	} else if( object.type == "partCELfileList" ){
 		object.list <- object
 		object <- unlist(object)
 		object.length <- length(object)
-		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
+		#samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE) #M.S. 8.3.2010 no more required
+		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object))
 	}				
 	t1 <- proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")			

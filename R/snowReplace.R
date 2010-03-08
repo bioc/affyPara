@@ -5,7 +5,7 @@
 # History:
 # 17.12.2008 : Version 0.1
 #
-#  Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+#  Copyright (C) 2008 - 2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 makeCluster <- function(...)

@@ -10,6 +10,7 @@
 # 23.03.2009 : Version 0.4 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 # 24.03.2009 : Version 0.5 - Summarization optimized
 # 26.06.2009 : Version 0.6 - error in justvsnPara removed
+# 08.03.2010 : Version 0.7 - gsub warning (extend=T) fixed
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -61,12 +62,14 @@ vsn2Para <- function(object,
 		samples.names <- sampleNames(object)
 	} else if( object.type == "CELfileVec" ){
 		object.list <- splitFileVector(object, number.parts)
-		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
+		#samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE) #M.S. 8.3.2010 no more required
+		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object))
 	} else if( object.type == "partCELfileList" ){
 		object.list <- object
 		object <- unlist(object)
 		object.length <- length(object)
-		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
+		#samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE) #M.S. 8.3.2010 no more required
+		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object))
 	}				
 	t1 <- proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")			
@@ -206,12 +209,14 @@ vsnrmaPara <- function(object,
 		samples.names <- sampleNames(object)
 	} else if( object.type == "CELfileVec" ){
 		object.list <- splitFileVector(object, number.parts)
-		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
+		#samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE) #M.S. 8.3.2010 no more required
+		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object))
 	} else if( object.type == "partCELfileList" ){
 		object.list <- object
 		object <- unlist(object)
 		object.length <- length(object)
-		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
+		#samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE) #M.S. 8.3.2010 no more required
+		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object))
 	}				
 	
 	#Check phenoData and create TMP AffyBatch

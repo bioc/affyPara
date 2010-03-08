@@ -11,8 +11,9 @@
 # 18.12.2008 : Version 0.14 - cluster object gets default parameter: .affyParaInternalEnv$cl
 # 23.03.2009 : Version 0.15 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 # 24.03.2009 : Version 0.16 - Summarization optimized
+# 08.03.2010 : Version 0.17 - gsub warning (extend=T) fixed
 #
-# Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2008 - 2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 computeExprSetPara <- function(object,
@@ -67,11 +68,13 @@ computeExprSetPara <- function(object,
 		samples.names <- sampleNames(object)
 	} else if( object.type == "CELfileVec" ){
 		object.list <- splitFileVector(object, number.parts)
-		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
+		#samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE) #M.S. 8.3.2010 no more required
+		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object))
 	} else if( object.type == "partCELfileList" ){
 		object.list <- object
 		object <- unlist(object.list)
-		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
+		#samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE) #M.S. 8.3.2010 no more required
+		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object))
 	}
 	t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))

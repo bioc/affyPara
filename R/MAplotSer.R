@@ -5,9 +5,10 @@
 # History
 # 04.12.2008 : Version 0.1 - create Function
 # 23.03.2009 : Version 0.2 - Option verbose set to getOption("verbose") and added . to names of internatl functions
+# 08.03.2010 : Version 0.3 - gsub warning (extend=T) fixed
 #
 #
-# Copyright (C) 2008 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
+# Copyright (C) 2008 - 2010 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
 ###############################################################################
 MAplotSer <- function(object, 
                        log=TRUE, 
@@ -38,9 +39,11 @@ MAplotSer <- function(object,
 		 samples.names <- sampleNames(object)
 	
 	} else if( object.type == "CELfileVec" ){
-		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
+		#samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE) #M.S. 8.3.2010 no more required
+		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object))
 	} else if( object.type == "partCELfileList" ){
-			samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
+		#samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE) #M.S. 8.3.2010 no more required
+		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object))
 	}	
 	#return(samples.names)  			
 	t1 <- proc.time();

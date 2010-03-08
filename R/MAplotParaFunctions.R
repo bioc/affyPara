@@ -13,7 +13,7 @@
 # 11.12.2008 : Version 0.8 - improve MAplot graphics - number of plots per page is limited to 8.
 # 23.03.2009 : Version 0.9 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 #
-# Copyright (C) 2008 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
+# Copyright (C) 2008 - 2010 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
 ###############################################################################
  
 

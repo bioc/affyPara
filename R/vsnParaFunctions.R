@@ -19,7 +19,7 @@
 # Using the right combination "size of AffyBatch on slaves" - "number of slaves" the parallelized
 # version is more than ten times faster as the serial version.
 #
-# Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2008 - 2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 ####################################################################################

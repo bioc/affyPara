@@ -1,7 +1,11 @@
 # R Package AffyPara - NEWS
 #
-# Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2008-2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
+affyPara 1.7.2 (build 08. March 2010)
+- gsub warning (extend=T) fixed in every function
+- Copyright update
+
 affyPara 1.7.1 (build 05. March 2010)
 - preproPara, summarization == none enabled
 

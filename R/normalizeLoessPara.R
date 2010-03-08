@@ -10,6 +10,7 @@
 # 23.06.2008 : Version 0.5 - memory improvement, matrices fs and newdata removed
 # 18.12.2008 : Version 0.6 - cluster object gets default parameter: .affyParaInternalEnv$cl
 # 23.03.2009 : Version 0.7 - Option verbose set to getOption("verbose") and added . to names of internatl functions
+# 08.03.2010 : Version 0.8 - gsub warning (extend=T) fixed
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -63,12 +64,14 @@ normalizeAffyBatchLoessPara <- function(object,
 			samples.names <- sampleNames(object)
 		} else if( object.type == "CELfileVec" ){
 			object.list <- splitFileVector(object, number.parts)
-			samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
+			#samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE) #M.S. 8.3.2010 no more required
+			samples.names <- gsub("^/?([^/]*/)*", "", unlist(object))
 		} else if( object.type == "partCELfileList" ){
 			object.list <- object
 			object <- unlist(object)
 			object.length <- length(object)
-			samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
+			#samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE) #M.S. 8.3.2010 no more required
+			samples.names <- gsub("^/?([^/]*/)*", "", unlist(object))
 		}				
 		# Check for minimum number of arrays at each node
 		if ( any( lapply(object.list, function(x) if (length(x) < 2) TRUE else FALSE  ) == TRUE ) ){

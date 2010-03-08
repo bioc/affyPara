@@ -14,7 +14,8 @@
 #                            more information and analysis are added) 
 # 18.12.2008 : Version 0.8 - cluster object gets default parameter: .affyParaInternalEnv$cl
 # 23.03.2009 : Version 0.9 - Option verbose set to getOption("verbose") and added . to names of internatl functions
-# 24.04.2009 : Version 1.0 - bagplot graphical representation is added to facility the boxplots interpretations for iqrMethod 
+# 24.04.2009 : Version 0.10 - bagplot graphical representation is added to facility the boxplots interpretations for iqrMethod 
+# 08.03.2010 : Version 0.11 - gsub warning (extend=T) fixed
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do BG-Correction is faster.
@@ -86,11 +87,13 @@ boxplotPara <- function(object,
 	
 	} else if( object.type == "CELfileVec" ){
 		object.list <- splitFileVector(object, number.parts)
-		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
+		#samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE) #M.S. 8.3.2010 no more required
+		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object))
 	} else if( object.type == "partCELfileList" ){
 		object.list <- object
 		object <- unlist(object.list)
-		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE)
+		#samples.names <- gsub("^/?([^/]*/)*", "", unlist(object), extended = TRUE) #M.S. 8.3.2010 no more required
+		samples.names <- gsub("^/?([^/]*/)*", "", unlist(object))
 	}				
 	t1 <- proc.time();
 	if (verbose) cat(paste(round(t1[3]-t0[3],3),"sec DONE\n"))				

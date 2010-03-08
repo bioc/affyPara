@@ -12,7 +12,7 @@
 #							  names of internatl functions
 # 29.04.2009 : Version 0.10 - mergeAffyBatch improved for memory amd time
 #
-# Copyright (C) 2008 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2008 - 2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 ############################################
