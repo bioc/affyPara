@@ -29,6 +29,6 @@
 	}
 }
 
-.onUnload <- function(libpath ) {
-	library.dynam.unload("affyPara", libpath)
-}
+## .onUnload <- function(libpath ) {
+## 	library.dynam.unload("affyPara", libpath)
+## }
