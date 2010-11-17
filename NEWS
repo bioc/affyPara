@@ -2,6 +2,9 @@
 #
 # Copyright (C) 2008-2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
+affyPara 1.11.1 (build 17. November 2010)
+- bugfix in vsnrmaPara
+
 affyPara 1.7.4 (build 15. April 2010)
 - fixes for new release
 

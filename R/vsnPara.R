@@ -11,6 +11,7 @@
 # 24.03.2009 : Version 0.5 - Summarization optimized
 # 26.06.2009 : Version 0.6 - error in justvsnPara removed
 # 08.03.2010 : Version 0.7 - gsub warning (extend=T) fixed
+# 17.11.2010 : Version 0.8 - bug fix for cluster object
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -247,7 +248,7 @@ vsnrmaPara <- function(object,
 	##############################
 	# do vsn normalization
 	##############################
-	fit <- vsn2Para(cluster, object, ..., verbose=getOption("verbose"))
+	fit <- vsn2Para(object, ..., cluster=cluster, verbose=getOption("verbose")) 
 	#remove log
 	clusterCall(cluster, function(){
 				if (exists("AffyBatch", envir = .GlobalEnv)) {
