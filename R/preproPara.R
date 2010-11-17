@@ -13,6 +13,7 @@
 # 24.03.2009 : Version 0.23 - Summarization optimized
 # 05.03.2010 : Version 0.24 - summarization == none added
 # 08.03.2010 : Version 0.25 - gsub warning (extend=T) fixed
+# 17.11.2010 : Version 0.26 - ReadAffyBatch improved
 #
 # Copyright (C) 2008 - 2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -23,7 +24,7 @@ preproPara <- function(object,
 		pmcorrect.method=NULL, pmcorrect.param=list(),
 		summary.method=NULL, summary.param=list(), ids=NULL,
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-		cluster, verbose=getOption("verbose")) 
+		cluster, verbose=getOption("verbose"), ...) 
 {
 	#################
 	# Check Functions
@@ -107,7 +108,7 @@ preproPara <- function(object,
 	#################################
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 		t0 <- proc.time();
-		check <- clusterApply(cluster, object.list, .initAffyBatchSF, object.type) 
+		check <- clusterApply(cluster, object.list, .initAffyBatchSF, object.type, ...) 
 		t1 <- proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
 	

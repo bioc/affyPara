@@ -9,6 +9,7 @@
 # 06.11.2008 : Version 0.24 - initAffyBatchSF rm.all changed to rm.list
 # 07.11.2008 : Version 0.25 - initAffyBatchSF rm.list, default parameter changed
 # 23.03.2009 : Version 0.26 - Option verbose set to getOption("verbose") and added . to names of internatl functions
+# 17.11.2010 : Version 0.27 - ReadAffyBatch improved - in .initAffyBatchSF
 # 
 # Copyright (C) 2008 - 2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -240,7 +241,7 @@
 ###
 # Initializing AffyBatch at Slaves
 ###
-.initAffyBatchSF <- function(object, object.type, rm.list=FALSE)
+.initAffyBatchSF <- function(object, object.type, rm.list=FALSE, ...)
 {
 	require(affy)
 	#remove old AffyBatches
@@ -256,7 +257,7 @@
 	if (object.type == "AffyBatch")
 		AffyBatch <- object
 	else if( length(object) != 0 )
-		AffyBatch <- ReadAffy(filenames=object)
+		AffyBatch <- ReadAffy(filenames=object, ...)
 	else
 		return(NA)
 
