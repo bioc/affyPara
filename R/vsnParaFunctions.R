@@ -12,6 +12,7 @@
 # 28.10.2008 : Version 0.7 - file vsnPara and vsnParaFunctions created
 # 06.11.2008 : Version 0.8 - vsn reference implemented
 # 29.07.2009 : Version 0.9 - fix in vsnMatrixPara for pstartHeuristic
+# 09.03.2011 : Version 0.10 - vsn:::progress removed
 #
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
@@ -224,8 +225,9 @@ vsnLTSPara <- function(cluster,
 	cvgcCnt = 0L
 	
 	for(iter in seq_len(v@optimpar$cvg.niter)) {
-		if(v@verbose)
-			vsn:::progress(iter-1L, v@optimpar$cvg.niter)
+		#vsn:::progress no more included in vsn package
+		#if(v@verbose)
+		#	vsn:::progress(iter-1L, v@optimpar$cvg.niter)
 		
 		sv  = if(iter==1L) v else{
 					#v[whsel, ]
@@ -285,10 +287,11 @@ vsnLTSPara <- function(cluster,
 		#TODO convCheck bisher nicht implementiert
 	}
 	
-	if(v@verbose){
-		vsn:::progress(1L, 1L)
-		cat("\n")
-	}
+	#vsn:::progress no more included in vsn package
+	#if(v@verbose){
+	#	vsn:::progress(1L, 1L)
+	#	cat("\n")
+	#}
 	
 	return(rsv)
 }
