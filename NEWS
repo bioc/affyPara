@@ -2,6 +2,10 @@
 #
 # Copyright (C) 2008-2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
+
+affyPara 1.11.4 (build 10. March 2011)
+- bugfix for cluster object
+
 affyPara 1.11.1 (build 17. November 2010)
 - bugfix in vsnrmaPara
 

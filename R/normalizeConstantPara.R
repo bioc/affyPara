@@ -12,6 +12,7 @@
 # 18.12.2008 : Version 0.10 - cluster object gets default parameter: .affyParaInternalEnv$cl
 # 23.03.2009 : Version 0.11 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 # 08.03.2010 : Version 0.12 - gsub warning (extend=T) fixed
+# 10.03.2011 : Version 0.13 - bug fix for cluster object
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do normalization is faster.
@@ -21,10 +22,10 @@
 # Copyright (C) 2008 - 2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
-normalizeAffyBatchConstantPara <- function(object,
+normalizeAffyBatchConstantPara <- function(object, cluster,
 		refindex=1, FUN=mean, na.rm=TRUE, 
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-		cluster, verbose=getOption("verbose")) 
+		verbose=getOption("verbose")) 
 {
     #########
     # Checks

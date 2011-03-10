@@ -4,24 +4,24 @@
 \description{Parallelized preprocessing function, which converts an \link[affy:AffyBatch-class]{AffyBatch} into an  \link[Biobase:class.ExpressionSet]{ExpressionSet} using the robust multi-array average (RMA) expression measure.}
 
 \usage{
-rmaPara(object,
+rmaPara(object, cluster,
 	ids = NULL,
 	phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-	cluster, verbose = getOption("verbose"), summary.method="medianpolish")
+	verbose = getOption("verbose"), summary.method="medianpolish")
 }
 
 \arguments{
   \item{object}{ An object of class \link[affy:AffyBatch-class]{AffyBatch} 
   		OR a \code{character} vector with the names of CEL files 
   				OR a (partitioned) list of \code{character} vectors with CEL file names.}
-
+  \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the SNOW package. 
+  		For default \code{.affyParaInternalEnv$cl} will be used. }
+  		
   \item{ids}{ List of \code{ids} for summarization }
 
   \item{phenoData}{ An \link[Biobase:class.AnnotatedDataFrame]{AnnotatedDataFrame} object. }
   \item{cdfname}{ Used to specify the name of an alternative cdf package. If set to \code{NULL}, 
   		the usual cdf package based on Affymetrix' mappings will be used. }
-  \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the SNOW package. 
-  		For default \code{.affyParaInternalEnv$cl} will be used. }
   \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages. default: getOption("verbose") }
    \item{summary.method}{ The method used for the computation of expression values } 
 }

@@ -14,17 +14,18 @@
 # 05.03.2010 : Version 0.24 - summarization == none added
 # 08.03.2010 : Version 0.25 - gsub warning (extend=T) fixed
 # 17.11.2010 : Version 0.26 - ReadAffyBatch improved
+# 10.03.2011 : Version 0.27 - bug fix for cluster object
 #
 # Copyright (C) 2008 - 2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
-preproPara <- function(object,
+preproPara <- function(object, cluster,
 		bgcorrect=TRUE, bgcorrect.method=NULL, bgcorrect.param=list(), 
 		normalize=TRUE, normalize.method=NULL, normalize.param=list(), 
 		pmcorrect.method=NULL, pmcorrect.param=list(),
 		summary.method=NULL, summary.param=list(), ids=NULL,
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-		cluster, verbose=getOption("verbose"), ...) 
+		verbose=getOption("verbose"), ...) 
 {
 	#################
 	# Check Functions

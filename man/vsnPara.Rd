@@ -8,23 +8,23 @@ These parallel functions fit the vsn model to intensity data in an AffyBatch.
 They hav the same functionality than the vsn methods in the \code{vsn} package but are implemented in parallel (and only supports an AffyBatch as input data).
 }
 \usage{
-vsn2Para(object,
+vsn2Para(object, cluster,
 	phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
 	reference, subsample,
 	..., 
-	cluster, verbose = getOption("verbose")) 
+	verbose = getOption("verbose")) 
 
-justvsnPara(object,
+justvsnPara(object, cluster,
 		...,
-		cluster, verbose = getOption("verbose")) 
+		verbose = getOption("verbose")) 
 	
-vsnrmaPara(object,
+vsnrmaPara(object, cluster,
 	pmcorrect.method="pmonly", pmcorrect.param=list(),
 	summary.method="medianpolish", summary.param=list(),
 	ids=NULL,
 	phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
 	..., 
-	cluster, verbose = getOption("verbose"))  
+	verbose = getOption("verbose"))  
 }
 
 \arguments{

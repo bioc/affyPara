@@ -6,10 +6,10 @@
 Parallelized scaling normalization of arrays.
 }
 \usage{
-normalizeAffyBatchConstantPara(object,
+normalizeAffyBatchConstantPara(object, cluster,
       refindex = 1, FUN = mean, na.rm = TRUE,
       phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-      cluster, verbose = getOption("verbose"))  
+      verbose = getOption("verbose"))  
 }
 
 \arguments{
