@@ -170,13 +170,13 @@ justvsnPara <- function(object,
 ##############################################################################
 # vsnrma parallelized
 ##############################################################################
-vsnrmaPara <- function(object,
+vsnrmaPara <- function(object, cluster,
 		pmcorrect.method="pmonly", pmcorrect.param=list(),
 		summary.method="medianpolish", summary.param=list(),
 		ids=NULL,
 		phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
 		..., 
-		cluster, verbose=getOption("verbose")) 
+		verbose=getOption("verbose")) 
 {
 	########
 	# Checks

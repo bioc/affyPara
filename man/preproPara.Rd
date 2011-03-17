@@ -4,13 +4,13 @@
 \description{Parallelized preprocessing function, which goes from raw probe intensities to expression values in three steps: Background correction, normalization and summarization}
 
 \usage{
-preproPara(object,
+preproPara(object, cluster,
     bgcorrect = TRUE, bgcorrect.method = NULL, bgcorrect.param = list(),
     normalize = TRUE, normalize.method = NULL, normalize.param = list(),
     pmcorrect.method = NULL, pmcorrect.param = list(),
     summary.method = NULL, summary.param = list(),
     ids = NULL,phenoData = new("AnnotatedDataFrame"), cdfname = NULL,
-    cluster, verbose = getOption("verbose"))
+    verbose = getOption("verbose"))
 }
 
 \arguments{
