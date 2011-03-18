@@ -138,9 +138,8 @@ vsn2Para <- function(object, cluster,
 ##############################################################################
 # justvsn parallelized
 ##############################################################################
-justvsnPara <- function(object,
-		..., 
-		cluster, verbose=getOption("verbose")) 
+justvsnPara <- function(object, cluster,
+		..., verbose=getOption("verbose")) 
 {
 	#Get cluster object form default environment
 	if(missing(cluster))
