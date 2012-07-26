@@ -9,7 +9,7 @@ useful for multicore machines.
 read.affybatchPara(object,
 		phenoData = new("AnnotatedDataFrame"),
 		description = NULL, notes = "",	
-		cluster, verbose=getOption("verbose")) 
+		cluster, verbose=getOption("verbose"), cdfname) 
 }
 
 \arguments{
@@ -22,6 +22,7 @@ read.affybatchPara(object,
    \item{cluster}{ A cluster object obtained from the function \link[snow:snow-startstop]{makeCluster} in the SNOW package. 
   		For default \code{.affyParaInternalEnv$cl}  will be used. }
   \item{verbose}{ A logical value. If \code{TRUE} it writes out some messages. default: getOption("verbose") } 
+  \item{cdfname}{cdfname to pass to the AffyBatch call}
  }
 \details{
 Parallelized creation of an AffyBatch object. Especially useful on multi-core machines 

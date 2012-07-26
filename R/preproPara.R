@@ -15,6 +15,7 @@
 # 08.03.2010 : Version 0.25 - gsub warning (extend=T) fixed
 # 17.11.2010 : Version 0.26 - ReadAffyBatch improved
 # 10.03.2011 : Version 0.27 - bug fix for cluster object
+# 26.07.2012 : Version 0.28 - cdfname passing added
 #
 # Copyright (C) 2008 - 2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -109,7 +110,7 @@ preproPara <- function(object, cluster,
 	#################################
 	if (verbose) cat("Initialize AffyBatches at slaves ")
 		t0 <- proc.time();
-		check <- clusterApply(cluster, object.list, .initAffyBatchSF, object.type, ...) 
+		check <- clusterApply(cluster, object.list, .initAffyBatchSF, object.type, cdfname = cdfname, ...) 
 		t1 <- proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
 	

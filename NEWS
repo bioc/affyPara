@@ -3,6 +3,9 @@
 # Copyright (C) 2008-2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
+affyPara 1.17.1 (build 26. Juli 2012)
+- bugfix for cdfname object in read.affypara, see BioC Mailinglist, thanks Tobias
+
 affyPara 1.11.4 (build 10. March 2011)
 - bugfix for cluster object
 

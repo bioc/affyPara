@@ -5,6 +5,7 @@
 # History
 # 27.08.2009 : created - first idea
 # 08.03.2010 : Version 0.2 - gsub warning (extend=T) fixed
+# 26.07.2012 : Version 0.3 - cdfname passing added
 #
 # Copyright (C) 2009 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
@@ -12,7 +13,7 @@
 read.affybatchPara <- function(object,
 		phenoData = new("AnnotatedDataFrame"),
 		description = NULL, notes = "",	
-		cluster, verbose=getOption("verbose")) 
+		cluster, verbose=getOption("verbose"), cdfname) 
 {
 	########
 	# Checks
@@ -69,7 +70,7 @@ read.affybatchPara <- function(object,
 	##################################
 	if (verbose) cat("Create AffyBatches at slaves ")
 	t0 <- proc.time();
-	check <- clusterApply(cluster, object.list, .initAffyBatchSF, object.type) 
+	check <- clusterApply(cluster, object.list, .initAffyBatchSF, object.type, cdfname = cdfname) 
 	t1 <- proc.time();
 	if (verbose) cat(round(t1[3]-t0[3],3),"sec DONE\n")
 	
