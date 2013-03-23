@@ -17,7 +17,7 @@ MAplotPara(object,
                        span=1/4,
                        show.statistics=TRUE,
                        family.loess ="gaussian", 
-                       pch=".",
+                       pchs=".",
                        plot =TRUE,
                        cutoff =0.5,# add parameter to generic function ma.plot
                        level=1,
@@ -43,7 +43,7 @@ MAplotPara(object,
   	\item{family.loess}{\code{"guassian"} or \code{"symmetric"} as in \link[stats]{loess}.}
   	\item{show.statistics}{A logical value. TRUE as default. 
   			If true some summary statistics of the M values are drawn.}
-  	\item{pch}{Graphical plotting 'character'. Default Value \code{"."} equivalently to \code{pch = 46} 
+  	\item{pchs}{Graphical plotting 'character'. Default Value \code{"."} equivalently to \code{pchs = 46} 
   			from the function \link[graphics]{points} }
   	\item{plot}{ A logical value. TRUE as default, MAplots will be drawn otherwise only the "bad" quality arrays will be calculated.}
   	\item{cutoff}{numerical between [0.0-1.0]. As default 0.5. It is considered as limit for the sigma parameter, 

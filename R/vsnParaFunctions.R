@@ -3,16 +3,10 @@
 # Parallelization of the VSN functions
 #
 # History
-# 10.06.2008 : Version 0.1 - first ideas
-# xx.09.2008 : Version 0.2 - implementation
-# 14.10.2008 : Version 0.3 - first running version
-# 21.10.2008 : Version 0.4 - everything vectorized and strata removed 
-# 24.10.2008 : Version 0.5 - subsamples no work correct
-# 27.10.2008 : Version 0.6 - rowMeansPara and rowVPara improved
-# 28.10.2008 : Version 0.7 - file vsnPara and vsnParaFunctions created
 # 06.11.2008 : Version 0.8 - vsn reference implemented
 # 29.07.2009 : Version 0.9 - fix in vsnMatrixPara for pstartHeuristic
 # 09.03.2011 : Version 0.10 - vsn:::progress removed
+# 23.03.2013 : Version 0.11 - small bugfix in grad_logikPara
 #
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
@@ -20,7 +14,7 @@
 # Using the right combination "size of AffyBatch on slaves" - "number of slaves" the parallelized
 # version is more than ten times faster as the serial version.
 #
-# Copyright (C) 2008 - 2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2008 - 2013 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 ####################################################################################
@@ -586,7 +580,7 @@ logikParaSF2 <- function(mu)
 ################################################################################
 grad_loglikPara <- function(par, px, cluster, verbose)
 {
-	px <- get("px", env=.GlobalEnv)
+	px <- get("px", envir=.GlobalEnv)
 	rfac <- 1/px$sigsq
 	
 	#vectorized gradient calculation at nodes

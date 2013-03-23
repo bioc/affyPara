@@ -6,9 +6,10 @@
 # 04.12.2008 : Version 0.1 - create Function
 # 23.03.2009 : Version 0.2 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 # 08.03.2010 : Version 0.3 - gsub warning (extend=T) fixed
+# 23.03.2013 : Version 0.4 - pch -> pchs to fix parameter issues
 #
 #
-# Copyright (C) 2008 - 2010 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
+# Copyright (C) 2008 - 2013 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
 ###############################################################################
 MAplotSer <- function(object, 
                        log=TRUE, 
@@ -20,7 +21,7 @@ MAplotSer <- function(object,
                        span=1/4,
                        show.statistics=TRUE,
                        family.loess ="gaussian", 
-                       pch=".",
+                       pchs=".",
                        plot = TRUE,
                        cutoff =0.5,# add parameter to generic function ma.plot
                        level=1,
@@ -171,7 +172,7 @@ MAplotSer <- function(object,
      
       if(length(badQC) > 0){
         badQCu<- unique(badQC)      
-        drawMAplot(object, badQCu, meanchip,type, log, subset, span, pch=pch, ref.title,show.statistics, family.loess, verbose, ...)
+        drawMAplot(object, badQCu, meanchip,type, log, subset, span, pchs=pchs, ref.title,show.statistics, family.loess, verbose, ...)
       }else{
 		  warning("MAplots aren't built. Reason: 'bad ' quality samples at the level: ",level, " aren't found \n" )
       }

@@ -7,13 +7,15 @@
 # 29.02.2008 : Version 0.2 : .onLoad added
 # 17.12.2008 : Version 0.3 : affyParaInternalEnv added
 # 24.03.2009 : Version 0.4 - Summarization optimized and . added to internal functions
+# 23.03.2013 : Version 0.5 - no more package loading in .onLoad
 #
-# Copyright (C) 2008 - 2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2008 - 2013 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 .onLoad <- function (lib, pkg){
-	require(affy)
-	require(snow)
+	#require(affy)
+	#require(snow)
+  # this is done by the DEPENDS field
 	
 	##a place to store some variables that need to be accessed
 	.affyParaInternalEnv <- new.env(parent=emptyenv())

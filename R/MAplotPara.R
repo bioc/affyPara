@@ -3,24 +3,17 @@
 # Parallelization of the affybatch.MAplot function
 #
 # History
-# 31.10.2008 : Version 0.1 - added to package
-# 18.11.2008 : Version 0.2 - drawMAplot function improved (any parameter are optimized)- fix small bug whit the list badQC.
-# 19.11.2008 : Version 0.3 - results of the MAplotPara function are returned as list with 3 elements: 1-matrix with the values of MAplot, 2-matrix contained the loess values for the axis y,  3- matrix wiht the result of the MAplot analysis  
-# 28.11.2008 : Version 0.4 - add $qualityMA to the result list to a better control during analysis 
-# 01.12.2008 : Version 0.5 - fix small bugs: parameter ref get a numerical value,  the additional parameters for the routine(...), level 3 to plot only unique samples.
-# 04.12.2008 : Version 0.6 - fix small bugs when the number of Samples are smaller than number of slaves.
-# 05.12.2008 : Version 0.7 - fix small bug when parameter plot=FALSE.
-# 11.12.2008 : Version 0.8 - fix small bug for large Affybatch object.
 # 18.12.2008 : Version 0.9 - cluster object gets default parameter: .affyParaInternalEnv$cl
 # 23.03.2009 : Version 0.10 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 # 08.03.2010 : Version 0.11 - gsub warning (extend=T) fixed
+# 23.03.2013 : Version 0.12 - pch -> pchs to fix parameter issues
 #
 # Sending AffyBatch form master to slave an back is very time consuming. Sending a list
 # of CEL files from master to slave, creating the AffyBatch and do BG-Correction is faster.
 # Using the right combination "size of AffyBatch on slaves" - "number of slaves" the parallelized
 # version is more than ten times faster as the serial version. 
 #
-# Copyright (C) 2008 - 2010 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
+# Copyright (C) 2008 - 2013 : Esmeralda Vicedo <e.vicedo@gmx.net>, Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de> 
 ###############################################################################
 MAplotPara <- function(object, 
                        log=TRUE, 
@@ -32,7 +25,7 @@ MAplotPara <- function(object,
                        span=1/4,
                        show.statistics=TRUE,
                        family.loess ="gaussian", 
-                       pch=".",
+                       pchs=".",
                        plot =TRUE,
                        cutoff =0.5,# add parameter to generic function ma.plot
                        level=1,
@@ -238,7 +231,7 @@ MAplotPara <- function(object,
      
       if(length(badQC) > 0){
         badQCu<- unique(badQC)      
-        check <- drawMAplot(object, badQCu, meanchip,type, log, subset, span, pch=pch, ref.title,show.statistics, family.loess, verbose, ...)
+        check <- drawMAplot(object, badQCu, meanchip,type, log, subset, span, pchs=pchs, ref.title,show.statistics, family.loess, verbose, ...)
         if(verbose) print(check)
       }else{
         warning("MAplots aren't built. Reason: 'bad ' quality samples at the level: ",level, " aren't found \n" )

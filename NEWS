@@ -1,7 +1,10 @@
 # R Package AffyPara - NEWS
 #
-# Copyright (C) 2008-2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2008-2013 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
+
+affyPara 1.19.1 (build 23. March 2013)
+- bugfix to get a clean build
 
 affyPara 1.17.1 (build 26. Juli 2012)
 - bugfix for cdfname object in read.affypara, see BioC Mailinglist, thanks Tobias
