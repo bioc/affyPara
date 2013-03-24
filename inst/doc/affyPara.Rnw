@@ -21,7 +21,7 @@ plainpages,pdftex]{hyperref}
 
  %nice urls
 \usepackage{url}
-\usepackage{natbib}
+\usepackage[square,sort,comma,numbers]{natbib}
 
 %\SweaveOpts{keep.source=TRUE,eps=FALSE,include=FALSE,width=4,height=4.5}
 
@@ -34,6 +34,7 @@ plainpages,pdftex]{hyperref}
 \title{Description of the \Rpackage{affyPara} package: Parallelized preprocessing methods for Affymetrix Oligonucleotide Arrays}
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 \maketitle \tableofcontents \newpage
 
@@ -143,10 +144,10 @@ communication mechanism. In this example we use raw socket connections. As defau
 \Rpackage{snow} a cluster object 'cl' will be created.
 
 To stop a cluster you should use
-<<echo=T, eval=T>>=
+<<stopCluster, echo=T, eval=T>>=
 stopCluster(cl)
 @
-<<echo=F, eval=T>>=
+<<makeCluster, echo=F, eval=T>>=
 cl <- makeCluster(2, type='SOCK')
 @
 
@@ -173,7 +174,7 @@ the \Rpackage{affy} package an object of class \Robject{AffyBatch} can be create
 \item Move all the relevant CEL files to that directory.
 \item Make sure your working directory contains the CEL files (\Rfunction{getwd()}, \Rfunction{setwd()}). 
 \item Then read in the data:
-<<echo=T, eval=F>>=
+<<ReadAffy, echo=T, eval=F>>=
 AffyBatch <- ReadAffy()
 @
 \end{itemize}
@@ -207,7 +208,7 @@ hybridization and the noise in the optical detection system.
 In the \Rpackage{affyPara} package the same BGC methods as in the \Rpackage{affy} package 
 are available. To list the background correction methods -- built into the package -- 
 the function \Rfunction{bgcorrect.method()} can be used:
-<<>>=
+<<BGmethods>>=
 bgcorrect.methods()
 @
 
@@ -215,7 +216,7 @@ bgcorrect.methods()
 \subsubsection{Use Background Correction Para}
 The function \Rfunction{bgCorrectPara()} needs an input data object (Dilution)
 and the background correction method (method="rma") as input parameters.
-<<affyBatchBGC, echo=T, eval=T>>=
+<<affyBatchBGC, echo=T, eval=F>>=
 affyBatchBGC <- bgCorrectPara(Dilution,
 				method="rma", verbose=TRUE)
 @
@@ -257,7 +258,7 @@ parameters as input paramters.
 The function \Rfunction{normalizeAffyBatchQuantilesPara()} needs an 
 input data object (Dilution)
 and quantil normalization parameters as input parameters (type = "pmonly").
-<<affyBatchNORM, echo=T, eval=T>>=
+<<affyBatchNORM, echo=T, eval=F>>=
 affyBatchNORM <- normalizeAffyBatchQuantilesPara(
 		Dilution, type = "pmonly", verbose=TRUE)
 @
@@ -445,7 +446,7 @@ problems and accelerates the methods.
 \subsection{Test for Accuracy}\label{chap:compare}
 In view of machine accuracy, the parallelized functions produce same results as serialized methods. To compare results
 from different functions you can use the functions \Rfunction{identical()} or \Rfunction{all.equal()} from the \Rpackage{base} package.
-<<identical_bgc, echo=T, eval=T>>=
+<<identical_bgc, echo=T, eval=F>>=
 affybatch1 <- bg.correct(Dilution,
 		method="rma") 
  affybatch2 <- bgCorrectPara(Dilution,

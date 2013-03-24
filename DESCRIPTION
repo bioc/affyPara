@@ -1,10 +1,10 @@
 Package: affyPara
-Version: 1.19.1
+Version: 1.19.2
 Title: Parallelized preprocessing methods for Affymetrix Oligonucleotide Arrays
-Date: 2013-03-24
+Date: 2013-03-25
 Author: Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>, Esmeralda Vicedo <e.vicedo@gmx.net>, Ulrich Mansmann <mansmann@ibe.med.uni-muenchen.de>
 Maintainer: Markus Schmidberger <MSchmidberger@freenet.de>
-Depends: R (>= 2.5.0), methods, affy (>= 1.20.0), snow (>= 0.2-3), vsn (>= 3.6.0), aplpack (>= 1.1.1)
+Depends: R (>= 2.5.0), methods, affy (>= 1.20.0), snow (>= 0.2-3), vsn (>= 3.6.0), aplpack (>= 1.1.1), affyio
 Suggests: affydata
 Enhances: affy
 Description: The package contains parallelized functions for exploratory oligonucleotide array analysis. The package is designed for large numbers of microarray data.

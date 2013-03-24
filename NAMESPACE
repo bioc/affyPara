@@ -11,3 +11,4 @@ export(distributeFiles, removeDistributedFiles,
 	boxplotPara, MAplotPara, MAplotSer, summaryM1M2Para,
 	makeCluster, stopCluster
 )
+import(affy)

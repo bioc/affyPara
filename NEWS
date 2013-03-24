@@ -3,6 +3,9 @@
 # Copyright (C) 2008-2013 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
+affyPara 1.19.2 (build 24. March 2013)
+- more Sweave bugfix to get a clean build
+
 affyPara 1.19.1 (build 23. March 2013)
 - bugfix to get a clean build
 

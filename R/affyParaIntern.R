@@ -10,8 +10,9 @@
 # 07.11.2008 : Version 0.25 - initAffyBatchSF rm.list, default parameter changed
 # 23.03.2009 : Version 0.26 - Option verbose set to getOption("verbose") and added . to names of internatl functions
 # 17.11.2010 : Version 0.27 - ReadAffyBatch improved - in .initAffyBatchSF
+# 24.03.2013 : Version 0.28 - small bug fix: PACKAGE -> package rename
 # 
-# Copyright (C) 2008 - 2010 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
+# Copyright (C) 2008 - 2013 : Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>
 ###############################################################################
 
 ###
