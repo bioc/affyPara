@@ -1,5 +1,5 @@
 Package: affyPara
-Version: 1.53.0
+Version: 1.53.1
 Title: Parallelized preprocessing methods for Affymetrix Oligonucleotide Arrays
 Date: 2013-03-25
 Author: Markus Schmidberger <schmidb@ibe.med.uni-muenchen.de>, Esmeralda Vicedo <e.vicedo@gmx.net>, Ulrich Mansmann <mansmann@ibe.med.uni-muenchen.de>
@@ -12,3 +12,4 @@ biocViews: Microarray, Preprocessing
 Reference: M. Schmidberger, U. Mansmann; Parallelized preprocessing algorithms for high-density oligonucleotide array data; 22th International Parallel and Distributed Processing Symposium (IPDPS 2008), Proceedings, 14-18 April 2008, Miami, Florida, USA. IEEE 2008 (http://www.hicomb.org/papers/HICOMB2008-03.pdf)
 License: GPL-3
 URL: http://www.ibe.med.uni-muenchen.de
+PackageStatus: Deprecated

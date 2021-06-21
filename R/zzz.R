@@ -26,9 +26,13 @@
 }
 
 .onAttach <- function(lib, pkg) {
-	if(interactive() && .Platform$OS.type == "windows" && .Platform$GUI == "Rgui"){
-		addVigs2WinMenu("affyPara")
-	}
+    msg <- sprintf(
+        "Package '%s' is deprecated and will be removed from Bioconductor
+         version %s", pkg, "3.15")
+    .Deprecated(msg=paste(strwrap(msg, exdent=2), collapse="\n"))
+    if(interactive() && .Platform$OS.type == "windows" && .Platform$GUI == "Rgui"){
+        addVigs2WinMenu("affyPara")
+    }
 }
 
 ## .onUnload <- function(libpath ) {
